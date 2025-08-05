@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  dnd-helper:
+    build: .
+    ports:
+      - "4200:4200"
+    depends_on:
+      - dnd-helper-db
+
+  dnd-helper-db:
+    image: surrealdb/surrealdb:latest
+    restart: always
+    user: root
+    command: start --user admin --pass admin rocksdb:/data/database.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
