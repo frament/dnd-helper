@@ -1,0 +1,30 @@
+<div class="container">
+  <p-selectbutton class="mode-switcher" [(ngModel)]="mode" [options]="modes" size="large"></p-selectbutton>
+  <p-card>
+    <div class="container">
+      @if (mode() === 'signup') {
+        <div class="container">
+          <label for="user">Имя пользователя</label>
+          <input pInputText id="user" [(ngModel)]="user"/>
+        </div>
+      }
+      <div class="container">
+        <label for="mail">e-mail</label>
+        <input pInputText id="mail" [(ngModel)]="mail"/>
+      </div>
+      <div class="container">
+        <label for="pass">пароль</label>
+        <p-password id="pass" [(ngModel)]="pass" [toggleMask]="true"/>
+      </div>
+
+    </div>
+    <ng-template #footer>
+      <div class="container">
+        <p-button label="продолжитть" [outlined]="true" (click)="sign()"/>
+      </div>
+    </ng-template>
+  </p-card>
+  @if (error()){
+
+  }
+</div>
