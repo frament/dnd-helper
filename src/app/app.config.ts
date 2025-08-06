@@ -2,7 +2,7 @@ import {
   ApplicationConfig,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
-  provideZonelessChangeDetection, isDevMode
+  provideZonelessChangeDetection, isDevMode, inject
 } from '@angular/core';
 import {
   provideRouter,
@@ -14,6 +14,9 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { provideServiceWorker } from '@angular/service-worker';
+import {Database} from './database';
+import {UserService} from './user/user-service';
+import {FileService} from './file-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +28,14 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAnimationsAsync(),
     providePrimeNG({theme: {preset: Aura}}),
-    provideAppInitializer(() => {}),
+    provideAppInitializer(async () => {
+      const fileService = inject(FileService);
+      const database = inject(Database);
+      const userService = inject(UserService);
+      await fileService.init();
+      await database.init();
+      await userService.auth();
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
