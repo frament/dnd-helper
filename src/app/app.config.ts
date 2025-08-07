@@ -27,7 +27,15 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions(),
     ),
     provideAnimationsAsync(),
-    providePrimeNG({theme: {preset: Aura}}),
+    providePrimeNG({theme: {
+        preset: Aura,
+        options: {
+          cssLayer: {
+            name: 'primeng',
+            order: 'theme, base, primeng'
+          }
+        }
+    }}),
     provideAppInitializer(async () => {
       const fileService = inject(FileService);
       const database = inject(Database);

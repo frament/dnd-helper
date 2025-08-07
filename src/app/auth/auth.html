@@ -1,30 +1,95 @@
-<div class="container">
-  <p-selectbutton class="mode-switcher" [(ngModel)]="mode" [options]="modes" size="large"></p-selectbutton>
-  <p-card>
-    <div class="container">
-      @if (mode() === 'signup') {
-        <div class="container">
-          <label for="user">Имя пользователя</label>
-          <input pInputText id="user" [(ngModel)]="user"/>
-        </div>
-      }
-      <div class="container">
-        <label for="mail">e-mail</label>
-        <input pInputText id="mail" [(ngModel)]="mail"/>
-      </div>
-      <div class="container">
-        <label for="pass">пароль</label>
-        <p-password id="pass" [(ngModel)]="pass" [toggleMask]="true"/>
-      </div>
+<!-- auth.component.html -->
+<div class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md p-8 space-y-8 rounded-lg shadow-md">
+    <!-- Переключатель между авторизацией и регистрацией -->
+    <div class="flex justify-center mb-8">
+      <p-tabs [(value)]="activeTabIndex" class="w-full">
+        <p-tablist>
+          <p-tab [value]="0">Вход</p-tab>
+          <p-tab [value]="1">Регистрация</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <!-- Форма авторизации -->
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
+            <div class="space-y-4">
+              <div>
+                <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input pInputText id="login-email" type="email" formControlName="email"
+                       class="w-full mt-1" placeholder="Введите ваш email">
+                @if (loginForm.get('email')?.errors?.['required'] && loginForm.get('email')?.touched) {
+                  <small class="p-error block">Email обязателен</small>
+                }
+              </div>
 
+              <div>
+                <label for="login-password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                <p-password id="login-password" formControlName="password" [feedback]="false"
+                            class="w-full mt-1" placeholder="Введите пароль" [toggleMask]="true"></p-password>
+                @if (loginForm.get('password')?.errors?.['required'] && loginForm.get('password')?.touched) {
+                  <small class="p-error block">Пароль обязателен</small>
+                }
+              </div>
+            </div>
+
+            <button pButton type="submit" label="Войти" class="w-full"
+                    [disabled]="loginForm.invalid || isLoading()"></button>
+          </form>
+        </p-tabpanel>
+
+        <p-tabpanel  [value]="1" >
+          <!-- Форма регистрации -->
+          <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-6">
+            <div class="space-y-4">
+              <div>
+                <label for="register-name" class="block text-sm font-medium text-gray-700">Имя</label>
+                <input pInputText id="register-name" type="text" formControlName="name"
+                       class="w-full mt-1" placeholder="Введите ваше имя">
+                @if (registerForm.get('name')?.errors?.['required'] && registerForm.get('name')?.touched) {
+                  <small class="p-error block">Имя обязательно</small>
+                }
+              </div>
+
+              <div>
+                <label for="register-email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input pInputText id="register-email" type="email" formControlName="email"
+                       class="w-full mt-1" placeholder="Введите ваш email">
+                @if (registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched) {
+                  <small class="p-error block">Email обязателен</small>
+                }
+                @if (registerForm.get('email')?.errors?.['email']) {
+                  <small class="p-error block">Введите корректный email</small>
+                }
+              </div>
+
+              <div>
+                <label for="register-password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                <p-password id="register-password" formControlName="password"
+                            class="w-full mt-1" placeholder="Создайте пароль" [toggleMask]="true"
+                            [feedback]="true"></p-password>
+                @if (registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched) {
+                  <small class="p-error block">Пароль обязателен</small>
+                }
+                @if (registerForm.get('password')?.errors?.['minlength']) {
+                  <small class="p-error block">Минимум 6 символов</small>
+                }
+              </div>
+
+              <div>
+                <label for="register-confirm-password" class="block text-sm font-medium text-gray-700">Подтвердите пароль</label>
+                <p-password id="register-confirm-password" formControlName="confirmPassword"
+                            class="w-full mt-1" placeholder="Повторите пароль" [toggleMask]="true"></p-password>
+                @if (registerForm.hasError('mismatch')) {
+                  <small class="p-error block">Пароли не совпадают</small>
+                }
+              </div>
+            </div>
+            <button pButton type="submit" label="Зарегистрироваться" class="w-full"
+                    [disabled]="registerForm.invalid || isLoading()"></button>
+          </form>
+        </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
     </div>
-    <ng-template #footer>
-      <div class="container">
-        <p-button label="продолжитть" [outlined]="true" (click)="sign()"/>
-      </div>
-    </ng-template>
-  </p-card>
-  @if (error()){
-
-  }
+  </div>
 </div>
