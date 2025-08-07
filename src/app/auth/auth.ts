@@ -7,8 +7,8 @@ import {InputTextModule} from 'primeng/inputtext';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {PasswordModule} from 'primeng/password';
 import {SelectButtonModule} from 'primeng/selectbutton';
-import {Checkbox, CheckboxModule} from 'primeng/checkbox';
-import {Tab, TabsModule} from 'primeng/tabs';
+import {CheckboxModule} from 'primeng/checkbox';
+import {TabsModule} from 'primeng/tabs';
 
 @Component({
   selector: 'app-auth',

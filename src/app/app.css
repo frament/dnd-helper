@@ -1,0 +1,21 @@
+/* Добавьте в styles.css или в стили компонента */
+.dark-menu .p-menu {
+  background: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark-menu .p-menuitem-link:hover {
+  background: #374151 !important;
+}
+
+.dark-menu .p-menuitem-text {
+  color: #f3f4f6 !important;
+}
+
+.dark-menu .p-menuitem-icon {
+  color: #9ca3af !important;
+}
+
+.dark-menu .p-menu-separator {
+  border-top: 1px solid #374151 !important;
+}
