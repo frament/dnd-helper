@@ -50,9 +50,7 @@ export class Auth {
   }
   error = signal<string>('');
   async onLogin():Promise<void> {
-    console.log(this.loginForm)
     if (this.loginForm.invalid) return;
-
     this.isLoading.set(true);
     try {
       await this.userService.signin(
@@ -69,7 +67,6 @@ export class Auth {
 
   async onRegister():Promise<void> {
     if (this.registerForm.invalid) return;
-
     this.isLoading.set(true);
     try {
       await this.userService.signup(

@@ -2,8 +2,16 @@ import { Routes } from '@angular/router';
 import {Auth} from './auth/auth';
 import {Main} from './main/main';
 import {authGuard} from './auth/auth-guard';
+import {Adventures} from './adventures/adventures';
+import {Adventure} from './adventures/adventure/adventure';
+import {Heroes} from './heroes/heroes';
+import {Hero} from './heroes/hero/hero';
 
 export const routes: Routes = [
   {path:'auth', component: Auth},
   {path:'', component:Main, canActivate: [authGuard]},
+  {path:'adventures', component: Adventures},
+  {path:'adventures/:id', component: Adventure},
+  {path:'heroes', component: Heroes},
+  {path:'heroes/:id', component: Hero},
 ];

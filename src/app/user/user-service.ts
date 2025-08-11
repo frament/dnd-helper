@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {Database} from '../database';
 import {IUser} from './user';
 
@@ -7,10 +7,11 @@ import {IUser} from './user';
 })
 export class UserService {
   private surreal = inject(Database);
-  user:IUser|undefined = undefined;
+  public user = signal<IUser|undefined>(undefined);
 
   async loadUser(){
-    [this.user] = await this.surreal.db.query<[IUser]>('select id, email, name from only $auth');
+    const [user] = await this.surreal.db.query<[IUser]>('select id, email, name from only $auth');
+    this.user.set(user);
   }
 
   async signup(name:string, password:string, email:string): Promise<void> {
@@ -35,7 +36,7 @@ export class UserService {
 
   async logout(): Promise<void>{
     localStorage.removeItem('user_jwt_token');
-    this.user = undefined;
+    this.user.set(undefined);
     await this.surreal.db.authenticate('null');
   }
 
@@ -44,7 +45,7 @@ export class UserService {
     if (!token) return false;
     try {
       const result = await this.surreal.db.authenticate(token);
-      if (result && !this.user) await this.loadUser();
+      if (result && !this.user()) await this.loadUser();
       if (!result) await this.logout();
       return result;
     } catch (e) {

@@ -1,62 +1,60 @@
 <!-- main-layout.component.html -->
-<div class="flex h-screen bg-gray-900">
-  <!-- Левое меню -->
-  <div class="w-16 bg-gray-800 flex flex-col items-center justify-between py-4 border-r border-gray-700">
-    <!-- Верхняя часть меню -->
-    <div class="flex flex-col items-center space-y-8">
-      <!-- Логотип -->
-      <div class="p-3 bg-blue-900 rounded-lg">
-        <i class="pi pi-compass text-blue-400 text-xl"></i>
+<div class="flex flex-col h-screen bg-gray-900">
+  @if (userService.user()){
+    <!-- Верхняя навигационная панель -->
+    <div class="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
+      <!-- Левая часть: Логотип и навигация -->
+      <div class="flex items-center space-x-8">
+        <!-- Логотип -->
+        <div class="p-2 bg-blue-900 rounded-lg" (click)="setActiveTab('')">
+          <i class="pi pi-compass text-blue-400 text-xl"></i>
+        </div>
+
+        <!-- Навигационные кнопки -->
+        <div class="flex space-x-4">
+          <button pButton
+                  pRipple
+                  label="Приключения"
+                  icon="pi pi-book"
+                  class="p-button-text"
+                  [class.text-blue-400!]="activeTab() === 'adventures'"
+                  (click)="setActiveTab('adventures')"></button>
+
+          <button pButton
+                  pRipple
+                  label="Герои"
+                  icon="pi pi-users"
+                  class="p-button-text"
+                  [class.text-blue-400!]="activeTab() === 'heroes'"
+                  (click)="setActiveTab('heroes')"></button>
+        </div>
       </div>
 
-      <!-- Иконки навигации -->
-      <div class="flex flex-col items-center space-y-6">
+      <!-- Правая часть: Пользователь -->
+      <div class="flex items-center space-x-4">
+        <!-- Уведомления и другие иконки -->
         <button pButton
-                pRipple
-                icon="pi pi-book"
-                class="p-button-text p-button-rounded bg-transparent hover:bg-gray-700"
-                [class.bg-gray-700]="activeTab() === 'adventures'"
-                [class.text-blue-400]="activeTab() === 'adventures'"
-                (click)="setActiveTab('adventures')"></button>
+                icon="pi pi-bell"
+                class="p-button-rounded p-button-text text-gray-300 hover:text-white"></button>
 
-        <button pButton
-                pRipple
-                icon="pi pi-users"
-                class="p-button-text p-button-rounded bg-transparent hover:bg-gray-700"
-                [class.bg-gray-700]="activeTab() === 'heroes'"
-                [class.text-blue-400]="activeTab() === 'heroes'"
-                (click)="setActiveTab('heroes')"></button>
+        <!-- Аватар с меню -->
+        <div class="relative">
+          <p-avatar
+            image="https://randomuser.me/api/portraits/women/44.jpg"
+            size="large"
+            shape="circle"
+            (click)="userMenu.toggle($event)"
+            class="cursor-pointer ring-2 ring-blue-500"
+          ></p-avatar>
+        </div>
       </div>
     </div>
-    <!-- Нижняя часть меню (пользователь) -->
-    <div class="relative">
-      <p-avatar
-        image="https://randomuser.me/api/portraits/women/44.jpg"
-        size="large"
-        shape="circle"
-        (click)="userMenu.toggle($event)"
-        class="cursor-pointer ring-2 ring-blue-500"
-      ></p-avatar>
-    </div>
-  </div>
-  <p-menu #userMenu [popup]="true" [model]="userMenuItems"
-          [style]="{'background': '#1f2937', 'border': '1px solid #374151'}"
-          styleClass="dark-menu"></p-menu>
+    <p-menu #userMenu [popup]="true" [model]="userMenuItems"
+            [style]="{'background': '#1f2937', 'border': '1px solid #374151'}"
+            class="dark-menu"/>
+  }
   <!-- Основной контент -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Заголовок -->
-    <div class="bg-gray-800 border-b border-gray-700 px-8 py-4">
-      <h1 class="text-xl font-semibold text-gray-100">
-        @switch (activeTab()) {
-          @case ('adventures') { Приключения }
-          @case ('heroes') { Герои }
-        }
-      </h1>
-    </div>
-
-    <!-- Контентная область -->
-    <div class="flex-1 overflow-auto p-6 bg-gray-900">
-      <router-outlet></router-outlet>
-    </div>
+  <div class="flex-1 overflow-auto p-6 bg-gray-900">
+    <router-outlet></router-outlet>
   </div>
 </div>

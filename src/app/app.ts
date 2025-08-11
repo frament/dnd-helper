@@ -5,6 +5,7 @@ import {MenuItem} from 'primeng/api';
 import {RippleModule} from 'primeng/ripple';
 import {AvatarModule} from 'primeng/avatar';
 import {MenuModule} from 'primeng/menu';
+import {UserService} from './user/user-service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import {MenuModule} from 'primeng/menu';
 })
 export class App {
   protected readonly title = signal('dnd-helper');
+  userService = inject(UserService);
   activeTab = signal<string>('adventures');
   router =  inject(Router)
   userMenuItems: MenuItem[] = [
@@ -36,10 +38,10 @@ export class App {
       command: () => this.logout()
     }
   ];
-  setActiveTab(tab: string) {
+  async setActiveTab(tab: string) {
     this.activeTab.set(tab);
     // Здесь можно добавить навигацию по разделам
-    // this.router.navigate([`/${tab}`]);
+    await this.router.navigate([`/${tab}`]);
   }
 
   openProfile() {
@@ -52,9 +54,9 @@ export class App {
     // this.router.navigate(['/settings']);
   }
 
-  logout() {
+  async logout() {
     console.log('Пользователь вышел');
-    // this.authService.logout();
-    // this.router.navigate(['/login']);
+    await this.router.navigate(['/auth']);
+    await this.userService.logout();
   }
 }
