@@ -1,0 +1,78 @@
+:host ::ng-deep {
+  /* Стили для редактора в темной теме */
+  .dark-editor {
+    .ql-toolbar {
+      background-color: #1f2937;
+      border-color: #374151 !important;
+    }
+
+    .ql-container {
+      background-color: #1f2937;
+      border-color: #374151 !important;
+      color: #f3f4f6;
+    }
+
+    .ql-editor {
+      min-height: 300px;
+    }
+
+    .ql-toolbar button {
+      color: #9ca3af;
+    }
+
+    .ql-toolbar button:hover, .ql-toolbar button.ql-active {
+      color: #3b82f6;
+    }
+
+    .ql-toolbar .ql-stroke {
+      stroke: #9ca3af;
+    }
+
+    .ql-toolbar .ql-fill {
+      fill: #9ca3af;
+    }
+  }
+
+  /* Стили для чипсов (тегов) */
+  .p-chips {
+    .p-chips-input-token {
+      padding: 0.25rem;
+    }
+
+    .p-chips-token {
+      background: #3b82f6;
+      color: white;
+      border-radius: 16px;
+      padding: 0.25rem 0.75rem;
+
+      .p-chips-token-icon {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  /* Стили для выпадающих меню и кнопок */
+  .p-selectbutton, .p-dropdown, .p-calendar {
+    .p-button, .p-dropdown-label, .p-inputtext {
+      background: #1f2937;
+      border-color: #374151;
+      color: #f3f4f6;
+    }
+
+    .p-button:enabled:hover {
+      background: #2d3748;
+      border-color: #4b5563;
+    }
+  }
+
+  .p-tag {
+    background: #374151;
+    color: #f3f4f6;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #3b82f6;
+      transform: translateY(-2px);
+    }
+  }
+}

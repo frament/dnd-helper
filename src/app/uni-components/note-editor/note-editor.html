@@ -1,0 +1,144 @@
+<div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <!-- Заголовок и кнопки действий -->
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-xl font-bold text-white">Редактор заметки</h3>
+    <div class="flex space-x-2">
+      <button pButton icon="pi pi-save"
+              label="Сохранить"
+              class="p-button-success"
+              (click)="saveNote()"></button>
+      <button pButton icon="pi pi-trash"
+              label="Удалить"
+              class="p-button-danger"></button>
+      <button pButton icon="pi pi-ellipsis-v"
+              class="p-button-text p-button-plain"
+              (click)="moreMenu.toggle($event)"></button>
+      <p-menu #moreMenu [popup]="true">
+        <ng-template pTemplate="content">
+          <li>
+            <button pRipple class="p-menuitem-link" (click)="exportNote()">
+              <span class="pi pi-download mr-2"></span>
+              <span class="p-menuitem-text">Экспорт в PDF</span>
+            </button>
+          </li>
+          <li>
+            <button pRipple class="p-menuitem-link" (click)="duplicateNote()">
+              <span class="pi pi-copy mr-2"></span>
+              <span class="p-menuitem-text">Дублировать</span>
+            </button>
+          </li>
+          <li>
+            <button pRipple class="p-menuitem-link" (click)="changeCategory()">
+              <span class="pi pi-tags mr-2"></span>
+              <span class="p-menuitem-text">Изменить категорию</span>
+            </button>
+          </li>
+        </ng-template>
+      </p-menu>
+    </div>
+  </div>
+
+  <!-- Редактор заголовка -->
+  <div class="mb-6">
+    <label class="block text-gray-400 mb-2">Заголовок заметки</label>
+    <input pInputText [(ngModel)]="note.title"
+           class="w-full text-2xl font-bold"
+           placeholder="Введите название заметки...">
+  </div>
+
+  <!-- Мета-информация -->
+  <div class="flex flex-wrap gap-4 mb-6">
+    <div>
+      <label class="block text-gray-400 mb-2">Статус</label>
+      <p-selectButton [options]="statusOptions"
+                      [(ngModel)]="note.status"></p-selectButton>
+    </div>
+
+    <div>
+      <label class="block text-gray-400 mb-2">Категория</label>
+      <p-select [options]="categories"
+                [(ngModel)]="note.category"
+                placeholder="Выберите категорию"/>
+    </div>
+
+    <div>
+      <label class="block text-gray-400 mb-2">Дата создания</label>
+      <p-datepicker [(ngModel)]="note.createdAt"
+                  dateFormat="dd.mm.yy"
+                  [readonlyInput]="true"
+                  [showIcon]="true"/>
+    </div>
+  </div>
+
+  <!-- Теги -->
+  <div class="mb-6">
+    <label class="block text-gray-400 mb-2">Теги</label>
+    <p-autocomplete [(ngModel)]="note.tags"
+                    multiple [typeahead]="false"
+             placeholder="Добавьте теги..."
+             class="w-full"/>
+    <div class="mt-2">
+      @for (tag of popularTags; track tag){
+        <p-tag [value]="tag"
+               class="mr-2 mb-2 cursor-pointer"
+               (click)="addTag(tag)"
+               [rounded]="true"></p-tag>
+      }
+    </div>
+  </div>
+
+  <!-- Редактор контента -->
+  <div class="flex-1 flex flex-col">
+    <label class="block text-gray-400 mb-2">Содержание заметки</label>
+    <p-editor [(ngModel)]="note.content"
+              [style]="{'height': '100%', 'min-height': '300px'}"
+              class="flex-1 dark-editor">
+      <p-header>
+        <span class="ql-formats">
+          <button class="ql-bold"></button>
+          <button class="ql-italic"></button>
+          <button class="ql-underline"></button>
+          <button class="ql-strike"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-list" value="ordered"></button>
+          <button class="ql-list" value="bullet"></button>
+          <button class="ql-indent" value="-1"></button>
+          <button class="ql-indent" value="+1"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-link"></button>
+          <button class="ql-image"></button>
+          <button class="ql-video"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-code-block"></button>
+          <button class="ql-blockquote"></button>
+        </span>
+        <span class="ql-formats">
+          <select class="ql-header">
+            <option value="1">Заголовок 1</option>
+            <option value="2">Заголовок 2</option>
+            <option value="3">Заголовок 3</option>
+            <option value="4">Заголовок 4</option>
+            <option value="5">Заголовок 5</option>
+            <option value="6">Заголовок 6</option>
+            <option selected>Обычный</option>
+          </select>
+          <select class="ql-color"></select>
+          <select class="ql-background"></select>
+        </span>
+      </p-header>
+    </p-editor>
+
+    <!-- Счетчики -->
+    <div class="flex justify-between mt-4 text-sm text-gray-500">
+      <div>
+        Символов: {{ countCharacters() }} | Слов: {{ countWords() }}
+      </div>
+      <div>
+        Последнее сохранение: {{ lastSaved | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+  </div>
+</div>
