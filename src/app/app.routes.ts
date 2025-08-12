@@ -10,8 +10,8 @@ import {Hero} from './heroes/hero/hero';
 export const routes: Routes = [
   {path:'auth', component: Auth},
   {path:'', component:Main, canActivate: [authGuard]},
-  {path:'adventures', component: Adventures},
-  {path:'adventures/:id', component: Adventure},
-  {path:'heroes', component: Heroes},
-  {path:'heroes/:id', component: Hero},
+  {path:'adventures', component: Adventures, canActivate: [authGuard]},
+  {path:'adventures/:id', component: Adventure, canActivate: [authGuard]},
+  {path:'heroes', component: Heroes, canActivate: [authGuard]},
+  {path:'heroes/:id', component: Hero, canActivate: [authGuard]},
 ];

@@ -1,0 +1,62 @@
+/* Глобальные стили для темного режима */
+body {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+/* Стили для редакторов */
+.dark-editor .ql-container {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  border-color: #374151 !important;
+}
+
+.dark-editor .ql-toolbar {
+  background-color: #1f2937;
+  border-color: #374151 !important;
+}
+
+.dark-editor .ql-toolbar button {
+  color: #9ca3af;
+}
+
+.dark-editor .ql-toolbar button:hover {
+  color: #3b82f6;
+}
+
+/* Стили для PrimeNG компонентов */
+.p-accordion .p-accordion-header:not(.p-disabled) .p-accordion-header-link:focus {
+  box-shadow: none;
+}
+
+.p-accordion .p-accordion-content {
+  background: #1f2937;
+  border: none;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link {
+  background: #1f2937;
+  border: none;
+  color: #f3f4f6;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link:hover {
+  background: #2d3748;
+}
+
+.p-menu {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
+.p-menuitem-link:hover {
+  background: #2d3748 !important;
+}
+
+.p-menuitem-text {
+  color: #f3f4f6 !important;
+}
+
+.p-menuitem-icon {
+  color: #9ca3af !important;
+}
