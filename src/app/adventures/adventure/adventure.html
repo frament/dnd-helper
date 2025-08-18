@@ -202,23 +202,23 @@
         }
         @case ('map') {
           <!-- Карты -->
-<!--          <app-map-editor [content]="activeContent"/>-->
+          <app-map-editor [map]="activeContent"/>
         }
         @case ('chapter') {
           <!-- Главы -->
-<!--          <app-chapter-editor [content]="activeContent"/>-->
+          <app-chapter [chapter]="activeContent"/>
         }
         @case ('npc'){
           <!-- NPC -->
-<!--          <app-npc-editor [content]="activeContent"/>-->
+          <app-npc-editor [npc]="activeContent"/>
         }
         @case ('event'){
           <!-- Timeline -->
-<!--          <app-timeline-editor [content]="activeContent"/>-->
+          <app-timeline-editor />
         }
         @case ('artifact'){
           <!-- Артефакты -->
-<!--          <app-artifact-editor [content]="activeContent"></app-artifact-editor>-->
+          <app-artifact-editor [artifact]="activeContent"></app-artifact-editor>
         }
         @default {
           <!-- Заглушка по умолчанию -->

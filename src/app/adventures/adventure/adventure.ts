@@ -4,6 +4,11 @@ import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
 import {ButtonModule} from 'primeng/button';
 import {NoteEditor} from '../../uni-components/note-editor/note-editor';
+import {ChapterComponent} from './chapter/chapter';
+import {MapEditorComponent} from './map-editor/map-editor';
+import {NpcEditor} from './npc-editor/npc-editor';
+import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
+import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
 
 @Component({
   selector: 'app-adventure',
@@ -13,6 +18,11 @@ import {NoteEditor} from '../../uni-components/note-editor/note-editor';
     ButtonModule,
     MenuModule,
     NoteEditor,
+    ChapterComponent,
+    MapEditorComponent,
+    NpcEditor,
+    ArtifactEditorComponent,
+    TimelineEditorComponent,
   ],
   templateUrl: './adventure.html',
   styleUrl: './adventure.css'

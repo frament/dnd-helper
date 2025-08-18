@@ -1,0 +1,74 @@
+:host ::ng-deep {
+  /* Стили для области перетаскивания */
+  .border-dashed {
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #3b82f6 !important;
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    &.drag-over {
+      border-color: #10b981 !important;
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+  }
+
+  /* Стили для списка слоев */
+  .p-listbox {
+    background: #1f2937;
+    border: 1px solid #374151;
+    color: #f3f4f6;
+
+    .p-listbox-item {
+      padding: 0.75rem 1rem;
+      color: #f3f4f6;
+
+      &:hover {
+        background: #2d3748;
+      }
+
+      &.p-highlight {
+        background: #3b82f6;
+        color: white;
+      }
+    }
+  }
+
+  /* Стили для чипсов (тегов) */
+  .p-chips {
+    .p-chips-input-token {
+      padding: 0.25rem;
+    }
+
+    .p-chips-token {
+      background: #3b82f6;
+      color: white;
+      border-radius: 16px;
+      padding: 0.25rem 0.75rem;
+
+      .p-chips-token-icon {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  /* Стили для выпадающих меню и кнопок */
+  .p-dropdown, .p-inputnumber {
+    .p-button, .p-dropdown-label, .p-inputtext {
+      background: #1f2937;
+      border-color: #374151;
+      color: #f3f4f6;
+    }
+
+    .p-button:enabled:hover {
+      background: #2d3748;
+      border-color: #4b5563;
+    }
+  }
+
+  .p-button-outlined {
+    background: transparent !important;
+  }
+}

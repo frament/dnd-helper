@@ -1,0 +1,153 @@
+<div class="flex h-full bg-gray-900">
+  <!-- Левая панель: Линия времени -->
+  <div class="w-1/3 border-r border-gray-700 overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-white">Таймлайн событий</h2>
+      <button pButton icon="pi pi-plus"
+              label="Добавить событие"
+              class="p-button-success"
+              (click)="addEvent()"></button>
+    </div>
+
+    <!-- Вертикальная линия времени -->
+    <div class="relative">
+      <!-- Центральная линия -->
+      <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+
+      <!-- Список событий -->
+      <div class="space-y-8">
+        @for (event of events; track event.id;) {
+          <div class="relative pl-12">
+            <!-- Точка на линии -->
+            <div class="absolute left-0 top-2 w-8 h-8 flex items-center justify-center">
+              <div class="w-4 h-4 rounded-full bg-blue-500 border-4 border-gray-900 z-10"
+                   [class.bg-blue-300]="activeEventId === event.id"></div>
+            </div>
+
+            <!-- Карточка события -->
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 cursor-pointer transition-all"
+                 [class.border-blue-500]="activeEventId === event.id"
+                 [class.shadow-lg]="activeEventId === event.id"
+                 (click)="selectEvent(event.id)">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-bold text-white">{{event.title}}</h3>
+                  <p class="text-gray-400 text-sm mt-1">{{event.date | date:'dd MMM yyyy'}}</p>
+                </div>
+                <button pButton icon="pi pi-ellipsis-v"
+                        class="p-button-text p-button-plain"
+                        (click)="openEventMenu($event, event)"></button>
+              </div>
+              <p class="text-gray-300 mt-2 line-clamp-2">{{event.description}}</p>
+
+              <!-- Теги события -->
+              <div class="mt-3">
+                @for (tag of event.tags; track tag) {
+                  <p-tag [value]="tag"
+                         class="mr-2 mb-1"
+                         [rounded]="true"></p-tag>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Правая панель: Редактор события -->
+  <div class="w-2/3 p-6 overflow-y-auto">
+    @if (activeEvent) {
+      <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-white">Редактирование события</h2>
+          <div>
+            <button pButton icon="pi pi-trash"
+                    label="Удалить"
+                    class="p-button-danger mr-2"
+                    (click)="deleteEvent(activeEvent.id)"></button>
+            <button pButton icon="pi pi-save"
+                    label="Сохранить"
+                    class="p-button-success"
+                    (click)="saveEvent()"></button>
+          </div>
+        </div>
+
+        <!-- Форма редактирования -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Левая колонка: Основные данные -->
+          <div>
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Название события</label>
+              <input pInputText [(ngModel)]="activeEvent.title"
+                     class="w-full"
+                     placeholder="Введите название события">
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Дата события</label>
+              <p-datePicker [(ngModel)]="activeEvent.date"
+                          dateFormat="dd.mm.yy"
+                          [showIcon]="true"
+                          class="w-full"></p-datePicker>
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Теги события</label>
+              <p-autoComplete multiple [(ngModel)]="activeEvent.tags"
+                       placeholder="Добавьте теги..."
+                       class="w-full"></p-autoComplete>
+              <div class="mt-2">
+                @for (tag of popularTags; track tag){
+                  <p-tag [value]="tag"
+                         class="mr-2 mb-2 cursor-pointer"
+                         (click)="addTag(tag)"
+                         [rounded]="true"></p-tag>
+                }
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Важность</label>
+              <p-rating [(ngModel)]="activeEvent.importance"
+                        [stars]="5"></p-rating>
+            </div>
+          </div>
+
+          <!-- Правая колонка: Описание -->
+          <div>
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Описание события</label>
+              <textarea pInputTextarea [(ngModel)]="activeEvent.description"
+                        [rows]="8"
+                        class="w-full"
+                        placeholder="Добавьте подробное описание события..."></textarea>
+            </div>
+
+            <div class="mb-5">
+              <label class="block text-gray-400 mb-2">Связанные элементы</label>
+              <p-multiSelect [options]="relatedItems"
+                             [(ngModel)]="activeEvent.relatedItems"
+                             optionLabel="name"
+                             placeholder="Выберите элементы"
+                             class="w-full"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="h-full flex flex-col items-center justify-center">
+        <i class="pi pi-history text-6xl text-gray-600 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-400 mb-2">Выберите событие</h3>
+        <p class="text-gray-600 text-center">Выберите событие из списка слева или создайте новое</p>
+        <button pButton label="Создать событие"
+                icon="pi pi-plus"
+                class="mt-4 p-button-outlined"
+                (click)="addEvent()"></button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Контекстное меню для событий -->
+<p-menu #eventMenu [model]="menuItems" [popup]="true"></p-menu>

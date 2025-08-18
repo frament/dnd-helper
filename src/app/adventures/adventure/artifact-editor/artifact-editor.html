@@ -1,0 +1,297 @@
+<div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <!-- Заголовок и кнопки действий -->
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-xl font-bold text-white">Редактор артефакта</h3>
+    <div class="flex space-x-2">
+      <button pButton icon="pi pi-save"
+              label="Сохранить"
+              class="p-button-success"
+              (click)="saveArtifact()"></button>
+      <button pButton icon="pi pi-trash"
+              label="Удалить"
+              class="p-button-danger"
+              (click)="deleteArtifact()"></button>
+      <button pButton icon="pi pi-download"
+              label="Экспорт"
+              class="p-button-info"
+              (click)="exportArtifact()"></button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Левая колонка: Основная информация -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl mb-6">
+        <h4 class="text-lg font-semibold text-white mb-4">Основная информация</h4>
+
+        <!-- Название артефакта -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Название артефакта</label>
+          <input pInputText [(ngModel)]="artifact().name"
+                 class="w-full"
+                 placeholder="Введите название">
+        </div>
+
+        <!-- Тип артефакта -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Тип артефакта</label>
+          <p-select [options]="artifactTypes"
+                      [(ngModel)]="artifact().type"
+                      placeholder="Выберите тип"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Редкость -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Редкость</label>
+          <p-selectButton [options]="rarities"
+                          [(ngModel)]="artifact().rarity"
+                          optionLabel="label"
+                          class="w-full"></p-selectButton>
+        </div>
+
+        <!-- Привязанность -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Привязанность</label>
+          <p-selectButton [options]="attunementOptions"
+                          [(ngModel)]="artifact().attunement"
+                          class="w-full"></p-selectButton>
+        </div>
+
+        <!-- Вес -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Вес (фунты)</label>
+          <p-inputNumber [(ngModel)]="artifact().weight"
+                         [showButtons]="true"
+                         buttonLayout="horizontal"
+                         incrementButtonIcon="pi pi-plus"
+                         decrementButtonIcon="pi pi-minus"
+                         [min]="0"
+                         [max]="100"
+                         class="w-full"></p-inputNumber>
+        </div>
+
+        <!-- Стоимость -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Примерная стоимость</label>
+          <p-inputNumber [(ngModel)]="artifact().value"
+                         [showButtons]="true"
+                         suffix=" зм"
+                         [min]="0"
+                         [max]="1000000"
+                         class="w-full"></p-inputNumber>
+        </div>
+      </div>
+
+      <!-- Изображение артефакта -->
+      <div class="bg-gray-900 p-5 rounded-xl">
+        <h4 class="text-lg font-semibold text-white mb-4">Изображение артефакта</h4>
+
+        <div class="flex flex-col items-center">
+          <!-- Предпросмотр изображения -->
+          <div class="relative mb-4">
+            @if (artifact().imageUrl) {
+              <img [src]="artifact().imageUrl"
+                   alt="Артефакт"
+                   class="w-48 h-48 object-contain rounded-lg border-2 border-amber-500">
+            } @else {
+              <div class="bg-gray-800 border-2 border-dashed border-amber-500
+                         rounded-lg w-48 h-48 flex items-center justify-center">
+                <i class="pi pi-image text-4xl text-amber-500"></i>
+              </div>
+            }
+
+            <!-- Индикатор загрузки -->
+            @if (uploading) {
+              <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                 strokeWidth="4"
+                                 animationDuration=".5s"></p-progressSpinner>
+            }
+          </div>
+
+          <!-- Кнопки управления изображением -->
+          <div class="flex flex-wrap justify-center gap-2">
+            <button pButton
+                    icon="pi pi-upload"
+                    class="p-button-success p-button-sm"
+                    (click)="fileInput.click()"></button>
+            <input #fileInput type="file" accept="image/*"
+                   class="hidden"
+                   (change)="onFileSelected($event)">
+
+            <button pButton
+                    icon="pi pi-images"
+                    class="p-button-secondary p-button-sm"
+                    (click)="openImageLibrary()"></button>
+
+            @if (artifact().imageUrl) {
+              <button pButton
+                      icon="pi pi-trash"
+                      class="p-button-danger p-button-sm"
+                      (click)="removeImage()"></button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Центральная колонка: Магические свойства -->
+    <div class="lg:col-span-2">
+      <div class="bg-gray-900 p-5 rounded-xl h-full flex flex-col">
+        <h4 class="text-lg font-semibold text-white mb-4">Магические свойства</h4>
+
+        <!-- Описание -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Описание артефакта</label>
+          <textarea pInputTextarea [(ngModel)]="artifact().description"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Добавьте описание артефакта..."></textarea>
+        </div>
+
+        <!-- Свойства -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Магические свойства</label>
+          <p-editor [(ngModel)]="artifact().properties"
+                    [style]="{'height': '200px'}"
+                    class="dark-editor">
+            <p-header>
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-list" value="bullet"></button>
+              </span>
+            </p-header>
+          </p-editor>
+        </div>
+
+        <!-- Заряды -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-gray-400 mb-2">Заряды</label>
+            <div class="flex items-center">
+              <p-inputNumber [(ngModel)]="artifact().charges.current"
+                             [min]="0"
+                             [max]="artifact().charges.max || 100"
+                             class="w-20"></p-inputNumber>
+              <span class="mx-2 text-gray-400">/</span>
+              <p-inputNumber [(ngModel)]="artifact().charges.max"
+                             [min]="0"
+                             [max]="100"
+                             class="w-20"></p-inputNumber>
+              <span class="ml-2 text-gray-400">макс</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 mb-2">Восстановление зарядов</label>
+            <p-select [options]="rechargeOptions"
+                        [(ngModel)]="artifact().charges.recharge"
+                        placeholder="Выберите тип"
+                        class="w-full"></p-select>
+          </div>
+        </div>
+
+        <!-- Проклятие -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Проклятие</label>
+          <p-editor [(ngModel)]="artifact().curse"
+                    [style]="{'height': '150px'}"
+                    class="dark-editor">
+            <p-header>
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+              </span>
+            </p-header>
+          </p-editor>
+        </div>
+
+        <!-- Особые способности -->
+        <div>
+          <label class="block text-gray-400 mb-2">Особые способности</label>
+          <div class="grid grid-cols-1 gap-3">
+            @for (ability of artifact().specialAbilities; track ability.name; let i = $index) {
+              <div class="bg-gray-800 p-3 rounded-lg">
+                <div class="flex items-center mb-2">
+                  <input pInputText [(ngModel)]="ability.name"
+                         placeholder="Название способности"
+                         class="flex-1 mr-2">
+                  <button pButton icon="pi pi-trash"
+                          class="p-button-danger p-button-text"
+                          (click)="removeAbility(i)"></button>
+                </div>
+                <textarea pInputTextarea [(ngModel)]="ability.description"
+                          [rows]="2"
+                          class="w-full"
+                          placeholder="Описание способности..."></textarea>
+              </div>
+            }
+            <button pButton icon="pi pi-plus"
+                    label="Добавить способность"
+                    class="p-button-text p-button-sm w-full"
+                    (click)="addAbility()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: История и детали -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl h-full flex flex-col">
+        <h4 class="text-lg font-semibold text-white mb-4">История и детали</h4>
+
+        <!-- История создания -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">История создания</label>
+          <textarea pInputTextarea [(ngModel)]="artifact().history.creation"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Как был создан артефакт?"></textarea>
+        </div>
+
+        <!-- Известные владельцы -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Известные владельцы</label>
+          <p-autoComplete multiple [(ngModel)]="artifact().history.owners"
+                   placeholder="Добавьте владельцев..."
+                   class="w-full"></p-autoComplete>
+        </div>
+
+        <!-- Значимые события -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Значимые события</label>
+          <textarea pInputTextarea [(ngModel)]="artifact().history.significantEvents"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Какие события связаны с артефактом?"></textarea>
+        </div>
+
+        <!-- Текущее местонахождение -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Текущее местонахождение</label>
+          <textarea pInputTextarea [(ngModel)]="artifact().history.currentLocation"
+                    [rows]="2"
+                    class="w-full"
+                    placeholder="Где находится артефакт сейчас?"></textarea>
+        </div>
+
+        <!-- Цели артефакта -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Цели артефакта</label>
+          <p-chips [(ngModel)]="artifact().goals"
+                   placeholder="Добавьте цели..."
+                   class="w-full"></p-chips>
+        </div>
+
+        <!-- Легенда -->
+        <div>
+          <label class="block text-gray-400 mb-2">Легенда или пророчество</label>
+          <textarea pInputTextarea [(ngModel)]="artifact().history.legend"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Легенды и пророчества, связанные с артефактом..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

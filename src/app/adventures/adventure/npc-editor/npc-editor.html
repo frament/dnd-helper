@@ -1,0 +1,382 @@
+<div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+  <!-- Заголовок и кнопки действий -->
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-xl font-bold text-white">Редактор NPC</h3>
+    <div class="flex space-x-2">
+      <button pButton icon="pi pi-save"
+              label="Сохранить"
+              class="p-button-success"
+              (click)="saveNpc()"></button>
+      <button pButton icon="pi pi-trash"
+              label="Удалить"
+              class="p-button-danger"
+              (click)="deleteNpc()"></button>
+      <button pButton icon="pi pi-download"
+              label="Экспорт"
+              class="p-button-info"
+              (click)="exportNpc()"></button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Левая колонка: Основная информация и аватар -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl mb-6">
+        <h4 class="text-lg font-semibold text-white mb-4">Основная информация</h4>
+
+        <!-- Имя NPC -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Имя NPC</label>
+          <input pInputText [(ngModel)]="npc().name"
+                 class="w-full"
+                 placeholder="Введите имя персонажа">
+        </div>
+
+        <!-- Раса -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Раса</label>
+          <p-select [options]="races"
+                      [(ngModel)]="npc().race"
+                      placeholder="Выберите расу"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Класс -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Класс</label>
+          <p-select [options]="classes"
+                      [(ngModel)]="npc().class"
+                      placeholder="Выберите класс"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Уровень -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Уровень</label>
+          <p-inputNumber [(ngModel)]="npc().level"
+                         [showButtons]="true"
+                         buttonLayout="horizontal"
+                         incrementButtonIcon="pi pi-plus"
+                         decrementButtonIcon="pi pi-minus"
+                         [min]="1"
+                         [max]="30"
+                         class="w-full"></p-inputNumber>
+        </div>
+
+        <!-- Выравнивание -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Выравнивание</label>
+          <p-select [options]="alignments"
+                      [(ngModel)]="npc().alignment"
+                      placeholder="Выберите выравнивание"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Размер -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Размер</label>
+          <p-select [options]="sizes"
+                      [(ngModel)]="npc().size"
+                      placeholder="Выберите размер"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Тип -->
+        <div class="mb-4">
+          <label class="block text-gray-400 mb-2">Тип существа</label>
+          <p-select [options]="creatureTypes"
+                      [(ngModel)]="npc().creatureType"
+                      placeholder="Выберите тип"
+                      class="w-full"></p-select>
+        </div>
+      </div>
+
+      <!-- Аватар -->
+      <div class="bg-gray-900 p-5 rounded-xl">
+        <h4 class="text-lg font-semibold text-white mb-4">Изображение NPC</h4>
+
+        <div class="flex flex-col items-center">
+          <!-- Предпросмотр аватара -->
+          <div class="relative mb-4">
+            @if (npc().imageUrl) {
+              <p-avatar [image]="npc().imageUrl"
+                        size="xlarge"
+                        shape="circle"
+                        class="w-40 h-40 border-4 border-blue-500"></p-avatar>
+            } @else {
+              <div class="bg-gray-800 border-2 border-dashed border-gray-600
+                         rounded-full w-40 h-40 flex items-center justify-center">
+                <i class="pi pi-user text-4xl text-gray-500"></i>
+              </div>
+            }
+
+            <!-- Индикатор загрузки -->
+            @if (uploading) {
+              <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                 strokeWidth="4"
+                                 animationDuration=".5s"></p-progressSpinner>
+            }
+          </div>
+
+          <!-- Кнопки управления изображением -->
+          <div class="flex flex-wrap justify-center gap-2">
+            <button pButton
+                    icon="pi pi-upload"
+                    class="p-button-success p-button-sm"
+                    (click)="fileInput.click()"></button>
+            <input #fileInput type="file" accept="image/*"
+                   class="hidden"
+                   (change)="onFileSelected($event)">
+
+            <button pButton
+                    icon="pi pi-images"
+                    class="p-button-secondary p-button-sm"
+                    (click)="openImageLibrary()"></button>
+
+            @if (npc().imageUrl) {
+              <button pButton
+                      icon="pi pi-trash"
+                      class="p-button-danger p-button-sm"
+                      (click)="removeImage()"></button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Центральная колонка: Основные характеристики -->
+    <div class="lg:col-span-2">
+      <div class="bg-gray-900 p-5 rounded-xl h-full">
+        <h4 class="text-lg font-semibold text-white mb-4">Характеристики D&D</h4>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          <!-- Сила -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Сила (STR)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.strength"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.strength)}}
+            </div>
+          </div>
+
+          <!-- Ловкость -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Ловкость (DEX)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.dexterity"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           spinnerMode="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.dexterity)}}
+            </div>
+          </div>
+
+          <!-- Телосложение -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Телосложение (CON)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.constitution"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           spinnerMode="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.constitution)}}
+            </div>
+          </div>
+
+          <!-- Интеллект -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Интеллект (INT)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.intelligence"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           spinnerMode="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.intelligence)}}
+            </div>
+          </div>
+
+          <!-- Мудрость -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Мудрость (WIS)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.wisdom"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           spinnerMode="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.wisdom)}}
+            </div>
+          </div>
+
+          <!-- Харизма -->
+          <div class="bg-gray-800 p-4 rounded-lg text-center">
+            <label class="block text-gray-400 mb-2">Харизма (CHA)</label>
+            <p-inputNumber [(ngModel)]="npc().stats.charisma"
+                           [showButtons]="true"
+                           buttonLayout="vertical"
+                           spinnerMode="vertical"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="30"
+                           class="w-full text-center"></p-inputNumber>
+            <div class="mt-2 text-xl font-bold text-blue-400">
+              {{calculateModifier(npc().stats.charisma)}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Боевые характеристики -->
+        <h4 class="text-lg font-semibold text-white mb-4">Боевые характеристики</h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Класс брони -->
+          <div class="bg-gray-800 p-4 rounded-lg">
+            <label class="block text-gray-400 mb-2">Класс брони (AC)</label>
+            <p-inputNumber [(ngModel)]="npc().combat.armorClass"
+                           [showButtons]="true"
+                           buttonLayout="horizontal"
+                           spinnerMode="horizontal"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="10"
+                           [max]="30"
+                           class="w-full"></p-inputNumber>
+          </div>
+
+          <!-- Скорость -->
+          <div class="bg-gray-800 p-4 rounded-lg">
+            <label class="block text-gray-400 mb-2">Скорость</label>
+            <p-inputNumber [(ngModel)]="npc().combat.speed"
+                           [showButtons]="true"
+                           buttonLayout="horizontal"
+                           spinnerMode="horizontal"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="0"
+                           [max]="120"
+                           class="w-full"></p-inputNumber>
+            <span class="text-gray-400">футов</span>
+          </div>
+
+          <!-- Хиты -->
+          <div class="bg-gray-800 p-4 rounded-lg">
+            <label class="block text-gray-400 mb-2">Хиты</label>
+            <p-inputNumber [(ngModel)]="npc().combat.hitPoints"
+                           [showButtons]="true"
+                           buttonLayout="horizontal"
+                           spinnerMode="horizontal"
+                           incrementButtonIcon="pi pi-plus"
+                           decrementButtonIcon="pi pi-minus"
+                           [min]="1"
+                           [max]="500"
+                           class="w-full"></p-inputNumber>
+          </div>
+        </div>
+
+        <!-- Навыки -->
+        <h4 class="text-lg font-semibold text-white mb-4">Навыки</h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (skill of skills; track skill.name) {
+            <div class="bg-gray-800 p-3 rounded-lg flex items-center">
+              <p-checkbox [binary]="true"
+                          [(ngModel)]="skill.proficient"
+                          inputId="{{skill.name}}"
+                          class="mr-3"></p-checkbox>
+              <label [for]="skill.name" class="flex-1 text-gray-300">
+                {{skill.label}}
+              </label>
+              <span class="text-blue-400 font-bold">
+                {{calculateSkillModifier(skill)}}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: Описание и особенности -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl h-full flex flex-col">
+        <h4 class="text-lg font-semibold text-white mb-4">Описание и особенности</h4>
+
+        <!-- Внешность -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Внешность</label>
+          <textarea pInputTextarea [(ngModel)]="npc().description.appearance"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Опишите внешность npc()..."></textarea>
+        </div>
+
+        <!-- Личность -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Личность</label>
+          <textarea pInputTextarea [(ngModel)]="npc().description.personality"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Опишите личность npc()..."></textarea>
+        </div>
+
+        <!-- История -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">История</label>
+          <textarea pInputTextarea [(ngModel)]="npc().description.history"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Добавьте историю npc()..."></textarea>
+        </div>
+
+        <!-- Особенности -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Особенности</label>
+          <p-editor [ngModel]="npc().features" (ngModelChange)="npc().features = $event"
+                    [style]="{'height': '200px'}"
+                    class="dark-editor">
+            <p-header>
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+              </span>
+            </p-header>
+          </p-editor>
+        </div>
+
+        <!-- Цели -->
+        <div>
+          <label class="block text-gray-400 mb-2">Цели NPC</label>
+          <p-autoComplete multiple [(ngModel)]="npc().goals"
+                   placeholder="Добавьте цели..."
+                   class="w-full"></p-autoComplete>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

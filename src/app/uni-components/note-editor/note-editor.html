@@ -3,6 +3,12 @@
   <div class="flex justify-between items-center mb-6">
     <h3 class="text-xl font-bold text-white">Редактор заметки</h3>
     <div class="flex space-x-2">
+      <p-selectButton [options]="statusOptions"
+                      [(ngModel)]="note.status"></p-selectButton>
+
+      <p-select [options]="categories"
+                [(ngModel)]="note.category"
+                placeholder="Выберите категорию"/>
       <button pButton icon="pi pi-save"
               label="Сохранить"
               class="p-button-success"
@@ -46,34 +52,10 @@
            placeholder="Введите название заметки...">
   </div>
 
-  <!-- Мета-информация -->
-  <div class="flex flex-wrap gap-4 mb-6">
-    <div>
-      <label class="block text-gray-400 mb-2">Статус</label>
-      <p-selectButton [options]="statusOptions"
-                      [(ngModel)]="note.status"></p-selectButton>
-    </div>
-
-    <div>
-      <label class="block text-gray-400 mb-2">Категория</label>
-      <p-select [options]="categories"
-                [(ngModel)]="note.category"
-                placeholder="Выберите категорию"/>
-    </div>
-
-    <div>
-      <label class="block text-gray-400 mb-2">Дата создания</label>
-      <p-datepicker [(ngModel)]="note.createdAt"
-                  dateFormat="dd.mm.yy"
-                  [readonlyInput]="true"
-                  [showIcon]="true"/>
-    </div>
-  </div>
-
   <!-- Теги -->
   <div class="mb-6">
     <label class="block text-gray-400 mb-2">Теги</label>
-    <p-autocomplete [(ngModel)]="note.tags"
+    <p-autoComplete [(ngModel)]="note.tags"
                     multiple [typeahead]="false"
              placeholder="Добавьте теги..."
              class="w-full"/>

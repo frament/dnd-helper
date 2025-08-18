@@ -1,0 +1,197 @@
+<div class="bg-gray-800 rounded-lg p-6 h-full">
+  <h2 class="text-2xl font-bold text-white mb-6">Настройки главы</h2>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Левая колонка: Основная информация -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl">
+        <h3 class="text-lg font-semibold text-white mb-5">Основная информация</h3>
+
+        <!-- Заголовок главы -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Название главы</label>
+          <input pInputText [(ngModel)]="chapter().title"
+                 class="w-full"
+                 placeholder="Введите название главы">
+        </div>
+
+        <!-- Статус главы -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Статус</label>
+          <p-selectButton [options]="statusOptions"
+                          [(ngModel)]="chapter().status"
+                          optionLabel="label"
+                          class="w-full"></p-selectButton>
+        </div>
+
+        <!-- Уровень сложности -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Уровень сложности</label>
+          <p-rating [(ngModel)]="chapter().difficulty"
+                    [stars]="5"
+                    class="flex justify-center"></p-rating>
+          <div class="text-center text-sm mt-2 text-gray-400">
+            {{getDifficultyText()}}
+          </div>
+        </div>
+
+        <!-- Рекомендуемый уровень -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Рекомендуемый уровень</label>
+          <p-inputNumber [(ngModel)]="chapter().recommendedLevel"
+                         inputId="level"
+                         [showButtons]="true"
+                         buttonLayout="horizontal"
+                         incrementButtonIcon="pi pi-plus"
+                         decrementButtonIcon="pi pi-minus"
+                         [min]="1"
+                         [max]="20"
+                         class="w-full"></p-inputNumber>
+        </div>
+
+        <!-- Видимость -->
+        <div class="mb-5">
+          <label class="block text-gray-400 mb-2">Видимость</label>
+          <p-toggleswitch [(ngModel)]="chapter().isPublic"></p-toggleswitch>
+          <span class="ml-3 text-gray-400">
+            {{chapter().isPublic ? 'Публичная' : 'Приватная'}}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Центральная колонка: Аватар -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl h-full flex flex-col">
+        <h3 class="text-lg font-semibold text-white mb-5">Изображение главы</h3>
+
+        <div class="flex-1 flex flex-col items-center justify-center">
+          <!-- Предпросмотр аватара -->
+          <div class="relative mb-6">
+            @if (chapter().avatar) {
+              <p-avatar [image]="chapter().avatar"
+                        size="xlarge"
+                        shape="circle"
+                        class="w-48 h-48 border-4 border-blue-500"></p-avatar>
+            } @else {
+              <div class="bg-gray-800 border-2 border-dashed border-gray-600
+                         rounded-full w-48 h-48 flex items-center justify-center">
+                <i class="pi pi-image text-4xl text-gray-500"></i>
+              </div>
+            }
+
+            <!-- Индикатор загрузки -->
+            @if (uploading) {
+              <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                 strokeWidth="4"
+                                 animationDuration=".5s"></p-progressSpinner>
+            }
+          </div>
+
+          <!-- Кнопки управления изображением -->
+          <div class="flex flex-wrap justify-center gap-3">
+            <!-- Загрузка изображения -->
+            <button pButton
+                    icon="pi pi-upload"
+                    label="Загрузить"
+                    class="p-button-success"
+                    (click)="fileInput.click()"></button>
+            <input #fileInput type="file" accept="image/*"
+                   class="hidden"
+                   (change)="onFileSelected($event)">
+
+            <!-- Выбрать из библиотеки -->
+            <button pButton
+                    icon="pi pi-images"
+                    label="Библиотека"
+                    class="p-button-secondary"
+                    (click)="openImageLibrary()"></button>
+
+            <!-- Удалить изображение -->
+            @if (chapter().avatar) {
+              <button pButton
+                      icon="pi pi-trash"
+                      label="Удалить"
+                      class="p-button-danger"
+                      (click)="removeImage()"></button>
+            }
+          </div>
+
+          <!-- Информация об изображении -->
+          <div class="mt-6 text-center text-sm text-gray-400">
+            <p>Рекомендуемый размер: 500×500 пикселей</p>
+            <p>Форматы: JPG, PNG, WebP</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: Дополнительные настройки -->
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 p-5 rounded-xl h-full">
+        <h3 class="text-lg font-semibold text-white mb-5">Дополнительные настройки</h3>
+
+        <!-- Теги -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Теги главы</label>
+          <p-autoComplete [(ngModel)]="chapter().tags"
+                          multiple fluid
+                   placeholder="Добавьте теги..."
+                   class="w-full"></p-autoComplete>
+          <div class="mt-2">
+            @for (tag of popularTags; track tag){
+              <p-tag [value]="tag"
+                     class="mr-2 mb-2 cursor-pointer"
+                     (click)="addTag(tag)"
+                     [rounded]="true"></p-tag>
+            }
+
+          </div>
+        </div>
+
+        <!-- Предыдущая глава -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Предыдущая глава</label>
+          <p-select [options]="chapters"
+                      [(ngModel)]="chapter().previousChapter"
+                      optionLabel="title"
+                      placeholder="Выберите главу"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Следующая глава -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Следующая глава</label>
+          <p-select [options]="chapters"
+                      [(ngModel)]="chapter().nextChapter"
+                      optionLabel="title"
+                      placeholder="Выберите главу"
+                      class="w-full"></p-select>
+        </div>
+
+        <!-- Описание -->
+        <div class="mb-6">
+          <label class="block text-gray-400 mb-2">Краткое описание</label>
+          <textarea pTextarea [(ngModel)]="chapter().description"
+                    [rows]="3"
+                    class="w-full"
+                    placeholder="Добавьте краткое описание главы..."></textarea>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="flex justify-end gap-3 mt-8">
+          <button pButton
+                  icon="pi pi-times"
+                  label="Отменить"
+                  class="p-button-text p-button-plain"
+                  (click)="cancel()"></button>
+          <button pButton
+                  icon="pi pi-save"
+                  label="Сохранить"
+                  class="p-button-success"
+                  (click)="save()"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
