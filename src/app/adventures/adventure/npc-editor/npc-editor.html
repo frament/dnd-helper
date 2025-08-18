@@ -172,7 +172,6 @@
             <p-inputNumber [(ngModel)]="npc().stats.dexterity"
                            [showButtons]="true"
                            buttonLayout="vertical"
-                           spinnerMode="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -189,7 +188,6 @@
             <p-inputNumber [(ngModel)]="npc().stats.constitution"
                            [showButtons]="true"
                            buttonLayout="vertical"
-                           spinnerMode="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -206,7 +204,6 @@
             <p-inputNumber [(ngModel)]="npc().stats.intelligence"
                            [showButtons]="true"
                            buttonLayout="vertical"
-                           spinnerMode="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -223,7 +220,6 @@
             <p-inputNumber [(ngModel)]="npc().stats.wisdom"
                            [showButtons]="true"
                            buttonLayout="vertical"
-                           spinnerMode="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -240,7 +236,6 @@
             <p-inputNumber [(ngModel)]="npc().stats.charisma"
                            [showButtons]="true"
                            buttonLayout="vertical"
-                           spinnerMode="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -262,7 +257,6 @@
             <p-inputNumber [(ngModel)]="npc().combat.armorClass"
                            [showButtons]="true"
                            buttonLayout="horizontal"
-                           spinnerMode="horizontal"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="10"
@@ -276,7 +270,6 @@
             <p-inputNumber [(ngModel)]="npc().combat.speed"
                            [showButtons]="true"
                            buttonLayout="horizontal"
-                           spinnerMode="horizontal"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="0"
@@ -291,7 +284,6 @@
             <p-inputNumber [(ngModel)]="npc().combat.hitPoints"
                            [showButtons]="true"
                            buttonLayout="horizontal"
-                           spinnerMode="horizontal"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -357,7 +349,7 @@
         <!-- Особенности -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">Особенности</label>
-          <p-editor [ngModel]="npc().features" (ngModelChange)="npc().features = $event"
+          <p-editor [ngModel]="npc().features" (ngModelChange)="console.log($event)"
                     [style]="{'height': '200px'}"
                     class="dark-editor">
             <p-header>

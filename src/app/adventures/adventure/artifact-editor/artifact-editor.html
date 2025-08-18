@@ -278,9 +278,9 @@
         <!-- Цели артефакта -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">Цели артефакта</label>
-          <p-chips [(ngModel)]="artifact().goals"
+          <p-autoComplete multiple [(ngModel)]="artifact().goals"
                    placeholder="Добавьте цели..."
-                   class="w-full"></p-chips>
+                   class="w-full"></p-autoComplete>
         </div>
 
         <!-- Легенда -->

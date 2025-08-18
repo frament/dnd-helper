@@ -253,4 +253,6 @@ export class NpcEditor {
     });*/
     this.export.emit();
   }
+
+  protected readonly console = console;
 }
