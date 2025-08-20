@@ -28,7 +28,7 @@ export interface IChapter {
 }
 
 @Component({
-  selector: 'app-chapter',
+  selector: 'app-chapter-editor',
   imports: [
     FormsModule,
     InputText,
@@ -44,10 +44,10 @@ export interface IChapter {
     TagModule,
     SelectModule
   ],
-  templateUrl: './chapter.html',
-  styleUrl: './chapter.css'
+  templateUrl: './chapter-editor.html',
+  styleUrl: './chapter-editor.css'
 })
-export class ChapterComponent {
+export class ChapterEditor {
   chapter = input.required<IChapter>();
   saveSettings = output<IChapter>();
   cancelSettings = output<void>();

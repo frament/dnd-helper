@@ -206,7 +206,7 @@
         }
         @case ('chapter') {
           <!-- Главы -->
-          <app-chapter [chapter]="activeContent"/>
+          <app-chapter-editor [chapter]="activeContent"/>
         }
         @case ('npc'){
           <!-- NPC -->
@@ -222,13 +222,14 @@
         }
         @default {
           <!-- Заглушка по умолчанию -->
-          <div class="h-full flex items-center justify-center">
+          <!--<div class="h-full flex items-center justify-center">
             <div class="text-center text-gray-500">
               <i class="pi pi-inbox text-6xl mb-4"></i>
               <h3 class="text-xl font-semibold">Выберите элемент для редактирования</h3>
               <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
             </div>
-          </div>
+          </div>-->
+          <app-adventure-editor [adventure]="$any(adventure)"/>
         }
       }
     </div>

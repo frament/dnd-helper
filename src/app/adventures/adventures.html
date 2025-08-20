@@ -7,24 +7,33 @@
       <span pButtonLabel>Создать приключение</span>
     </button>
   </div>
-
+  <p-popover #op>
+    <p-inputgroup>
+      <input type="text" pInputText #newAdvNameInput
+             (keydown.enter)="createAdventure(newAdvNameInput); op.toggle($event);"/>
+      <button pButton
+              (click)="createAdventure(newAdvNameInput); op.toggle($event);">
+        <i class="pi pi-plus" pButtonIcon></i>
+      </button>
+    </p-inputgroup>
+  </p-popover>
   <!-- Список карточек -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    @for (adventure of _adventures; track adventure.id) {
+    @for (adventure of adventures.value(); track adventure.id) {
       <!-- Карточка приключения -->
       <p-card class="bg-gray-800 border border-gray-700">
         <div class="flex flex-col md:flex-row">
           <!-- Левая часть: Аватар и заголовок -->
           <div class="flex items-start mb-4 md:mb-0 md:w-1/3">
-            <p-avatar [image]="adventure.avatar" size="large" shape="circle"
-                      class="mr-4 border-2 border-blue-500"></p-avatar>
+            <!--<p-avatar [image]="adventure.avatar" size="large" shape="circle"
+                      class="mr-4 border-2 border-blue-500"/>-->
             <div>
-              <h2 class="text-xl font-bold text-white">{{ adventure.title }}</h2>
+              <h2 class="text-xl font-bold text-white">{{ adventure.name }}</h2>
               <div class="flex items-center mt-2">
                 <p-tag [value]="adventure.status"
                        [severity]="getStatusSeverity(adventure.status)"></p-tag>
                 <span class="text-gray-400 ml-2">
-                <i class="pi pi-user mr-1"></i>{{ adventure.author }}
+                <i class="pi pi-user mr-1"></i>{{ adventure.owner.name }}
               </span>
               </div>
               <p class="text-gray-400 mt-2">{{ adventure.description }}</p>
@@ -37,7 +46,7 @@
 
             <!-- Список глав -->
             <div class="mb-4">
-              @for (chapter of adventure.chapters; track chapter.id){
+              <!--@for (chapter of adventure.chapters; track chapter.id){
                 <div class="mb-2">
                   <div class="flex justify-between items-center">
                     <div class="flex items-center">
@@ -50,11 +59,8 @@
                       <p-tag value="Скоро" severity="info"/>
                     }
                   </div>
-                  @if (chapter.available){
-                    <p-progressBar [value]="chapter.progress" [showValue]="false" class="mt-1"/>
-                  }
                 </div>
-              }
+              }-->
             </div>
 
             <!-- Кнопки действий -->
@@ -63,7 +69,7 @@
                 <i class="pi pi-play" pButtonIcon></i>
                 <span pButtonLabel>Начать</span>
               </button>
-              <button pButton class="p-button-secondary p-button-sm">
+              <button pButton class="p-button-secondary p-button-sm" (click)="gotoAdventure(adventure)">
                 <i class="pi pencil" pButtonIcon></i>
                 <span pButtonLabel>Редактировать</span>
               </button>
@@ -79,11 +85,4 @@
     }
   </div>
 </div>
-<p-popover #op>
-  <p-inputgroup>
-    <input type="text" pInputText #newAdvNameInput />
-    <button pButton (click)="createAdventure(newAdvNameInput); op.toggle($event);">
-      <i class="pi pi-plus" pButtonIcon></i>
-    </button>
-  </p-inputgroup>
-</p-popover>
+

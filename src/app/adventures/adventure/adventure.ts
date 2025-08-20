@@ -1,14 +1,17 @@
-import {Component, viewChild} from '@angular/core';
+import {Component, inject, input, resource, viewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
 import {ButtonModule} from 'primeng/button';
 import {NoteEditor} from '../../uni-components/note-editor/note-editor';
-import {ChapterComponent} from './chapter/chapter';
+import {ChapterEditor} from './chapter-editor/chapter-editor';
 import {MapEditorComponent} from './map-editor/map-editor';
 import {NpcEditor} from './npc-editor/npc-editor';
 import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
 import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
+import {Database} from '../../database';
+import {adventureQuery, TAdventure} from '../../models/adventure.model';
+import {AdventureEditor} from './adventure-editor/adventure-editor';
 
 @Component({
   selector: 'app-adventure',
@@ -18,16 +21,26 @@ import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
     ButtonModule,
     MenuModule,
     NoteEditor,
-    ChapterComponent,
     MapEditorComponent,
     NpcEditor,
     ArtifactEditorComponent,
     TimelineEditorComponent,
+    ChapterEditor,
+    AdventureEditor,
   ],
   templateUrl: './adventure.html',
   styleUrl: './adventure.css'
 })
 export class Adventure {
+  id = input<string>('', {alias:'id'});
+  db = inject(Database).db;
+  adventure = resource<TAdventure, string>({
+    params: () => this.id(),
+    loader: async ({params}) => {
+      const [result] = await this.db.query<TAdventure[][]>(adventureQuery+':'+params)
+      return result[0];
+    }
+  });
   activeType: string | null = null;
   activeItem: string | null = null;
   activeContent: any = null;

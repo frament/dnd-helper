@@ -14,7 +14,8 @@ import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {Database} from '../database';
 import {PopoverModule} from 'primeng/popover';
-import {TAdventure} from '../models/adventure.model';
+import {adventureQuery, TAdventure} from '../models/adventure.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-adventures',
@@ -141,23 +142,21 @@ export class Adventures {
     }
   }
   db = inject(Database).db;
-  adventures = resource({
+  router = inject(Router);
+  adventures = resource<TAdventure[], undefined>({
     loader: async () => {
-      const [result] = await this.db.query<TAdventure[]>(
-        'select id, name, owner.id, owner.name, owner.email from adventures'
-      );
+      const [result] = await this.db.query<TAdventure[][]>(adventureQuery);
       return result;
     },
   })
-  constructor() {
-    effect(() => {
-      console.table(this.adventures.value());
-    });
-  }
   async createAdventure(input:HTMLInputElement){
     const name = input.value;
     await this.db.insert('adventures', {name});
     this.adventures.reload();
     input.value = '';
+  }
+
+  async gotoAdventure(adventure: TAdventure){
+    await this.router.navigate(['adventures',adventure.id.id]);
   }
 }
