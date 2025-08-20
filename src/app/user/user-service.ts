@@ -1,16 +1,16 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {Database} from '../database';
-import {IUser} from './user';
+import {TUser} from './user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private surreal = inject(Database);
-  public user = signal<IUser|undefined>(undefined);
+  public user = signal<TUser|undefined>(undefined);
 
   async loadUser(){
-    const [user] = await this.surreal.db.query<[IUser]>('select id, email, name from only $auth');
+    const [user] = await this.surreal.db.query<[TUser]>('select id, email, name from only $auth');
     this.user.set(user);
   }
 

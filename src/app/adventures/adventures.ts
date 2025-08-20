@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, effect, inject, resource, signal} from '@angular/core';
 import {AvatarModule} from 'primeng/avatar';
 import {MenuItem} from 'primeng/api';
 import {CommonModule} from '@angular/common';
@@ -12,13 +12,15 @@ import {PaginatorModule} from 'primeng/paginator';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {Database} from '../database';
+import {PopoverModule} from 'primeng/popover';
+import {TAdventure} from '../models/adventure.model';
 
 @Component({
   selector: 'app-adventures',
   imports: [
     CommonModule,
     FormsModule,
-    // PrimeNG модули
     CardModule,
     AvatarModule,
     TagModule,
@@ -28,13 +30,14 @@ import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
     PaginatorModule,
     InputTextModule,
     InputGroupModule,
-    InputGroupAddonModule
+    InputGroupAddonModule,
+    PopoverModule
   ],
   templateUrl: './adventures.html',
   styleUrl: './adventures.css'
 })
 export class Adventures {
-  adventures = [
+  _adventures = [
     {
       id: 1,
       title: 'Потерянные земли Амазонии',
@@ -136,5 +139,25 @@ export class Adventures {
       default:
         return null;
     }
+  }
+  db = inject(Database).db;
+  adventures = resource({
+    loader: async () => {
+      const [result] = await this.db.query<TAdventure[]>(
+        'select id, name, owner.id, owner.name, owner.email from adventures'
+      );
+      return result;
+    },
+  })
+  constructor() {
+    effect(() => {
+      console.table(this.adventures.value());
+    });
+  }
+  async createAdventure(input:HTMLInputElement){
+    const name = input.value;
+    await this.db.insert('adventures', {name});
+    this.adventures.reload();
+    input.value = '';
   }
 }
