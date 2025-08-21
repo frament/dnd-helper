@@ -73,7 +73,10 @@
                 <i class="pi pencil" pButtonIcon></i>
                 <span pButtonLabel>Редактировать</span>
               </button>
-              <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
+              <p-menu #menu [model]="menuItems" [popup]="true"
+                      (onShow)="currentMenuAdventure = adventure"
+                      (onHide)="currentMenuAdventure = undefined"
+              />
               <button pButton class="p-button-text p-button-plain p-button-sm"
                       (click)="menu.toggle($event)">
                 <i class="pi pi-ellipsis-v" pButtonIcon></i>

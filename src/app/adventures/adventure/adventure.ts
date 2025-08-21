@@ -1,4 +1,4 @@
-import {Component, inject, input, resource, viewChild} from '@angular/core';
+import {Component, computed, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
@@ -12,6 +12,9 @@ import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
 import {Database} from '../../database';
 import {adventureQuery, TAdventure} from '../../models/adventure.model';
 import {AdventureEditor} from './adventure-editor/adventure-editor';
+import {DividerModule} from 'primeng/divider';
+
+type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 
 @Component({
   selector: 'app-adventure',
@@ -27,23 +30,46 @@ import {AdventureEditor} from './adventure-editor/adventure-editor';
     TimelineEditorComponent,
     ChapterEditor,
     AdventureEditor,
+    DividerModule
   ],
   templateUrl: './adventure.html',
   styleUrl: './adventure.css'
 })
 export class Adventure {
   id = input<string>('', {alias:'id'});
-  db = inject(Database).db;
-  adventure = resource<TAdventure, string>({
+  readonly db = inject(Database).db;
+  readonly adventure = resource<TAdventure, string>({
     params: () => this.id(),
     loader: async ({params}) => {
       const [result] = await this.db.query<TAdventure[][]>(adventureQuery+':'+params)
       return result[0];
     }
   });
-  activeType: string | null = null;
+
+
+  readonly activeType = signal<TActiveType>(null);
+  readonly activeItemTitle = computed<string>(() => {
+    if (!this.activeType() || !this.activeItem) return 'Редактор приключения';
+    switch(this.activeType()) {
+      case 'note':
+        return this.notes.find(n => n.id === this.activeItem)?.title || 'Заметка';
+      case 'map':
+        return this.maps.find(m => m.id === this.activeItem)?.title || 'Карта';
+      case 'chapter':
+        return this.chapters.find(c => c.id === this.activeItem)?.title || 'Глава';
+      case 'npc':
+        return this.npcs.find(n => n.id === this.activeItem)?.title || 'Персонаж';
+      case 'event':
+        return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
+      case 'artifact':
+        return this.artifacts.find(a => a.id === this.activeItem)?.title || 'Артефакт';
+      default:
+        return 'Редактор приключения';
+    }
+  });
   activeItem: string | null = null;
-  activeContent: any = null;
+  readonly activeContent = linkedSignal<any>(() => this.adventure.value());
+  readonly activeContentPatch = signal<any>(null);
 
   // Пример данных
   notes = [
@@ -84,51 +110,30 @@ export class Adventure {
 
   constructor() {}
 
-  selectItem(type: string, id: string) {
-    this.activeType = type;
+  selectItem(type: TActiveType, id: string) {
+    this.activeType.set(type);
     this.activeItem = id;
 
     // Находим выбранный элемент
     switch(type) {
       case 'note':
-        this.activeContent = this.notes.find(n => n.id === id);
+        this.activeContent.set(this.notes.find(n => n.id === id));
         break;
       case 'map':
-        this.activeContent = this.maps.find(m => m.id === id);
+        this.activeContent.set(this.maps.find(m => m.id === id));
         break;
       case 'chapter':
-        this.activeContent = this.chapters.find(c => c.id === id);
+        this.activeContent.set(this.chapters.find(c => c.id === id));
         break;
       case 'npc':
-        this.activeContent = this.npcs.find(n => n.id === id);
+        this.activeContent.set(this.npcs.find(n => n.id === id));
         break;
       case 'event':
-        this.activeContent = this.timelineEvents.find(e => e.id === id);
+        this.activeContent.set(this.timelineEvents.find(e => e.id === id));
         break;
       case 'artifact':
-        this.activeContent = this.artifacts.find(a => a.id === id);
+        this.activeContent.set(this.artifacts.find(a => a.id === id));
         break;
-    }
-  }
-
-  getActiveItemTitle(): string {
-    if (!this.activeType || !this.activeItem) return 'Редактор приключений';
-
-    switch(this.activeType) {
-      case 'note':
-        return this.notes.find(n => n.id === this.activeItem)?.title || 'Заметка';
-      case 'map':
-        return this.maps.find(m => m.id === this.activeItem)?.title || 'Карта';
-      case 'chapter':
-        return this.chapters.find(c => c.id === this.activeItem)?.title || 'Глава';
-      case 'npc':
-        return this.npcs.find(n => n.id === this.activeItem)?.title || 'Персонаж';
-      case 'event':
-        return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
-      case 'artifact':
-        return this.artifacts.find(a => a.id === this.activeItem)?.title || 'Артефакт';
-      default:
-        return 'Редактор приключений';
     }
   }
 
@@ -162,10 +167,10 @@ export class Adventure {
     this.contextMenu()?.toggle(event);
   }
 
-  addItem(type: string) {
+  addItem(type: TActiveType) {
     const newItem = {
       id: `${type}${Date.now()}`,
-      title: `Новый ${this.getTypeName(type)}`,
+      title: `${this.getTypeNew(type)} ${this.getTypeName(type)}`,
       //name: `Новый ${this.getTypeName(type)}`,
       content: ""
     };
@@ -198,14 +203,37 @@ export class Adventure {
     }
   }
 
-  getTypeName(type: string): string {
+  getTypeNew(type: TActiveType): string {
+    const gender = this.getTypeGender(type);
+    switch (gender) {
+      case 'm': return 'Новый';
+      case 'f': return 'Новая';
+      case "o": return 'Новое';
+      default: return 'Новый';
+    }
+  }
+
+  getTypeGender(type: TActiveType): 'm'|'f'|'o' {
     switch(type) {
-      case 'note': return 'элемент';
+      case 'note': return 'f';
+      case 'map': return 'f';
+      case 'chapter': return 'f';
+      case 'npc': return 'm';
+      case 'event': return 'o';
+      case 'artifact': return 'm';
+      default: return 'm';
+    }
+  }
+
+  getTypeName(type: TActiveType): string {
+    switch(type) {
+      case 'note': return 'заметка';
       case 'map': return 'карта';
       case 'chapter': return 'глава';
       case 'npc': return 'персонаж';
       case 'event': return 'событие';
       case 'artifact': return 'артефакт';
+      case null: return 'приключение';
       default: return 'элемент';
     }
   }
@@ -224,6 +252,4 @@ export class Adventure {
     // Реализация удаления
     console.log(`Удалить ${type}:`, item);
   }
-
-  protected readonly console = console;
 }

@@ -7,6 +7,8 @@ export type TAdventure = {
   owner: TUser;
   status: string;
   description: string;
+  tags: string[];
+  isPublic: boolean;
 } & TAdventureCreate & TBaseEntity;
 
 export type TAdventureCreate = {

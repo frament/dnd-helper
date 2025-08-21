@@ -4,7 +4,7 @@
     <!-- Заголовок редактора -->
     <div class="p-4 border-b border-gray-700">
       <h2 class="text-xl font-bold text-white">Редактор приключения</h2>
-      <p class="text-gray-400 text-sm">"Потерянные земли Амазонии"</p>
+      <p class="text-gray-400 text-sm">"{{ adventure.value()?.name }}"</p>
     </div>
 
     <!-- Навигационное меню -->
@@ -15,7 +15,7 @@
           <p-accordion-header>Заметки</p-accordion-header>
           <p-accordion-content>
           <div class="ml-4">
-            @for (note of notes; track note.id){
+            @for (note of notes; track note.id) {
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === note.id"
                    (click)="selectItem('note', note.id)">
@@ -23,9 +23,11 @@
                   <i class="pi pi-file text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{note.title}}</span>
                 </div>
-                <button pButton icon="pi pi-ellipsis-v"
+                <button pButton
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'note', note)"></button>
+                        (click)="openContextMenu($event, 'note', note)">
+                  <i class="pi pi-ellipsis-v text-gray-400 mr-2"></i>
+                </button>
               </div>
             }
             <button pButton icon="pi pi-plus"
@@ -170,10 +172,14 @@
 
     <!-- Кнопки действий -->
     <div class="p-4 border-t border-gray-700">
-      <button pButton icon="pi pi-save" label="Сохранить"
-              class="p-button-success w-full mb-2"></button>
-      <button pButton icon="pi pi-eye" label="Предпросмотр"
-              class="p-button-secondary w-full"></button>
+      <button pButton class="p-button-success w-full mb-2">
+        <i class="pi pi-save" pButtonIcon></i>
+        <span pButtonLabel>Сохранить</span>
+      </button>
+      <button pButton class="p-button-secondary w-full">
+        <i class="pi pi-eye" pButtonIcon></i>
+        <span pButtonLabel>Предпросмотр</span>
+      </button>
     </div>
   </div>
 
@@ -182,31 +188,39 @@
     <!-- Заголовок рабочей области -->
     <div class="px-6 py-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold text-white">
-        {{getActiveItemTitle()}}
+        {{activeItemTitle()}}
       </h2>
-      <div>
-        <button pButton icon="pi pi-trash"
-                class="p-button-danger mr-2"></button>
-        <button pButton icon="pi pi-copy"
-                class="p-button-secondary"></button>
+      <div class="flex space-x-2">
+        <button pButton class="p-button-success" [disabled]="!activeContentPatch()">
+          <i class="pi pi-save" pButtonIcon></i>
+          <span pButtonLabel>Сохранить</span>
+        </button>
+        <button pButton class="p-button-secondary" [disabled]="!activeContentPatch()">
+          <i class="pi pi-times" pButtonIcon></i>
+          <span pButtonLabel>Отменить</span>
+        </button>
+        <p-divider layout="vertical" />
+        <button pButton class="p-button-danger mr-2">
+          <i class="pi pi-trash" pButtonIcon></i>
+        </button>
       </div>
     </div>
 
     <!-- Контентная область -->
     <div class="flex-1 overflow-auto p-6 bg-gray-900">
       <!-- Динамический контент -->
-      @switch (activeType){
+      @switch (activeType()){
         @case ('note') {
           <!-- Заметки -->
-          <app-note-editor [content]="activeContent" (save)="console.log($event)"/>
+          <app-note-editor [content]="activeContent()"/>
         }
         @case ('map') {
           <!-- Карты -->
-          <app-map-editor [map]="activeContent"/>
+          <app-map-editor [map]="activeContent()"/>
         }
         @case ('chapter') {
           <!-- Главы -->
-          <app-chapter-editor [chapter]="activeContent"/>
+          <app-chapter-editor [chapter]="activeContent()"/>
         }
         @case ('npc'){
           <!-- NPC -->
@@ -218,7 +232,7 @@
         }
         @case ('artifact'){
           <!-- Артефакты -->
-          <app-artifact-editor [artifact]="activeContent"></app-artifact-editor>
+          <app-artifact-editor [artifact]="activeContent()"/>
         }
         @default {
           <!-- Заглушка по умолчанию -->
@@ -229,7 +243,7 @@
               <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
             </div>
           </div>-->
-          <app-adventure-editor [adventure]="$any(adventure)"/>
+          <app-adventure-editor [adventure]="$any(adventure.value())" (patch)="activeContentPatch.set($event)"/>
         }
       }
     </div>

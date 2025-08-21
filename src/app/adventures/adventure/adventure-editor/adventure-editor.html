@@ -1,141 +1,127 @@
 <div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
-  <!-- Заголовок и кнопки действий -->
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-white">Параметры приключения</h2>
-    <div class="flex space-x-2">
-      <button pButton class="p-button-success"
-              (click)="saveSettings()">
-        <i class="pi pi-save" pButtonIcon></i>
-        <span pButtonLabel>Сохранить</span>
-      </button>
-      <button pButton class="p-button-secondary"
-              (click)="cancelChanges()">
-        <i class="pi pi-times" pButtonIcon></i>
-        <span pButtonLabel>Отменить</span>
-      </button>
-    </div>
-  </div>
+  @if (_adventure){
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Левая колонка: Основные настройки -->
+      <div>
+        <div class="bg-gray-900 p-5 rounded-xl mb-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Основные параметры</h3>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Левая колонка: Основные настройки -->
-    <div>
-      <div class="bg-gray-900 p-5 rounded-xl mb-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Основные параметры</h3>
-
-        <!-- Название приключения -->
-        <div class="mb-4">
-          <label class="block text-gray-400 mb-2">Название приключения</label>
-          <input pInputText [(ngModel)]="adventure().name"
-                 class="w-full"
-                 placeholder="Введите название приключения">
-        </div>
-
-        <!-- Описание приключения -->
-        <div class="mb-4">
-          <label class="block text-gray-400 mb-2">Описание приключения</label>
-          <textarea pTextarea [(ngModel)]="adventure().description"
-                    [rows]="3"
-                    class="w-full"
-                    placeholder="Добавьте описание приключения..."></textarea>
-        </div>
-
-        <!-- Теги приключения -->
-        <div class="mb-4">
-          <label class="block text-gray-400 mb-2">Теги приключения</label>
-<!--          <p-autoComplete multiple [(ngModel)]="adventure().tags"-->
-          <p-autoComplete multiple
-                   placeholder="Добавьте теги..."
-                   class="w-full"/>
-          <div class="mt-2">
-            @for (tag of popularTags; track tag){
-              <p-tag [value]="tag"
-                     class="mr-2 mb-2 cursor-pointer"
-                     (click)="addTag(tag)"
-                     [rounded]="true"></p-tag>
-            }
+          <!-- Название приключения -->
+          <div class="mb-4">
+            <label class="block text-gray-400 mb-2">Название приключения</label>
+            <input pInputText class="w-full"
+                   [(ngModel)]="_adventure.name"
+                   (ngModelChange)="getPatch()"
+                   placeholder="Введите название приключения">
           </div>
-        </div>
 
-        <!-- Видимость приключения -->
-        <div>
-          <label class="block text-gray-400 mb-2">Видимость приключения</label>
-          <p-toggleswitch [ngModel]="adventure().status == 'published'"/>
-          <span class="ml-3 text-gray-400">
-            {{adventure().status == 'published' ? 'Публичное' : 'Приватное'}}
+          <!-- Описание приключения -->
+          <div class="mb-4">
+            <label class="block text-gray-400 mb-2">Описание приключения</label>
+            <textarea pTextarea class="w-full"
+                      [(ngModel)]="_adventure.description"
+                      (ngModelChange)="getPatch()"
+                      [rows]="3"
+                      placeholder="Добавьте описание приключения..."></textarea>
+          </div>
+
+          <!-- Теги приключения -->
+          <div class="mb-4">
+            <label class="block text-gray-400 mb-2">Теги приключения</label>
+            <p-autoComplete multiple [(ngModel)]="_adventure.tags"
+                            placeholder="Добавьте теги..."
+                            class="w-full"/>
+            <div class="mt-2">
+              @for (tag of popularTags; track tag){
+                <p-tag [value]="tag"
+                       class="mr-2 mb-2 cursor-pointer"
+                       (click)="addTag(tag)"
+                       [rounded]="true"></p-tag>
+              }
+            </div>
+          </div>
+
+          <!-- Видимость приключения -->
+          <div>
+            <label class="block text-gray-400 mb-2">Видимость приключения</label>
+            <p-toggleswitch [ngModel]="_adventure.isPublic"/>
+            <span class="ml-3 text-gray-400">
+            {{_adventure.isPublic ? 'Публичное' : 'Приватное'}}
           </span>
+          </div>
+          <!-- Тип приключения -->
+          <!--<div class="mb-4">
+            <label class="block text-gray-400 mb-2">Тип приключения</label>
+            <p-select [options]="adventureTypeOptions"
+                        [(ngModel)]="_adventure.adventureType"
+                        placeholder="Выберите тип"
+                        class="w-full"/>
+          </div>-->
         </div>
-        <!-- Тип приключения -->
-        <!--<div class="mb-4">
-          <label class="block text-gray-400 mb-2">Тип приключения</label>
-          <p-select [options]="adventureTypeOptions"
-                      [(ngModel)]="adventure().adventureType"
-                      placeholder="Выберите тип"
-                      class="w-full"/>
+      </div>
+
+      <!-- Правая колонка: Дополнительные настройки -->
+      <div>
+        <!-- Обложка приключения -->
+        <!--<div class="bg-gray-900 p-5 rounded-xl mb-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Обложка приключения</h3>
+
+          <div class="flex flex-col items-center">
+            &lt;!&ndash; Предпросмотр обложки &ndash;&gt;
+            <div class="relative mb-4">
+              @if (_adventure.coverImage) {
+                <img [src]="_adventure.coverImage"
+                     alt="Обложка приключения"
+                     class="w-64 h-96 object-cover rounded-lg border-2 border-amber-500">
+              } @else {
+                <div class="bg-gray-800 border-2 border-dashed border-amber-500
+                           rounded-lg w-64 h-96 flex items-center justify-center">
+                  <i class="pi pi-image text-4xl text-amber-500"></i>
+                </div>
+              }
+
+              &lt;!&ndash; Индикатор загрузки &ndash;&gt;
+              @if (uploading) {
+                <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                   strokeWidth="4"
+                                   animationDuration=".5s"/>
+              }
+            </div>
+
+            &lt;!&ndash; Кнопки управления изображением &ndash;&gt;
+            <div class="flex flex-wrap justify-center gap-2">
+              <button pButton
+                      icon="pi pi-upload"
+                      label="Загрузить обложку"
+                      class="p-button-success"
+                      (click)="fileInput.click()"></button>
+              <input #fileInput type="file" accept="image/*"
+                     class="hidden"
+                     (change)="onFileSelected($event)">
+
+              <button pButton
+                      icon="pi pi-images"
+                      label="Библиотека"
+                      class="p-button-secondary"
+                      (click)="openImageLibrary()"></button>
+
+              @if (_adventure.coverImage) {
+                <button pButton
+                        icon="pi pi-trash"
+                        label="Удалить"
+                        class="p-button-danger"
+                        (click)="removeImage()"></button>
+              }
+            </div>
+
+            &lt;!&ndash; Информация об изображении &ndash;&gt;
+            <div class="mt-4 text-center text-sm text-gray-400">
+              <p>Рекомендуемый размер: 800×1200 пикселей</p>
+              <p>Форматы: JPG, PNG, WebP</p>
+            </div>
+          </div>
         </div>-->
       </div>
     </div>
-
-    <!-- Правая колонка: Дополнительные настройки -->
-    <div>
-      <!-- Обложка приключения -->
-      <!--<div class="bg-gray-900 p-5 rounded-xl mb-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Обложка приключения</h3>
-
-        <div class="flex flex-col items-center">
-          &lt;!&ndash; Предпросмотр обложки &ndash;&gt;
-          <div class="relative mb-4">
-            @if (adventure().coverImage) {
-              <img [src]="adventure().coverImage"
-                   alt="Обложка приключения"
-                   class="w-64 h-96 object-cover rounded-lg border-2 border-amber-500">
-            } @else {
-              <div class="bg-gray-800 border-2 border-dashed border-amber-500
-                         rounded-lg w-64 h-96 flex items-center justify-center">
-                <i class="pi pi-image text-4xl text-amber-500"></i>
-              </div>
-            }
-
-            &lt;!&ndash; Индикатор загрузки &ndash;&gt;
-            @if (uploading) {
-              <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                                 strokeWidth="4"
-                                 animationDuration=".5s"/>
-            }
-          </div>
-
-          &lt;!&ndash; Кнопки управления изображением &ndash;&gt;
-          <div class="flex flex-wrap justify-center gap-2">
-            <button pButton
-                    icon="pi pi-upload"
-                    label="Загрузить обложку"
-                    class="p-button-success"
-                    (click)="fileInput.click()"></button>
-            <input #fileInput type="file" accept="image/*"
-                   class="hidden"
-                   (change)="onFileSelected($event)">
-
-            <button pButton
-                    icon="pi pi-images"
-                    label="Библиотека"
-                    class="p-button-secondary"
-                    (click)="openImageLibrary()"></button>
-
-            @if (adventure().coverImage) {
-              <button pButton
-                      icon="pi pi-trash"
-                      label="Удалить"
-                      class="p-button-danger"
-                      (click)="removeImage()"></button>
-            }
-          </div>
-
-          &lt;!&ndash; Информация об изображении &ndash;&gt;
-          <div class="mt-4 text-center text-sm text-gray-400">
-            <p>Рекомендуемый размер: 800×1200 пикселей</p>
-            <p>Форматы: JPG, PNG, WebP</p>
-          </div>
-        </div>
-      </div>-->
-    </div>
-  </div>
+  }
 </div>

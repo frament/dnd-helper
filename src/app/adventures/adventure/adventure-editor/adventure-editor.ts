@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, effect, input, OnInit, output} from '@angular/core';
 import {TAdventure} from '../../../models/adventure.model';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -9,6 +9,8 @@ import {TagModule} from 'primeng/tag';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {SelectModule} from 'primeng/select';
+import {deepCompare} from '../../../helpers/obj-diff-helper';
+import {deepClone} from '../../../helpers/clone-helper';
 
 @Component({
   selector: 'app-adventure-editor',
@@ -27,7 +29,9 @@ import {SelectModule} from 'primeng/select';
   styleUrl: './adventure-editor.css'
 })
 export class AdventureEditor {
-  adventure = input.required<TAdventure>();
+  readonly adventure = input.required<TAdventure>();
+  _adventure!: TAdventure;
+  readonly patch = output<Partial<TAdventure|null>>();
   save = output<Partial<TAdventure>>();
   cancel = output<void>();
   uploading = false;
@@ -42,6 +46,18 @@ export class AdventureEditor {
     { label: 'Сценарий', value: 'scenario' },
     { label: 'Квест', value: 'quest' }
   ];
+  constructor() {
+    effect(() => {
+      if (!this.adventure()) return;
+      this._adventure = deepClone(this.adventure());
+    });
+  }
+
+  getPatch(){
+    const patch = deepCompare(this.adventure(), this._adventure);
+    console.log(patch);
+    this.patch.emit(patch);
+  }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -61,7 +77,7 @@ export class AdventureEditor {
       setTimeout(() => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          // this.adventure().coverImage = e.target.result;
+          // this._adventure.coverImage = e.target.result;
           this.uploading = false;
           /*this.messageService.add({
             severity: 'success',
@@ -98,7 +114,7 @@ export class AdventureEditor {
   }
 
   saveSettings() {
-    if (!this.adventure().name) {
+    if (!this._adventure.name) {
       /*this.messageService.add({
         severity: 'error',
         summary: 'Ошибка',
@@ -113,7 +129,7 @@ export class AdventureEditor {
       detail: 'Настройки приключения сохранены'
     });*/
 
-    this.save.emit(this.adventure());
+    this.save.emit(this._adventure);
   }
 
   cancelChanges() {

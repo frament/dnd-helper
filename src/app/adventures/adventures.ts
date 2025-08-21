@@ -1,6 +1,6 @@
 import {Component, effect, inject, resource, signal} from '@angular/core';
 import {AvatarModule} from 'primeng/avatar';
-import {MenuItem} from 'primeng/api';
+import {MenuItem, MenuItemCommandEvent} from 'primeng/api';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
@@ -101,15 +101,13 @@ export class Adventures {
     { name: 'В разработке', value: 'in-progress' }
   ];
 
+  currentMenuAdventure: TAdventure | undefined;
+
   menuItems: MenuItem[] = [
     {
       label: 'Действия',
       items: [
-        {
-          label: 'Дублировать',
-          icon: 'pi pi-copy'
-        },
-        {
+        /*{
           label: 'Архивировать',
           icon: 'pi pi-box'
         },
@@ -119,11 +117,16 @@ export class Adventures {
         },
         {
           separator: true
-        },
+        },*/
         {
           label: 'Удалить',
           icon: 'pi pi-trash',
-          styleClass: 'text-red-500'
+          styleClass: 'text-red-500',
+          command: async (event: MenuItemCommandEvent) => {
+            if (!this.currentMenuAdventure) return;
+            await this.db.delete(this.currentMenuAdventure.id);
+            this.adventures.reload();
+          }
         }
       ]
     }
