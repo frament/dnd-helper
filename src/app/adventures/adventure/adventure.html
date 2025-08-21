@@ -191,7 +191,9 @@
         {{activeItemTitle()}}
       </h2>
       <div class="flex space-x-2">
-        <button pButton class="p-button-success" [disabled]="!activeContentPatch()">
+        <button pButton class="p-button-success"
+                [disabled]="!activeContentPatch()"
+                (click)="applyPatch()">
           <i class="pi pi-save" pButtonIcon></i>
           <span pButtonLabel>Сохранить</span>
         </button>

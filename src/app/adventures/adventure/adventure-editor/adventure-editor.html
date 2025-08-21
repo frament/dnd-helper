@@ -29,6 +29,7 @@
           <div class="mb-4">
             <label class="block text-gray-400 mb-2">Теги приключения</label>
             <p-autoComplete multiple [(ngModel)]="_adventure.tags"
+                            (ngModelChange)="getPatch()"
                             placeholder="Добавьте теги..."
                             class="w-full"/>
             <div class="mt-2">
@@ -36,7 +37,7 @@
                 <p-tag [value]="tag"
                        class="mr-2 mb-2 cursor-pointer"
                        (click)="addTag(tag)"
-                       [rounded]="true"></p-tag>
+                       [rounded]="true"/>
               }
             </div>
           </div>
@@ -44,7 +45,7 @@
           <!-- Видимость приключения -->
           <div>
             <label class="block text-gray-400 mb-2">Видимость приключения</label>
-            <p-toggleswitch [ngModel]="_adventure.isPublic"/>
+            <p-toggleswitch [(ngModel)]="_adventure.isPublic" (ngModelChange)="getPatch()"/>
             <span class="ml-3 text-gray-400">
             {{_adventure.isPublic ? 'Публичное' : 'Приватное'}}
           </span>

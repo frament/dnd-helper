@@ -108,9 +108,11 @@ export class AdventureEditor {
   }
 
   addTag(tag: string) {
-    /*if (!this.adventure.tags.includes(tag)) {
-      this.adventure.tags = [...this.adventure.tags, tag];
-    }*/
+    if (!this._adventure.tags?.includes(tag)) {
+      if (!this._adventure.tags) this._adventure.tags = [];
+      this._adventure.tags.push(tag);
+      this.getPatch()
+    }
   }
 
   saveSettings() {

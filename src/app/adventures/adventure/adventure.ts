@@ -13,6 +13,7 @@ import {Database} from '../../database';
 import {adventureQuery, TAdventure} from '../../models/adventure.model';
 import {AdventureEditor} from './adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
+import {TBaseEntity} from '../../models/base-entity.model';
 
 type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 
@@ -41,8 +42,8 @@ export class Adventure {
   readonly adventure = resource<TAdventure, string>({
     params: () => this.id(),
     loader: async ({params}) => {
-      const [result] = await this.db.query<TAdventure[][]>(adventureQuery+':'+params)
-      return result[0];
+      const [[result]] = await this.db.query<TAdventure[][]>(adventureQuery+':'+params)
+      return result;
     }
   });
 
@@ -113,7 +114,6 @@ export class Adventure {
   selectItem(type: TActiveType, id: string) {
     this.activeType.set(type);
     this.activeItem = id;
-
     // Находим выбранный элемент
     switch(type) {
       case 'note':
@@ -251,5 +251,14 @@ export class Adventure {
   deleteItem(type: string, item: any) {
     // Реализация удаления
     console.log(`Удалить ${type}:`, item);
+  }
+
+  async applyPatch() {
+    if (!this.activeContentPatch() || !this.activeContent()?.id) return;
+    await this.db.merge(this.activeContent().id, this.activeContentPatch());
+    const ent: TBaseEntity = this.activeContent();
+    if ( ent.id.tb === 'adventure'){
+      this.adventure.reload();
+    }
   }
 }
