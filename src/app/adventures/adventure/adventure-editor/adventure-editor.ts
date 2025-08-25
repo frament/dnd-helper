@@ -1,4 +1,4 @@
-import {Component, effect, input, OnInit, output} from '@angular/core';
+import {Component, computed, effect, input, output, signal} from '@angular/core';
 import {TAdventure} from '../../../models/adventure.model';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -30,7 +30,7 @@ import {deepClone} from '../../../helpers/clone-helper';
 })
 export class AdventureEditor {
   readonly adventure = input.required<TAdventure>();
-  _adventure!: TAdventure;
+
   readonly patch = output<Partial<TAdventure|null>>();
   save = output<Partial<TAdventure>>();
   cancel = output<void>();
@@ -49,15 +49,32 @@ export class AdventureEditor {
   constructor() {
     effect(() => {
       if (!this.adventure()) return;
-      this._adventure = deepClone(this.adventure());
+      const adventure = deepClone(this.adventure());
+      this._initial = adventure;
+      this._tags.set(adventure.tags);
+      this._status.set(adventure.status);
+      this._description.set(adventure.description);
+      this._isPublic.set(adventure.isPublic);
+      this._name.set(adventure.name);
+    });
+    effect(() => {
+      const patch = deepCompare(this.adventure(), {...this._initial,...this._adventure()});
+      this.patch.emit(patch);
     });
   }
-
-  getPatch(){
-    const patch = deepCompare(this.adventure(), this._adventure);
-    console.log(patch);
-    this.patch.emit(patch);
-  }
+  _tags = signal<string[]>([]);
+  _status = signal<string>('');
+  _description = signal<string>('');
+  _isPublic = signal<boolean>(false);
+  _name = signal<string>('');
+  _initial: TAdventure|undefined;
+  _adventure = computed<Partial<TAdventure>>(() => ({
+    tags: this._tags(),
+    status: this._status(),
+    description: this._description(),
+    isPublic: this._isPublic(),
+    name: this._name(),
+  }));
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -76,7 +93,7 @@ export class AdventureEditor {
       // Имитация загрузки на сервер
       setTimeout(() => {
         const reader = new FileReader();
-        reader.onload = (e: any) => {
+        reader.onload = (_e: any) => {
           // this._adventure.coverImage = e.target.result;
           this.uploading = false;
           /*this.messageService.add({
@@ -108,39 +125,8 @@ export class AdventureEditor {
   }
 
   addTag(tag: string) {
-    if (!this._adventure.tags?.includes(tag)) {
-      if (!this._adventure.tags) this._adventure.tags = [];
-      this._adventure.tags.push(tag);
-      this.getPatch()
+    if (!this._tags()?.includes(tag)) {
+      this._tags.update(x => [...x, tag]);
     }
-  }
-
-  saveSettings() {
-    if (!this._adventure.name) {
-      /*this.messageService.add({
-        severity: 'error',
-        summary: 'Ошибка',
-        detail: 'Введите название приключения'
-      });*/
-      return;
-    }
-
-    /*this.messageService.add({
-      severity: 'success',
-      summary: 'Сохранено',
-      detail: 'Настройки приключения сохранены'
-    });*/
-
-    this.save.emit(this._adventure);
-  }
-
-  cancelChanges() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Изменения отменены',
-      detail: 'Все несохраненные изменения отменены'
-    });*/
-
-    this.cancel.emit();
   }
 }

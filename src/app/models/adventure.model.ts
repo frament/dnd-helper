@@ -1,10 +1,8 @@
 import {TBaseEntity} from './base-entity.model';
-import {TUser} from '../user/user';
-
-export const adventureQuery: string = 'select *, owner.{id, name, email} from adventures';
+import {RecordId} from 'surrealdb';
 
 export type TAdventure = {
-  owner: TUser;
+  owner: RecordId;
   status: string;
   description: string;
   tags: string[];

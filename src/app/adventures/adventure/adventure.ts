@@ -10,10 +10,12 @@ import {NpcEditor} from './npc-editor/npc-editor';
 import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
 import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
 import {Database} from '../../database';
-import {adventureQuery, TAdventure} from '../../models/adventure.model';
+import {TAdventure} from '../../models/adventure.model';
 import {AdventureEditor} from './adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../../models/base-entity.model';
+import {RecordId} from 'surrealdb';
+import {deepClone} from '../../helpers/clone-helper';
 
 type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 
@@ -41,10 +43,7 @@ export class Adventure {
   readonly db = inject(Database).db;
   readonly adventure = resource<TAdventure, string>({
     params: () => this.id(),
-    loader: async ({params}) => {
-      const [[result]] = await this.db.query<TAdventure[][]>(adventureQuery+':'+params)
-      return result;
-    }
+    loader: async ({params}) => this.db.select<TAdventure>(new RecordId('adventures', params))
   });
 
 
@@ -253,9 +252,17 @@ export class Adventure {
     console.log(`Удалить ${type}:`, item);
   }
 
+  cancelPatch(){
+    const ent: TBaseEntity = deepClone(this.activeContent());
+    this.activeContentPatch.set(null);
+    this.activeContent.set(undefined);
+    this.activeContent.set(ent);
+  }
+
   async applyPatch() {
     if (!this.activeContentPatch() || !this.activeContent()?.id) return;
     await this.db.merge(this.activeContent().id, this.activeContentPatch());
+    this.activeContentPatch.set(null);
     const ent: TBaseEntity = this.activeContent();
     if ( ent.id.tb === 'adventure'){
       this.adventure.reload();

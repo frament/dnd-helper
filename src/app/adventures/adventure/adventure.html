@@ -197,7 +197,9 @@
           <i class="pi pi-save" pButtonIcon></i>
           <span pButtonLabel>Сохранить</span>
         </button>
-        <button pButton class="p-button-secondary" [disabled]="!activeContentPatch()">
+        <button pButton class="p-button-secondary"
+                [disabled]="!activeContentPatch()"
+                (click)="cancelPatch()">
           <i class="pi pi-times" pButtonIcon></i>
           <span pButtonLabel>Отменить</span>
         </button>
@@ -245,7 +247,7 @@
               <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
             </div>
           </div>-->
-          <app-adventure-editor [adventure]="$any(adventure.value())" (patch)="activeContentPatch.set($event)"/>
+          <app-adventure-editor [adventure]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
       }
     </div>

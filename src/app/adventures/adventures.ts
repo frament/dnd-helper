@@ -1,6 +1,6 @@
-import {Component, effect, inject, resource, signal} from '@angular/core';
+import {Component, inject, resource} from '@angular/core';
 import {AvatarModule} from 'primeng/avatar';
-import {MenuItem, MenuItemCommandEvent} from 'primeng/api';
+import {MenuItem} from 'primeng/api';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
@@ -14,8 +14,9 @@ import {InputGroupModule} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {Database} from '../database';
 import {PopoverModule} from 'primeng/popover';
-import {adventureQuery, TAdventure} from '../models/adventure.model';
+import {TAdventure} from '../models/adventure.model';
 import {Router} from '@angular/router';
+import {TUser} from '../user/user';
 
 @Component({
   selector: 'app-adventures',
@@ -122,7 +123,7 @@ export class Adventures {
           label: 'Удалить',
           icon: 'pi pi-trash',
           styleClass: 'text-red-500',
-          command: async (event: MenuItemCommandEvent) => {
+          command: async () => {
             if (!this.currentMenuAdventure) return;
             await this.db.delete(this.currentMenuAdventure.id);
             this.adventures.reload();
@@ -146,9 +147,15 @@ export class Adventures {
   }
   db = inject(Database).db;
   router = inject(Router);
+  owners:{[id:string]:TUser} = {}
   adventures = resource<TAdventure[], undefined>({
     loader: async () => {
-      const [result] = await this.db.query<TAdventure[][]>(adventureQuery);
+      const result = await this.db.select<TAdventure>('adventures');
+      for (const adventure of result) {
+        const uid = adventure.owner.toString();
+        if (this.owners[uid]) continue;
+        this.owners[uid] = await this.db.select<TUser>(adventure.owner);
+      }
       return result;
     },
   })
