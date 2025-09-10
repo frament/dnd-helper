@@ -14,8 +14,8 @@
         <p-accordion-panel value="0">
           <p-accordion-header>Заметки</p-accordion-header>
           <p-accordion-content>
-          <div class="ml-4">
-            @for (note of notes; track note.id) {
+          <div>
+            @for (note of notes.value(); track note.id) {
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === note.id"
                    (click)="selectItem('note', note.id)">
@@ -26,7 +26,7 @@
                 <button pButton
                         class="p-button-text p-button-sm p-button-plain"
                         (click)="openContextMenu($event, 'note', note)">
-                  <i class="pi pi-ellipsis-v text-gray-400 mr-2"></i>
+                  <i class="pi pi-ellipsis-v text-gray-400"></i>
                 </button>
               </div>
             }
@@ -211,7 +211,7 @@
     </div>
 
     <!-- Контентная область -->
-    <div class="flex-1 overflow-auto p-6 bg-gray-900">
+    <div class="flex-1 overflow-auto px-6 pb-6 bg-gray-900">
       <!-- Динамический контент -->
       @switch (activeType()){
         @case ('note') {

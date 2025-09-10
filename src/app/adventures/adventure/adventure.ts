@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
+import {Component, computed, effect, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
@@ -16,6 +16,7 @@ import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../../models/base-entity.model';
 import {RecordId} from 'surrealdb';
 import {deepClone} from '../../helpers/clone-helper';
+import {Note} from '../../uni-components/note-editor/note';
 
 type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 
@@ -45,14 +46,29 @@ export class Adventure {
     params: () => this.id(),
     loader: async ({params}) => this.db.select<TAdventure>(new RecordId('adventures', params))
   });
+  readonly notes = resource<Note[], string>({
+    params: () => this.id(),
+    loader: async ({params}) => {
+      const [[links]] = await this.db.query<[any[]]>(
+        'select ->adventure_note->notes.* from adventures:'+params
+      );
+      return links?.['->adventure_note']?.['->notes'] ?? [];
+    },
+    defaultValue: []
+  })
 
+  constructor() {
+    effect(() => {
+      console.log(this.notes.value());
+    });
+  }
 
   readonly activeType = signal<TActiveType>(null);
   readonly activeItemTitle = computed<string>(() => {
     if (!this.activeType() || !this.activeItem) return 'Редактор приключения';
     switch(this.activeType()) {
       case 'note':
-        return this.notes.find(n => n.id === this.activeItem)?.title || 'Заметка';
+        return this.notes.value().find(n => n.id === this.activeItem)?.title || 'Заметка';
       case 'map':
         return this.maps.find(m => m.id === this.activeItem)?.title || 'Карта';
       case 'chapter':
@@ -70,12 +86,6 @@ export class Adventure {
   activeItem: string | null = null;
   readonly activeContent = linkedSignal<any>(() => this.adventure.value());
   readonly activeContentPatch = signal<any>(null);
-
-  // Пример данных
-  notes = [
-    { id: 'note1', title: 'Основные идеи', content: 'Заметки о сюжетных линиях...' },
-    { id: 'note2', title: 'Идеи для квестов', content: 'Возможные задания для игроков...' }
-  ];
 
   maps = [
     { id: 'map1', title: 'Карта джунглей', content: "" },
@@ -108,15 +118,13 @@ export class Adventure {
 
   contextMenu = viewChild<Menu>('contextMenu');
 
-  constructor() {}
-
   selectItem(type: TActiveType, id: string) {
     this.activeType.set(type);
     this.activeItem = id;
     // Находим выбранный элемент
     switch(type) {
       case 'note':
-        this.activeContent.set(this.notes.find(n => n.id === id));
+        this.activeContent.set(this.notes.value().find(n => n.id === id));
         break;
       case 'map':
         this.activeContent.set(this.maps.find(m => m.id === id));
@@ -176,7 +184,7 @@ export class Adventure {
 
     switch(type) {
       case 'note':
-        this.notes.push(newItem);
+        // this.notes.push(newItem);
         this.selectItem('note', newItem.id);
         break;
       case 'map':

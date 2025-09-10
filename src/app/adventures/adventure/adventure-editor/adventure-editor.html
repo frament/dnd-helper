@@ -1,6 +1,6 @@
 <div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
   @if (adventure()){
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-auto">
       <!-- Левая колонка: Основные настройки -->
       <div>
         <div class="bg-gray-900 p-5 rounded-xl mb-6">
@@ -34,7 +34,7 @@
               @for (tag of popularTags; track tag){
                 <p-tag [value]="tag"
                        class="mr-2 mb-2 cursor-pointer"
-                       (click)="addTag(tag, tags)"
+                       (click)="addTag(tag)"
                        [rounded]="true"/>
               }
             </div>
