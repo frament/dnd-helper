@@ -14,9 +14,8 @@ import {TAdventure} from '../../models/adventure.model';
 import {AdventureEditor} from './adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../../models/base-entity.model';
-import {RecordId} from 'surrealdb';
 import {deepClone} from '../../helpers/clone-helper';
-import {Note} from '../../uni-components/note-editor/note';
+import {TNote} from '../../uni-components/note-editor/TNote';
 
 type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 
@@ -41,19 +40,14 @@ type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
 })
 export class Adventure {
   id = input<string>('', {alias:'id'});
-  readonly db = inject(Database).db;
+  readonly db = inject(Database);
   readonly adventure = resource<TAdventure, string>({
     params: () => this.id(),
-    loader: async ({params}) => this.db.select<TAdventure>(new RecordId('adventures', params))
+    loader: async ({params}) => await this.db.selectOne<TAdventure>('adventures', params)
   });
-  readonly notes = resource<Note[], string>({
+  readonly notes = resource<TNote[], string>({
     params: () => this.id(),
-    loader: async ({params}) => {
-      const [[links]] = await this.db.query<[any[]]>(
-        'select ->adventure_note->notes.* from adventures:'+params
-      );
-      return links?.['->adventure_note']?.['->notes'] ?? [];
-    },
+    loader: async ({params}) => this.db.linked<TNote>('adventures',['adventure_note','notes'], [params]),
     defaultValue: []
   })
 
@@ -68,7 +62,7 @@ export class Adventure {
     if (!this.activeType() || !this.activeItem) return 'Редактор приключения';
     switch(this.activeType()) {
       case 'note':
-        return this.notes.value().find(n => n.id === this.activeItem)?.title || 'Заметка';
+        return this.notes.value().find(n => n.id.id === this.activeItem)?.title || 'Заметка';
       case 'map':
         return this.maps.find(m => m.id === this.activeItem)?.title || 'Карта';
       case 'chapter':
@@ -124,7 +118,7 @@ export class Adventure {
     // Находим выбранный элемент
     switch(type) {
       case 'note':
-        this.activeContent.set(this.notes.value().find(n => n.id === id));
+        this.activeContent.set(this.notes.value().find(n => n.id.id === id));
         break;
       case 'map':
         this.activeContent.set(this.maps.find(m => m.id === id));
@@ -174,20 +168,21 @@ export class Adventure {
     this.contextMenu()?.toggle(event);
   }
 
-  addItem(type: TActiveType) {
-    const newItem = {
-      id: `${type}${Date.now()}`,
-      title: `${this.getTypeNew(type)} ${this.getTypeName(type)}`,
-      //name: `Новый ${this.getTypeName(type)}`,
-      content: ""
-    };
-
+  async addItem(type: TActiveType) {
     switch(type) {
       case 'note':
-        // this.notes.push(newItem);
-        this.selectItem('note', newItem.id);
+        const [newItem] = await this.db.db.create('notes',
+          {title:'Новая заметка',content: '', tags:[], category:''},
+        );
+        await this.db.createLink(
+          'adventures', this.adventure.value()?.id.id+'',
+          'adventure_note',
+          'notes', newItem.id.id+''
+          )
+        this.refreshByTb('notes');
+        this.selectItem('note', newItem.id.toString());
         break;
-      case 'map':
+     /* case 'map':
         this.maps.push(newItem);
         this.selectItem('map', newItem.id);
         break;
@@ -206,7 +201,7 @@ export class Adventure {
       case 'artifact':
         this.artifacts.push(newItem);
         this.selectItem('artifact', newItem.id);
-        break;
+        break;*/
     }
   }
 
@@ -255,7 +250,11 @@ export class Adventure {
     console.log(`Дублировать ${type}:`, item);
   }
 
-  deleteItem(type: string, item: any) {
+  async deleteItem(type: string, item: any) {
+    await this.db.db.delete(item.id);
+    switch (type) {
+      case 'note': this.notes.reload(); break;
+    }
     // Реализация удаления
     console.log(`Удалить ${type}:`, item);
   }
@@ -269,11 +268,17 @@ export class Adventure {
 
   async applyPatch() {
     if (!this.activeContentPatch() || !this.activeContent()?.id) return;
-    await this.db.merge(this.activeContent().id, this.activeContentPatch());
+    await this.db.db.merge(this.activeContent().id, this.activeContentPatch());
     this.activeContentPatch.set(null);
     const ent: TBaseEntity = this.activeContent();
-    if ( ent.id.tb === 'adventure'){
-      this.adventure.reload();
+    this.refreshByTb(ent.id.tb);
+
+  }
+  refreshByTb(tb:string){
+    switch (tb) {
+      case 'notes': this.notes.reload(); break;
+      case 'adventures': this.adventure.reload(); break;
     }
   }
+
 }

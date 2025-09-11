@@ -1,5 +1,5 @@
-import {Component, input, OnInit, output} from '@angular/core';
-import {Note} from './note';
+import {Component, computed, effect, input, output, signal} from '@angular/core';
+import {TNote} from './TNote';
 import {FormsModule} from '@angular/forms';
 import { EditorModule } from 'primeng/editor';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -10,8 +10,9 @@ import { MenuModule } from 'primeng/menu';
 import {RippleModule} from 'primeng/ripple';
 import {DatePickerModule} from 'primeng/datepicker';
 import {SelectModule} from 'primeng/select';
-import {DatePipe} from '@angular/common';
 import {AutoCompleteModule} from 'primeng/autocomplete';
+import {deepClone} from '../../helpers/clone-helper';
+import {deepCompare} from '../../helpers/obj-diff-helper';
 
 @Component({
   selector: 'app-note-editor',
@@ -26,29 +27,16 @@ import {AutoCompleteModule} from 'primeng/autocomplete';
     RippleModule,
     DatePickerModule,
     SelectModule,
-    DatePipe,
     AutoCompleteModule
   ],
   templateUrl: './note-editor.html',
   styleUrl: './note-editor.css'
 })
-export class NoteEditor implements OnInit {
-  content = input<any>();
-  save = output<Note>();
-
-  note: Note = {
-    id: '',
-    title: '',
-    content: '',
-    tags: [],
-    category: '',
-    status: 'draft',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-
-  lastSaved = new Date();
-  saveInterval: any;
+export class NoteEditor {
+  readonly note = input.required<TNote>();
+  readonly patch = output<Partial<TNote|null>>();
+  save = output<Partial<TNote>>();
+  cancel = output<void>();
 
   statusOptions = [
     { label: 'Черновик', value: 'draft' },
@@ -65,52 +53,50 @@ export class NoteEditor implements OnInit {
     'важно', 'идея', 'сюжет', 'NPC', 'игрок', 'магия', 'предмет', 'тайна', 'битва', 'диалог'
   ];
 
-  ngOnInit() {
-    if (this.content()) {
-      this.note = {...this.content()};
-    }
-
-    // Автосохранение каждые 2 минуты
-    this.saveInterval = setInterval(() => {
-      this.autoSave();
-    }, 120000);
+  constructor() {
+    effect(() => {
+      if(!this.note()) return;
+      const note = deepClone(this.note());
+      this._initial = note;
+      this._title.set(note.title);
+      this._content.set(note.content);
+      this._tags.set(note.tags);
+      this._category.set(note.category);
+      this._status.set(note.status);
+    });
+    effect(() => {
+      const patch = deepCompare(this.note(), {...this._initial,...this._note()});
+      this.patch.emit(patch);
+    });
   }
 
-  ngOnDestroy() {
-    if (this.saveInterval) {
-      clearInterval(this.saveInterval);
-    }
-  }
+  _title = signal<string>('');
+  _content = signal<string>('');
+  _tags = signal<string[]>([]);
+  _category = signal<string>('');
+  _status = signal<"draft" | "in-progress" | "completed" | "archived" | undefined>(undefined);
+  _initial: TNote|undefined;
+
+  _note = computed<Partial<TNote>>(() => ({
+    title: this._title(),
+    content: this._content(),
+    category: this._category(),
+    status: this._status(),
+    tags: this._tags(),
+  }))
 
   addTag(tag: string) {
-    if (!this.note.tags.includes(tag)) {
-      this.note.tags = [...this.note.tags, tag];
+    if (!this._tags()?.includes(tag)) {
+      this._tags.update(x => [...x, tag]);
     }
   }
 
   countCharacters(): number {
-    return this.note.content ?
-      this.note.content.replace(/<[^>]*>/g, '').length : 0;
+    return this._content()?.replace(/<[^>]*>/g, '').length || 0;
   }
 
   countWords(): number {
-    return this.note.content ?
-      this.note.content.replace(/<[^>]*>/g, '').trim().split(/\s+/).length : 0;
-  }
-
-  saveNote() {
-    this.note.updatedAt = new Date();
-    this.lastSaved = new Date();
-    this.save.emit(this.note);
-  }
-
-  autoSave() {
-    if (this.note.title || this.note.content) {
-      this.note.updatedAt = new Date();
-      this.lastSaved = new Date();
-      console.log('Автосохранение заметки:', this.note);
-      // Здесь должна быть логика сохранения в хранилище
-    }
+    return this._content()?.replace(/<[^>]*>/g, '').trim().split(/\s+/).length || 0;
   }
 
   exportNote() {

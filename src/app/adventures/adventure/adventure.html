@@ -17,8 +17,8 @@
           <div>
             @for (note of notes.value(); track note.id) {
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === note.id"
-                   (click)="selectItem('note', note.id)">
+                   [class.bg-blue-900]="activeItem === note.id.id"
+                   (click)="selectItem('note', note.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-file text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{note.title}}</span>
@@ -216,7 +216,7 @@
       @switch (activeType()){
         @case ('note') {
           <!-- Заметки -->
-          <app-note-editor [content]="activeContent()"/>
+          <app-note-editor [note]="activeContent()"  (patch)="activeContentPatch.set($event)"/>
         }
         @case ('map') {
           <!-- Карты -->
