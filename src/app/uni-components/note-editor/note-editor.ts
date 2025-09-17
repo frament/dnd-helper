@@ -1,4 +1,4 @@
-import {Component, computed, effect, input, output, signal} from '@angular/core';
+import {Component, computed, input, output} from '@angular/core';
 import {TNote} from './TNote';
 import {FormsModule} from '@angular/forms';
 import { EditorModule } from 'primeng/editor';

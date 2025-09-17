@@ -27,35 +27,3 @@ export type TNPCreate = {
   name: string,
   race: string,
 }
-
-
-type t={
-  name: 'Новый NPC',
-  race: 'human',
-  class: 'fighter',
-  level: 1,
-  alignment: 'neutral',
-  size: 'medium',
-  creatureType: 'humanoid',
-  imageUrl: null,
-  stats: {
-    strength: 10,
-    dexterity: 10,
-    constitution: 10,
-    intelligence: 10,
-    wisdom: 10,
-    charisma: 10
-  },
-  combat: {
-    armorClass: 10,
-    speed: 30,
-    hitPoints: 10
-  },
-  description: {
-    appearance: '',
-    personality: '',
-    history: ''
-  },
-  features: '',
-  goals: []
-}

@@ -1,4 +1,4 @@
-import {Component, computed, effect, input, output, signal} from '@angular/core';
+import {Component, computed, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {SelectButtonModule} from 'primeng/selectbutton';
@@ -13,8 +13,6 @@ import {AutoCompleteModule} from 'primeng/autocomplete';
 import {TagModule} from 'primeng/tag';
 import {SelectModule} from 'primeng/select';
 import {TChapter} from '../../../models/chapter.model';
-import {deepClone} from '../../../helpers/clone-helper';
-import {deepCompare} from '../../../helpers/obj-diff-helper';
 import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
 
 @Component({
