@@ -1,4 +1,4 @@
-import {TBaseEntity} from './base-entity.model';
+import {TBaseEntityWithOwner} from './base-entity.model';
 import {RecordId} from 'surrealdb';
 
 export type TAdventure = {
@@ -7,7 +7,7 @@ export type TAdventure = {
   description: string;
   tags: string[];
   isPublic: boolean;
-} & TAdventureCreate & TBaseEntity;
+} & TAdventureCreate & TBaseEntityWithOwner;
 
 export type TAdventureCreate = {
   name: string;

@@ -18,14 +18,14 @@
             @for (note of notes.value(); track note.id) {
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === note.id.id"
-                   (click)="selectItem('note', note.id.id+'')">
+                   (click)="selectItem('notes', note.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-file text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{note.title}}</span>
                 </div>
                 <button pButton
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'note', note)">
+                        (click)="openContextMenu($event, note)">
                   <i class="pi pi-ellipsis-v text-gray-400"></i>
                 </button>
               </div>
@@ -33,7 +33,7 @@
             <button pButton icon="pi pi-plus"
                     label="Добавить заметку"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('note')"></button>
+                    (click)="addItem('notes')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -43,23 +43,23 @@
           <p-accordion-header>Карты</p-accordion-header>
           <p-accordion-content>
           <div class="ml-4">
-            @for (map of maps; track map.id){
+            @for (map of maps.value(); track map.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === map.id"
-                   (click)="selectItem('map', map.id)">
+                   [class.bg-blue-900]="activeItem === map.id.id"
+                   (click)="selectItem('maps', map.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-map text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{map.title}}</span>
                 </div>
                 <button pButton icon="pi pi-ellipsis-v"
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'map', map)"></button>
+                        (click)="openContextMenu($event, map)"></button>
               </div>
             }
             <button pButton icon="pi pi-plus"
                     label="Добавить карту"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('map')"></button>
+                    (click)="addItem('maps')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -72,20 +72,20 @@
             @for (chapter of chapters; track chapter.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === chapter.id"
-                   (click)="selectItem('chapter', chapter.id)">
+                   (click)="selectItem('chapters', chapter.id)">
                 <div class="flex items-center">
                   <i class="pi pi-book text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{chapter.title}}</span>
                 </div>
                 <button pButton icon="pi pi-ellipsis-v"
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'chapter', chapter)"></button>
+                        (click)="openContextMenu($event, chapter)"></button>
               </div>
             }
             <button pButton icon="pi pi-plus"
                     label="Добавить главу"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('chapter')"></button>
+                    (click)="addItem('chapters')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -98,20 +98,20 @@
             @for (npc of npcs; track npc.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === npc.id"
-                   (click)="selectItem('npc', npc.id)">
+                   (click)="selectItem('npcs', npc.id)">
                 <div class="flex items-center">
                   <i class="pi pi-user text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{npc.title}}</span>
                 </div>
                 <button pButton icon="pi pi-ellipsis-v"
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'npc', npc)"></button>
+                        (click)="openContextMenu($event, npc)"></button>
               </div>
             }
             <button pButton icon="pi pi-plus"
                     label="Добавить NPC"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('npc')"></button>
+                    (click)="addItem('npcs')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -124,20 +124,20 @@
             @for (event of timelineEvents; track event.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === event.id"
-                   (click)="selectItem('event', event.id)">
+                   (click)="selectItem('events', event.id)">
                 <div class="flex items-center">
                   <i class="pi pi-history text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{event.title}}</span>
                 </div>
                 <button pButton icon="pi pi-ellipsis-v"
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'event', event)"></button>
+                        (click)="openContextMenu($event, event)"></button>
               </div>
             }
             <button pButton icon="pi pi-plus"
                     label="Добавить событие"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('event')"></button>
+                    (click)="addItem('events')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -150,20 +150,20 @@
             @for (artifact of artifacts; track artifact.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === artifact.id"
-                   (click)="selectItem('artifact', artifact.id)">
+                   (click)="selectItem('artifacts', artifact.id)">
                 <div class="flex items-center">
                   <i class="pi pi-star text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{artifact.title}}</span>
                 </div>
                 <button pButton icon="pi pi-ellipsis-v"
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, 'artifact', artifact)"></button>
+                        (click)="openContextMenu($event, artifact)"></button>
               </div>
             }
             <button pButton icon="pi pi-plus"
                     label="Добавить артефакт"
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('artifact')"></button>
+                    (click)="addItem('artifacts')"></button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -214,27 +214,27 @@
     <div class="flex-1 overflow-auto px-6 pb-6 bg-gray-900">
       <!-- Динамический контент -->
       @switch (activeType()){
-        @case ('note') {
+        @case ('notes') {
           <!-- Заметки -->
-          <app-note-editor [note]="activeContent()"  (patch)="activeContentPatch.set($event)"/>
+          <app-note-editor [note]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
-        @case ('map') {
+        @case ('maps') {
           <!-- Карты -->
-          <app-map-editor [map]="activeContent()"/>
+          <app-map-editor [map]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
-        @case ('chapter') {
+        @case ('chapters') {
           <!-- Главы -->
           <app-chapter-editor [chapter]="activeContent()"/>
         }
-        @case ('npc'){
+        @case ('npcs'){
           <!-- NPC -->
           <app-npc-editor [npc]="activeContent"/>
         }
-        @case ('event'){
+        @case ('events'){
           <!-- Timeline -->
           <app-timeline-editor />
         }
-        @case ('artifact'){
+        @case ('artifacts'){
           <!-- Артефакты -->
           <app-artifact-editor [artifact]="activeContent()"/>
         }

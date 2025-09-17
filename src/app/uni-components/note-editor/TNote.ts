@@ -1,10 +1,6 @@
-import {RecordId} from 'surrealdb';
-import {TBaseEntity} from '../../models/base-entity.model';
+import {TBaseEntityWithOwner} from '../../models/base-entity.model';
 
-export type TNote = {
-  owner: RecordId,
-  updatedAt: Date;
-} & TNoteCreate & TBaseEntity;
+export type TNote = TNoteCreate & TBaseEntityWithOwner;
 
 export type TNoteCreate = {
   title: string;

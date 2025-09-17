@@ -15,9 +15,10 @@ import {AdventureEditor} from './adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../../models/base-entity.model';
 import {deepClone} from '../../helpers/clone-helper';
-import {TNote} from '../../uni-components/note-editor/TNote';
+import {TNote, TNoteCreate} from '../../uni-components/note-editor/TNote';
+import {TMap, TMapCreate} from '../../models/map.model';
 
-type TActiveType = null|'note'|'map'|'chapter'|'npc'|'event'|'artifact';
+type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
 
 @Component({
   selector: 'app-adventure',
@@ -50,10 +51,15 @@ export class Adventure {
     loader: async ({params}) => this.db.linked<TNote>('adventures',['adventure_note','notes'], [params]),
     defaultValue: []
   })
+  readonly maps = resource<TMap[], string>({
+    params: () => this.id(),
+    loader: async ({params}) => this.db.linked<TMap>('adventures',['adventure_map','maps'], [params]),
+    defaultValue: []
+  })
 
   constructor() {
     effect(() => {
-      console.log(this.notes.value());
+      console.log(this.maps.value());
     });
   }
 
@@ -61,17 +67,17 @@ export class Adventure {
   readonly activeItemTitle = computed<string>(() => {
     if (!this.activeType() || !this.activeItem) return 'Редактор приключения';
     switch(this.activeType()) {
-      case 'note':
+      case 'notes':
         return this.notes.value().find(n => n.id.id === this.activeItem)?.title || 'Заметка';
-      case 'map':
-        return this.maps.find(m => m.id === this.activeItem)?.title || 'Карта';
-      case 'chapter':
+      case 'maps':
+        return this.maps.value().find(m => m.id.id === this.activeItem)?.title || 'Карта';
+      case 'chapters':
         return this.chapters.find(c => c.id === this.activeItem)?.title || 'Глава';
-      case 'npc':
+      case 'npcs':
         return this.npcs.find(n => n.id === this.activeItem)?.title || 'Персонаж';
-      case 'event':
+      case 'events':
         return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
-      case 'artifact':
+      case 'artifacts':
         return this.artifacts.find(a => a.id === this.activeItem)?.title || 'Артефакт';
       default:
         return 'Редактор приключения';
@@ -80,11 +86,6 @@ export class Adventure {
   activeItem: string | null = null;
   readonly activeContent = linkedSignal<any>(() => this.adventure.value());
   readonly activeContentPatch = signal<any>(null);
-
-  maps = [
-    { id: 'map1', title: 'Карта джунглей', content: "" },
-    { id: 'map2', title: 'План храма', content: "" }
-  ];
 
   chapters = [
     { id: 'chapter1', title: 'Введение в джунгли', content: "" },
@@ -107,8 +108,6 @@ export class Adventure {
   ];
 
   contextMenuItems: MenuItem[] = [];
-  contextMenuType: string | null = null;
-  contextMenuItem: any = null;
 
   contextMenu = viewChild<Menu>('contextMenu');
 
@@ -117,42 +116,35 @@ export class Adventure {
     this.activeItem = id;
     // Находим выбранный элемент
     switch(type) {
-      case 'note':
+      case 'notes':
         this.activeContent.set(this.notes.value().find(n => n.id.id === id));
         break;
-      case 'map':
-        this.activeContent.set(this.maps.find(m => m.id === id));
+      case 'maps':
+        this.activeContent.set(this.maps.value().find(m => m.id.id === id));
         break;
-      case 'chapter':
+      case 'chapters':
         this.activeContent.set(this.chapters.find(c => c.id === id));
         break;
-      case 'npc':
+      case 'npcs':
         this.activeContent.set(this.npcs.find(n => n.id === id));
         break;
-      case 'event':
+      case 'events':
         this.activeContent.set(this.timelineEvents.find(e => e.id === id));
         break;
-      case 'artifact':
+      case 'artifacts':
         this.activeContent.set(this.artifacts.find(a => a.id === id));
         break;
     }
   }
 
-  openContextMenu(event: Event, type: string, item: any) {
+  openContextMenu(event: Event, item: TBaseEntity & any) {
     event.stopPropagation();
-    this.contextMenuType = type;
-    this.contextMenuItem = item;
 
     this.contextMenuItems = [
       {
-        label: 'Переименовать',
-        icon: 'pi pi-pencil',
-        command: () => this.renameItem(type, item)
-      },
-      {
         label: 'Дублировать',
         icon: 'pi pi-copy',
-        command: () => this.duplicateItem(type, item)
+        command: () => this.duplicateItem(item)
       },
       {
         separator: true
@@ -161,26 +153,42 @@ export class Adventure {
         label: 'Удалить',
         icon: 'pi pi-trash',
         styleClass: 'text-red-500',
-        command: () => this.deleteItem(type, item)
+        command: () => this.deleteItem(item)
       }
     ];
 
     this.contextMenu()?.toggle(event);
   }
 
+  async defCreate<T = any>(type: TActiveType, item: T, linksTable?:string){
+    const [newItem] = await this.db.db.create<any, any>(type+'', item);
+    if (linksTable) {
+      await this.db.createLink(
+        'adventures', this.adventure.value()?.id.id+'',
+        linksTable,
+        type+'', newItem["id"].id+''
+      )
+    }
+
+    this.refreshByTb(type+'');
+    this.selectItem('notes', newItem["id"].toString());
+  }
+
   async addItem(type: TActiveType) {
     switch(type) {
-      case 'note':
-        const [newItem] = await this.db.db.create('notes',
-          {title:'Новая заметка',content: '', tags:[], category:''},
+      case 'notes':
+        await this.defCreate<TNoteCreate>(
+          type,
+          {status: 'draft', title:'Новая заметка',content: '', tags:[], category:''},
+          'adventure_note'
         );
-        await this.db.createLink(
-          'adventures', this.adventure.value()?.id.id+'',
-          'adventure_note',
-          'notes', newItem.id.id+''
-          )
-        this.refreshByTb('notes');
-        this.selectItem('note', newItem.id.toString());
+        break;
+      case 'maps':
+        await this.defCreate<TMapCreate>(
+          type,
+          {title:'Новая карта', type:'world'},
+          'adventure_map'
+        );
         break;
      /* case 'map':
         this.maps.push(newItem);
@@ -217,24 +225,24 @@ export class Adventure {
 
   getTypeGender(type: TActiveType): 'm'|'f'|'o' {
     switch(type) {
-      case 'note': return 'f';
-      case 'map': return 'f';
-      case 'chapter': return 'f';
-      case 'npc': return 'm';
-      case 'event': return 'o';
-      case 'artifact': return 'm';
+      case 'notes': return 'f';
+      case 'maps': return 'f';
+      case 'chapters': return 'f';
+      case 'npcs': return 'm';
+      case 'events': return 'o';
+      case 'artifacts': return 'm';
       default: return 'm';
     }
   }
 
   getTypeName(type: TActiveType): string {
     switch(type) {
-      case 'note': return 'заметка';
-      case 'map': return 'карта';
-      case 'chapter': return 'глава';
-      case 'npc': return 'персонаж';
-      case 'event': return 'событие';
-      case 'artifact': return 'артефакт';
+      case 'notes': return 'заметка';
+      case 'maps': return 'карта';
+      case 'chapters': return 'глава';
+      case 'npcs': return 'персонаж';
+      case 'events': return 'событие';
+      case 'artifacts': return 'артефакт';
       case null: return 'приключение';
       default: return 'элемент';
     }
@@ -245,18 +253,16 @@ export class Adventure {
     console.log(`Переименовать ${type}:`, item);
   }
 
-  duplicateItem(type: string, item: any) {
+  duplicateItem(item: TBaseEntity & any) {
     // Реализация дублирования
-    console.log(`Дублировать ${type}:`, item);
+    console.log(`Дублировать ${item.id.tb}:`, item);
   }
 
-  async deleteItem(type: string, item: any) {
+  async deleteItem(item: TBaseEntity & any) {
     await this.db.db.delete(item.id);
-    switch (type) {
-      case 'note': this.notes.reload(); break;
-    }
+    this.refreshByTb(item.id.tb);
     // Реализация удаления
-    console.log(`Удалить ${type}:`, item);
+    console.log(`Удалить ${item.id.tb}:`, item);
   }
 
   cancelPatch(){
@@ -277,6 +283,7 @@ export class Adventure {
   refreshByTb(tb:string){
     switch (tb) {
       case 'notes': this.notes.reload(); break;
+      case 'maps': this.maps.reload(); break;
       case 'adventures': this.adventure.reload(); break;
     }
   }
