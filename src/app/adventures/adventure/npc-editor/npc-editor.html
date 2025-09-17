@@ -1,23 +1,5 @@
-<div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
-  <!-- Заголовок и кнопки действий -->
-  <div class="flex justify-between items-center mb-6">
-    <h3 class="text-xl font-bold text-white">Редактор NPC</h3>
-    <div class="flex space-x-2">
-      <button pButton icon="pi pi-save"
-              label="Сохранить"
-              class="p-button-success"
-              (click)="saveNpc()"></button>
-      <button pButton icon="pi pi-trash"
-              label="Удалить"
-              class="p-button-danger"
-              (click)="deleteNpc()"></button>
-      <button pButton icon="pi pi-download"
-              label="Экспорт"
-              class="p-button-info"
-              (click)="exportNpc()"></button>
-    </div>
-  </div>
-
+<div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col overflow-auto">
+  @if (_inited()){
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
     <!-- Левая колонка: Основная информация и аватар -->
     <div class="lg:col-span-1">
@@ -27,7 +9,7 @@
         <!-- Имя NPC -->
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Имя NPC</label>
-          <input pInputText [(ngModel)]="npc().name"
+          <input pInputText [(ngModel)]="sig['name']"
                  class="w-full"
                  placeholder="Введите имя персонажа">
         </div>
@@ -36,7 +18,7 @@
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Раса</label>
           <p-select [options]="races"
-                      [(ngModel)]="npc().race"
+                      [(ngModel)]="sig['race']"
                       placeholder="Выберите расу"
                       class="w-full"></p-select>
         </div>
@@ -45,7 +27,7 @@
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Класс</label>
           <p-select [options]="classes"
-                      [(ngModel)]="npc().class"
+                      [(ngModel)]="sig['class']"
                       placeholder="Выберите класс"
                       class="w-full"></p-select>
         </div>
@@ -53,7 +35,7 @@
         <!-- Уровень -->
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Уровень</label>
-          <p-inputNumber [(ngModel)]="npc().level"
+          <p-inputNumber [(ngModel)]="sig['level']"
                          [showButtons]="true"
                          buttonLayout="horizontal"
                          incrementButtonIcon="pi pi-plus"
@@ -65,10 +47,10 @@
 
         <!-- Выравнивание -->
         <div class="mb-4">
-          <label class="block text-gray-400 mb-2">Выравнивание</label>
+          <label class="block text-gray-400 mb-2">Мировоззрение</label>
           <p-select [options]="alignments"
-                      [(ngModel)]="npc().alignment"
-                      placeholder="Выберите выравнивание"
+                      [(ngModel)]="sig['alignment']"
+                      placeholder="Выберите Мировоззрение"
                       class="w-full"></p-select>
         </div>
 
@@ -76,7 +58,7 @@
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Размер</label>
           <p-select [options]="sizes"
-                      [(ngModel)]="npc().size"
+                      [(ngModel)]="sig['size']"
                       placeholder="Выберите размер"
                       class="w-full"></p-select>
         </div>
@@ -85,7 +67,7 @@
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Тип существа</label>
           <p-select [options]="creatureTypes"
-                      [(ngModel)]="npc().creatureType"
+                      [(ngModel)]="sig['creatureType']"
                       placeholder="Выберите тип"
                       class="w-full"></p-select>
         </div>
@@ -98,8 +80,8 @@
         <div class="flex flex-col items-center">
           <!-- Предпросмотр аватара -->
           <div class="relative mb-4">
-            @if (npc().imageUrl) {
-              <p-avatar [image]="npc().imageUrl"
+            @if (sig['imageUrl'] && sig['imageUrl']()) {
+              <p-avatar [image]="sig['imageUrl']()"
                         size="xlarge"
                         shape="circle"
                         class="w-40 h-40 border-4 border-blue-500"></p-avatar>
@@ -111,7 +93,7 @@
             }
 
             <!-- Индикатор загрузки -->
-            @if (uploading) {
+            @if (uploading()) {
               <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                  strokeWidth="4"
                                  animationDuration=".5s"></p-progressSpinner>
@@ -133,7 +115,7 @@
                     class="p-button-secondary p-button-sm"
                     (click)="openImageLibrary()"></button>
 
-            @if (npc().imageUrl) {
+            @if (sig['imageUrl'] && sig['imageUrl']()) {
               <button pButton
                       icon="pi pi-trash"
                       class="p-button-danger p-button-sm"
@@ -153,7 +135,7 @@
           <!-- Сила -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Сила (STR)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.strength"
+            <p-inputNumber [(ngModel)]="sig['stats_strength']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -162,14 +144,14 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.strength)}}
+              {{calculateModifier(sig['stats_strength']())}}
             </div>
           </div>
 
           <!-- Ловкость -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Ловкость (DEX)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.dexterity"
+            <p-inputNumber [(ngModel)]="sig['stats_dexterity']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -178,14 +160,14 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.dexterity)}}
+              {{calculateModifier(sig['stats_dexterity']())}}
             </div>
           </div>
 
           <!-- Телосложение -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Телосложение (CON)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.constitution"
+            <p-inputNumber [(ngModel)]="sig['stats_constitution']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -194,14 +176,14 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.constitution)}}
+              {{calculateModifier(sig['stats_constitution']())}}
             </div>
           </div>
 
           <!-- Интеллект -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Интеллект (INT)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.intelligence"
+            <p-inputNumber [(ngModel)]="sig['stats_intelligence']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -210,14 +192,14 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.intelligence)}}
+              {{calculateModifier(sig['stats_intelligence']())}}
             </div>
           </div>
 
           <!-- Мудрость -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Мудрость (WIS)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.wisdom"
+            <p-inputNumber [(ngModel)]="sig['stats_wisdom']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -226,14 +208,14 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.wisdom)}}
+              {{calculateModifier(sig['stats_wisdom']())}}
             </div>
           </div>
 
           <!-- Харизма -->
           <div class="bg-gray-800 p-4 rounded-lg text-center">
             <label class="block text-gray-400 mb-2">Харизма (CHA)</label>
-            <p-inputNumber [(ngModel)]="npc().stats.charisma"
+            <p-inputNumber [(ngModel)]="sig['stats_charisma']"
                            [showButtons]="true"
                            buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
@@ -242,7 +224,7 @@
                            [max]="30"
                            class="w-full text-center"></p-inputNumber>
             <div class="mt-2 text-xl font-bold text-blue-400">
-              {{calculateModifier(npc().stats.charisma)}}
+              {{calculateModifier(sig['stats_charisma']())}}
             </div>
           </div>
         </div>
@@ -254,9 +236,9 @@
           <!-- Класс брони -->
           <div class="bg-gray-800 p-4 rounded-lg">
             <label class="block text-gray-400 mb-2">Класс брони (AC)</label>
-            <p-inputNumber [(ngModel)]="npc().combat.armorClass"
+            <p-inputNumber [(ngModel)]="sig['combat_armorClass']"
                            [showButtons]="true"
-                           buttonLayout="horizontal"
+                           buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="10"
@@ -267,9 +249,9 @@
           <!-- Скорость -->
           <div class="bg-gray-800 p-4 rounded-lg">
             <label class="block text-gray-400 mb-2">Скорость</label>
-            <p-inputNumber [(ngModel)]="npc().combat.speed"
+            <p-inputNumber [(ngModel)]="sig['combat_speed']"
                            [showButtons]="true"
-                           buttonLayout="horizontal"
+                           buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="0"
@@ -281,9 +263,9 @@
           <!-- Хиты -->
           <div class="bg-gray-800 p-4 rounded-lg">
             <label class="block text-gray-400 mb-2">Хиты</label>
-            <p-inputNumber [(ngModel)]="npc().combat.hitPoints"
+            <p-inputNumber [(ngModel)]="sig['combat_hitPoints']"
                            [showButtons]="true"
-                           buttonLayout="horizontal"
+                           buttonLayout="vertical"
                            incrementButtonIcon="pi pi-plus"
                            decrementButtonIcon="pi pi-minus"
                            [min]="1"
@@ -322,34 +304,34 @@
         <!-- Внешность -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">Внешность</label>
-          <textarea pInputTextarea [(ngModel)]="npc().description.appearance"
+          <textarea pInputTextarea [(ngModel)]="sig['appearance']"
                     [rows]="3"
                     class="w-full"
-                    placeholder="Опишите внешность npc()..."></textarea>
+                    placeholder="Опишите внешность..."></textarea>
         </div>
 
         <!-- Личность -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">Личность</label>
-          <textarea pInputTextarea [(ngModel)]="npc().description.personality"
+          <textarea pInputTextarea [(ngModel)]="sig['personality']"
                     [rows]="3"
                     class="w-full"
-                    placeholder="Опишите личность npc()..."></textarea>
+                    placeholder="Опишите личность..."></textarea>
         </div>
 
         <!-- История -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">История</label>
-          <textarea pInputTextarea [(ngModel)]="npc().description.history"
+          <textarea pInputTextarea [(ngModel)]="sig['history']"
                     [rows]="3"
                     class="w-full"
-                    placeholder="Добавьте историю npc()..."></textarea>
+                    placeholder="Добавьте историю..."></textarea>
         </div>
 
         <!-- Особенности -->
         <div class="mb-5">
           <label class="block text-gray-400 mb-2">Особенности</label>
-          <p-editor [ngModel]="npc().features" (ngModelChange)="console.log($event)"
+          <p-editor [(ngModel)]="sig['features']"
                     [style]="{'height': '200px'}"
                     class="dark-editor">
             <p-header>
@@ -364,11 +346,12 @@
         <!-- Цели -->
         <div>
           <label class="block text-gray-400 mb-2">Цели NPC</label>
-          <p-autoComplete multiple [(ngModel)]="npc().goals"
+          <p-autoComplete multiple [(ngModel)]="sig['goals']"
                    placeholder="Добавьте цели..."
                    class="w-full"></p-autoComplete>
         </div>
       </div>
     </div>
   </div>
+  }
 </div>

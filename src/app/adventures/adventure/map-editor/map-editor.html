@@ -4,21 +4,11 @@
     <!-- Редактор названия -->
     <div class="flex-1">
       <label class="block text-gray-400 mb-2">Название карты</label>
-      <input pInputText [(ngModel)]="_title"
+      <input pInputText [(ngModel)]="sig['title']"
              class="w-full text-xl font-bold"
              placeholder="Введите название карты...">
     </div>
-    <!--<div class="flex space-x-2">
-      <button pButton
-              class="p-button-info"
-              (click)="exportMap()">
-        <i class="pi pi-download" pButtonIcon></i>
-        <span pButtonLabel>Экспорт</span>
-      </button>
-    </div>-->
   </div>
-
-
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Левая колонка: Основная информация -->
@@ -30,7 +20,7 @@
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Тип карты</label>
           <p-select [options]="mapTypes"
-                      [(ngModel)]="_type"
+                      [(ngModel)]="sig['type']"
                       placeholder="Выберите тип карты"
                       class="w-full"></p-select>
         </div>
@@ -39,7 +29,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block text-gray-400 mb-2">Ширина (м)</label>
-            <p-inputNumber [(ngModel)]="_width"
+            <p-inputNumber [(ngModel)]="sig['width']"
                            [showButtons]="true"
                            [min]="10"
                            [max]="10000"
@@ -47,7 +37,7 @@
           </div>
           <div>
             <label class="block text-gray-400 mb-2">Высота (м)</label>
-            <p-inputNumber [(ngModel)]="_height"
+            <p-inputNumber [(ngModel)]="sig['height']"
                            [showButtons]="true"
                            [min]="10"
                            [max]="10000"
@@ -58,7 +48,7 @@
         <!-- Теги -->
         <div class="mb-4">
           <label class="block text-gray-400 mb-2">Теги карты</label>
-          <p-autoComplete [(ngModel)]="_tags"
+          <p-autoComplete [(ngModel)]="sig['tags']"
                           multiple fluid
                    placeholder="Добавьте теги..."
                    class="w-full"></p-autoComplete>
@@ -67,7 +57,7 @@
         <!-- Описание -->
         <div>
           <label class="block text-gray-400 mb-2">Описание</label>
-          <textarea pInputTextarea [(ngModel)]="_description"
+          <textarea pInputTextarea [(ngModel)]="sig['description']"
                     [rows]="3"
                     class="w-full"
                     placeholder="Добавьте описание карты..."></textarea>
@@ -120,8 +110,8 @@
              (click)="fileInput.click()">
 
           <!-- Предпросмотр карты -->
-          @if (_file()) {
-            <img [src]="_file()"
+          @if (sig['file']()) {
+            <img [src]="sig['file']()"
                  alt="Карта"
                  class="max-h-[500px] max-w-full object-contain">
           } @else {
@@ -167,7 +157,7 @@
           </button>
 
           <!-- Удалить изображение -->
-          @if (_file()) {
+          @if (sig['file']()) {
             <button pButton
                     class="p-button-danger"
                     (click)="removeImage()">

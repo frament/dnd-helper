@@ -1,4 +1,4 @@
-import {Component, computed, effect, input, output, signal} from '@angular/core';
+import {Component, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -11,8 +11,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {TooltipModule} from 'primeng/tooltip';
 import {SelectModule} from 'primeng/select';
 import {TMap} from '../../../models/map.model';
-import {deepCompare} from '../../../helpers/obj-diff-helper';
-import {deepClone} from '../../../helpers/clone-helper';
+import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-map-editor',
@@ -32,44 +31,12 @@ import {deepClone} from '../../../helpers/clone-helper';
     SelectModule
   ]
 })
-export class MapEditorComponent {
-  readonly map = input.required<TMap>();
+export class MapEditorComponent extends EntityEditorBase<TMap>{
+  readonly item = input.required<TMap>();
   readonly patch = output<Partial<TMap|null>>();
-  _initial: TMap|undefined;
-  _map = computed<Partial<TMap>>(() => ({
-    tags: this._tags(),
-    title: this._title(),
-    description: this._description(),
-    type: this._type(),
-    width: this._width(),
-    height: this._height(),
-    file: this._file(),
-  }));
   constructor() {
-    effect(() => {
-      if (!this.map()) return;
-      const map = deepClone(this.map());
-      this._initial = map;
-      this._tags.set(map.tags);
-      this._title.set(map.title);
-      this._description.set(map.description);
-      this._type.set(map.type);
-      this._width.set(map.width);
-      this._height.set(map.height);
-      this._file.set(map.file);
-    });
-    effect(() => {
-      const patch = deepCompare(this.map(), {...this._initial,...this._map()});
-      this.patch.emit(patch);
-    });
+    super()
   }
-  _tags = signal<string[]>([]);
-  _title = signal<string>('');
-  _description = signal<string>('');
-  _type = signal<string>('');
-  _file = signal<string>('');
-  _width = signal<number>(1000);
-  _height = signal<number>(1000);
 
   save = output<any>();
   delete = output<void>();
@@ -135,7 +102,7 @@ export class MapEditorComponent {
   processImage(file: File) {
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      this._file.set(e.target.result);
+      this.sig['file'].set(e.target.result);
       this.uploading.set(false);
       /*this.messageService.add({
         severity: 'success',
@@ -166,7 +133,7 @@ export class MapEditorComponent {
   }
 
   removeImage() {
-    this.map().file = "";
+    this.sig['file'].set('');
     /*this.messageService.add({
       severity: 'info',
       summary: 'Изображение удалено',
@@ -179,42 +146,6 @@ export class MapEditorComponent {
       severity: 'info',
       summary: 'Библиотека изображений',
       detail: 'Функция будет реализована в следующем обновлении'
-    });*/
-  }
-
-  saveMap() {
-    if (!this.map().title) {
-      /*this.messageService.add({
-        severity: 'error',
-        summary: 'Ошибка',
-        detail: 'Введите название карты'
-      });*/
-      return;
-    }
-
-    /*this.messageService.add({
-      severity: 'success',
-      summary: 'Сохранено',
-      detail: 'Карта успешно сохранена'
-    });*/
-
-    this.save.emit(this.map);
-  }
-
-  deleteMap() {
-    /*this.messageService.add({
-      severity: 'warn',
-      summary: 'Удаление',
-      detail: 'Карта будет удалена. Вы уверены?',
-      life: 5000,
-      sticky: true,
-      data: {
-        confirm: () => {
-          this.delete.emit();
-          this.messageService.clear();
-        },
-        cancel: () => this.messageService.clear()
-      }
     });*/
   }
 

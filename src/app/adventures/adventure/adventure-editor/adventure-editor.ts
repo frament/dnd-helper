@@ -11,6 +11,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {SelectModule} from 'primeng/select';
 import {deepCompare} from '../../../helpers/obj-diff-helper';
 import {deepClone} from '../../../helpers/clone-helper';
+import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-adventure-editor',
@@ -28,12 +29,9 @@ import {deepClone} from '../../../helpers/clone-helper';
   templateUrl: './adventure-editor.html',
   styleUrl: './adventure-editor.css'
 })
-export class AdventureEditor {
-  readonly adventure = input.required<TAdventure>();
-
+export class AdventureEditor extends EntityEditorBase<TAdventure>{
+  readonly item = input.required<TAdventure>();
   readonly patch = output<Partial<TAdventure|null>>();
-  save = output<Partial<TAdventure>>();
-  cancel = output<void>();
   uploading = false;
   popularTags = [
     'подземелье', 'исследование', 'битва', 'тайна', 'политика',
@@ -46,35 +44,7 @@ export class AdventureEditor {
     { label: 'Сценарий', value: 'scenario' },
     { label: 'Квест', value: 'quest' }
   ];
-  constructor() {
-    effect(() => {
-      if (!this.adventure()) return;
-      const adventure = deepClone(this.adventure());
-      this._initial = adventure;
-      this._tags.set(adventure.tags);
-      this._status.set(adventure.status);
-      this._description.set(adventure.description);
-      this._isPublic.set(adventure.isPublic);
-      this._name.set(adventure.name);
-    });
-    effect(() => {
-      const patch = deepCompare(this.adventure(), {...this._initial,...this._adventure()});
-      this.patch.emit(patch);
-    });
-  }
-  _tags = signal<string[]>([]);
-  _status = signal<string>('');
-  _description = signal<string>('');
-  _isPublic = signal<boolean>(false);
-  _name = signal<string>('');
-  _initial: TAdventure|undefined;
-  _adventure = computed<Partial<TAdventure>>(() => ({
-    tags: this._tags(),
-    status: this._status(),
-    description: this._description(),
-    isPublic: this._isPublic(),
-    name: this._name(),
-  }));
+  constructor() {super()}
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -125,8 +95,8 @@ export class AdventureEditor {
   }
 
   addTag(tag: string) {
-    if (!this._tags()?.includes(tag)) {
-      this._tags.update(x => [...x, tag]);
+    if (!this.sig['tags']()?.includes(tag)) {
+      this.sig['tags'].update(x => [...x, tag]);
     }
   }
 }

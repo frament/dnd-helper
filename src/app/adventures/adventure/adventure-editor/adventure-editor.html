@@ -1,5 +1,5 @@
 <div class="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
-  @if (adventure()){
+  @if (item()){
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-auto">
       <!-- Левая колонка: Основные настройки -->
       <div>
@@ -10,7 +10,7 @@
           <div class="mb-4">
             <label class="block text-gray-400 mb-2">Название приключения</label>
             <input pInputText class="w-full"
-                   [(ngModel)]="_name"
+                   [(ngModel)]="sig['name']"
                    placeholder="Введите название приключения">
           </div>
 
@@ -18,7 +18,7 @@
           <div class="mb-4">
             <label class="block text-gray-400 mb-2">Описание приключения</label>
             <textarea pTextarea class="w-full"
-                      [(ngModel)]="_description"
+                      [(ngModel)]="sig['description']"
                       [rows]="3"
                       placeholder="Добавьте описание приключения..."></textarea>
           </div>
@@ -26,7 +26,7 @@
           <!-- Теги приключения -->
           <div class="mb-4">
             <label class="block text-gray-400 mb-2">Теги приключения</label>
-            <p-autoComplete multiple [(ngModel)]="_tags" #tags
+            <p-autoComplete multiple [(ngModel)]="sig['tags']" #tags
                             [typeahead]="false"
                             placeholder="Добавьте теги..."
                             class="w-full"/>
@@ -43,16 +43,16 @@
           <!-- Видимость приключения -->
           <div>
             <label class="block text-gray-400 mb-2">Видимость приключения</label>
-            <p-toggleswitch [(ngModel)]="_isPublic"/>
+            <p-toggleswitch [(ngModel)]="sig['isPublic']"/>
             <span class="ml-3 text-gray-400">
-            {{_isPublic() ? 'Публичное' : 'Приватное'}}
+            {{sig['isPublic']() ? 'Публичное' : 'Приватное'}}
           </span>
           </div>
           <!-- Тип приключения -->
           <!--<div class="mb-4">
             <label class="block text-gray-400 mb-2">Тип приключения</label>
             <p-select [options]="adventureTypeOptions"
-                        [(ngModel)]="_adventureType"
+                        [(ngModel)]="sig['adventureType"
                         placeholder="Выберите тип"
                         class="w-full"/>
           </div>-->

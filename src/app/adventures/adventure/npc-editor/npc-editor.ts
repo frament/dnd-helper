@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -13,6 +13,8 @@ import {AvatarModule} from 'primeng/avatar';
 import {CheckboxModule} from 'primeng/checkbox';
 import {EditorModule} from 'primeng/editor';
 import {SelectModule} from 'primeng/select';
+import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
+import {TNPC} from '../../../models/npc.model';
 
 @Component({
   selector: 'app-npc-editor',
@@ -35,44 +37,14 @@ import {SelectModule} from 'primeng/select';
     SelectModule,
   ]
 })
-export class NpcEditor {
-  npc = input<any>({
-    id: '',
-    name: 'Новый NPC',
-    race: 'human',
-    class: 'fighter',
-    level: 1,
-    alignment: 'neutral',
-    size: 'medium',
-    creatureType: 'humanoid',
-    imageUrl: null,
-    stats: {
-      strength: 10,
-      dexterity: 10,
-      constitution: 10,
-      intelligence: 10,
-      wisdom: 10,
-      charisma: 10
-    },
-    combat: {
-      armorClass: 10,
-      speed: 30,
-      hitPoints: 10
-    },
-    description: {
-      appearance: '',
-      personality: '',
-      history: ''
-    },
-    features: '',
-    goals: []
-  });
+export class NpcEditor extends EntityEditorBase<TNPC>{
+  item = input.required<TNPC>();
+  patch = output<Partial<TNPC|null>>()
+  constructor() {
+    super();
+  }
 
-  save = output<any>();
-  delete = output<void>();
-  export = output<void>();
-
-  uploading = false;
+  uploading = signal<boolean>(false);
 
   races = [
     { label: 'Человек', value: 'human' },
@@ -160,14 +132,14 @@ export class NpcEditor {
         return;
       }
 
-      this.uploading = true;
+      this.uploading.set(true);
 
       // Имитация загрузки на сервер
       setTimeout(() => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          this.npc().imageUrl = e.target.result;
-          this.uploading = false;
+          this.sig['imageUrl'].set(e.target.result);
+          this.uploading.set(false);
  /*         this.messageService.add({
             severity: 'success',
             summary: 'Успешно',
@@ -180,7 +152,7 @@ export class NpcEditor {
   }
 
   removeImage() {
-    this.npc().imageUrl = null;
+    this.sig['imageUrl'].set('');
 /*    this.messageService.add({
       severity: 'info',
       summary: 'Изображение удалено',
@@ -202,57 +174,10 @@ export class NpcEditor {
   }
 
   calculateSkillModifier(skill: any): string {
-    const abilityScore = this.npc().stats[skill.ability];
+    const abilityScore = this.sig['stats_'+skill.ability]();
     const modifier = Math.floor((abilityScore - 10) / 2);
     const proficiencyBonus = skill.proficient ? 2 : 0;
     const total = modifier + proficiencyBonus;
     return total >= 0 ? `+${total}` : `${total}`;
   }
-
-  saveNpc() {
-    if (!this.npc().name) {
-/*      this.messageService.add({
-        severity: 'error',
-        summary: 'Ошибка',
-        detail: 'Введите имя NPC'
-      });*/
-      return;
-    }
-
-/*    this.messageService.add({
-      severity: 'success',
-      summary: 'Сохранено',
-      detail: 'NPC успешно сохранен'
-    });*/
-
-    this.save.emit(this.npc());
-  }
-
-  deleteNpc() {
-/*    this.messageService.add({
-      severity: 'warn',
-      summary: 'Удаление',
-      detail: 'NPC будет удален. Вы уверены?',
-      life: 5000,
-      sticky: true,
-      data: {
-        confirm: () => {
-          this.delete.emit();
-          this.messageService.clear();
-        },
-        cancel: () => this.messageService.clear()
-      }
-    });*/
-  }
-
-  exportNpc() {
-/*    this.messageService.add({
-      severity: 'info',
-      summary: 'Экспорт NPC',
-      detail: 'Функция экспорта в разработке'
-    });*/
-    this.export.emit();
-  }
-
-  protected readonly console = console;
 }

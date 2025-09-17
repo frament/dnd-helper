@@ -17,6 +17,8 @@ import {TBaseEntity} from '../../models/base-entity.model';
 import {deepClone} from '../../helpers/clone-helper';
 import {TNote, TNoteCreate} from '../../uni-components/note-editor/TNote';
 import {TMap, TMapCreate} from '../../models/map.model';
+import {TChapter, TChapterCreate} from '../../models/chapter.model';
+import {TNPC, TNPCreate} from '../../models/npc.model';
 
 type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
 
@@ -30,8 +32,8 @@ type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
     NoteEditor,
     MapEditorComponent,
     NpcEditor,
-    ArtifactEditorComponent,
-    TimelineEditorComponent,
+    // ArtifactEditorComponent,
+    // TimelineEditorComponent,
     ChapterEditor,
     AdventureEditor,
     DividerModule
@@ -56,10 +58,20 @@ export class Adventure {
     loader: async ({params}) => this.db.linked<TMap>('adventures',['adventure_map','maps'], [params]),
     defaultValue: []
   })
+  readonly chapters = resource<TChapter[], string>({
+    params: () => this.id(),
+    loader: async ({params}) => this.db.linked<TChapter>('adventures',['adventure_chapter','chapters'], [params]),
+    defaultValue: []
+  })
+  readonly npcs = resource<TNPC[], string>({
+    params: () => this.id(),
+    loader: async ({params}) => this.db.linked<TNPC>('adventures',['adventure_npc','npcs'], [params]),
+    defaultValue: []
+  })
 
   constructor() {
     effect(() => {
-      console.log(this.maps.value());
+      console.log(this.npcs.value());
     });
   }
 
@@ -72,9 +84,9 @@ export class Adventure {
       case 'maps':
         return this.maps.value().find(m => m.id.id === this.activeItem)?.title || 'Карта';
       case 'chapters':
-        return this.chapters.find(c => c.id === this.activeItem)?.title || 'Глава';
+        return this.chapters.value().find(c => c.id.id === this.activeItem)?.title || 'Глава';
       case 'npcs':
-        return this.npcs.find(n => n.id === this.activeItem)?.title || 'Персонаж';
+        return this.npcs.value().find(n => n.id.id === this.activeItem)?.name || 'Персонаж';
       case 'events':
         return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
       case 'artifacts':
@@ -86,16 +98,6 @@ export class Adventure {
   activeItem: string | null = null;
   readonly activeContent = linkedSignal<any>(() => this.adventure.value());
   readonly activeContentPatch = signal<any>(null);
-
-  chapters = [
-    { id: 'chapter1', title: 'Введение в джунгли', content: "" },
-    { id: 'chapter2', title: 'Храм обезьяньего бога', content: "" }
-  ];
-
-  npcs = [
-    { id: 'npc1', title: 'Старый шаман', content: "" },
-    { id: 'npc2', title: 'Капитан экспедиции', content: "" }
-  ];
 
   timelineEvents = [
     { id: 'event1', title: 'Начало экспедиции', content: "" },
@@ -123,10 +125,10 @@ export class Adventure {
         this.activeContent.set(this.maps.value().find(m => m.id.id === id));
         break;
       case 'chapters':
-        this.activeContent.set(this.chapters.find(c => c.id === id));
+        this.activeContent.set(this.chapters.value().find(c => c.id.id === id));
         break;
       case 'npcs':
-        this.activeContent.set(this.npcs.find(n => n.id === id));
+        this.activeContent.set(this.npcs.value().find(n => n.id.id === id));
         break;
       case 'events':
         this.activeContent.set(this.timelineEvents.find(e => e.id === id));
@@ -171,7 +173,7 @@ export class Adventure {
     }
 
     this.refreshByTb(type+'');
-    this.selectItem('notes', newItem["id"].toString());
+    this.selectItem(type, newItem["id"].toString());
   }
 
   async addItem(type: TActiveType) {
@@ -190,18 +192,21 @@ export class Adventure {
           'adventure_map'
         );
         break;
-     /* case 'map':
-        this.maps.push(newItem);
-        this.selectItem('map', newItem.id);
+      case 'chapters':
+        await this.defCreate<TChapterCreate>(
+          type,
+          {title:'Новая глава', status:'draft'},
+          'adventure_chapter'
+        );
         break;
-      case 'chapter':
-        this.chapters.push(newItem);
-        this.selectItem('chapter', newItem.id);
+      case 'npcs':
+        await this.defCreate<TNPCreate>(
+          type,
+          {name:'Новый NPC', race:'human'},
+          'adventure_npc'
+        );
         break;
-      case 'npc':
-        this.npcs.push(newItem);
-        this.selectItem('npc', newItem.id);
-        break;
+     /*
       case 'event':
         this.timelineEvents.push(newItem);
         this.selectItem('event', newItem.id);
@@ -210,28 +215,6 @@ export class Adventure {
         this.artifacts.push(newItem);
         this.selectItem('artifact', newItem.id);
         break;*/
-    }
-  }
-
-  getTypeNew(type: TActiveType): string {
-    const gender = this.getTypeGender(type);
-    switch (gender) {
-      case 'm': return 'Новый';
-      case 'f': return 'Новая';
-      case "o": return 'Новое';
-      default: return 'Новый';
-    }
-  }
-
-  getTypeGender(type: TActiveType): 'm'|'f'|'o' {
-    switch(type) {
-      case 'notes': return 'f';
-      case 'maps': return 'f';
-      case 'chapters': return 'f';
-      case 'npcs': return 'm';
-      case 'events': return 'o';
-      case 'artifacts': return 'm';
-      default: return 'm';
     }
   }
 
@@ -248,11 +231,6 @@ export class Adventure {
     }
   }
 
-  renameItem(type: string, item: any) {
-    // Реализация переименования
-    console.log(`Переименовать ${type}:`, item);
-  }
-
   duplicateItem(item: TBaseEntity & any) {
     // Реализация дублирования
     console.log(`Дублировать ${item.id.tb}:`, item);
@@ -261,8 +239,6 @@ export class Adventure {
   async deleteItem(item: TBaseEntity & any) {
     await this.db.db.delete(item.id);
     this.refreshByTb(item.id.tb);
-    // Реализация удаления
-    console.log(`Удалить ${item.id.tb}:`, item);
   }
 
   cancelPatch(){
@@ -270,6 +246,11 @@ export class Adventure {
     this.activeContentPatch.set(null);
     this.activeContent.set(undefined);
     this.activeContent.set(ent);
+  }
+
+  exportItem(){
+    const ent: TBaseEntity = deepClone(this.activeContent());
+    console.log('export', ent);
   }
 
   async applyPatch() {
@@ -284,6 +265,8 @@ export class Adventure {
     switch (tb) {
       case 'notes': this.notes.reload(); break;
       case 'maps': this.maps.reload(); break;
+      case 'chapters': this.chapters.reload(); break;
+      case 'npcs': this.npcs.reload(); break;
       case 'adventures': this.adventure.reload(); break;
     }
   }

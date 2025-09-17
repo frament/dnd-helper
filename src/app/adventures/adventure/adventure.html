@@ -30,10 +30,12 @@
                 </button>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить заметку"
+            <button pButton
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('notes')"></button>
+                    (click)="addItem('notes')">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить заметку</span>
+            </button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -42,7 +44,7 @@
         <p-accordion-panel value="1">
           <p-accordion-header>Карты</p-accordion-header>
           <p-accordion-content>
-          <div class="ml-4">
+          <div>
             @for (map of maps.value(); track map.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === map.id.id"
@@ -51,15 +53,19 @@
                   <i class="pi pi-map text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{map.title}}</span>
                 </div>
-                <button pButton icon="pi pi-ellipsis-v"
+                <button pButton
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, map)"></button>
+                        (click)="openContextMenu($event, map)">
+                  <i class="pi pi-ellipsis-v" pButtonIcon></i>
+                </button>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить карту"
+            <button pButton
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('maps')"></button>
+                    (click)="addItem('maps')">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить карту</span>
+            </button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -68,24 +74,28 @@
         <p-accordion-panel value="2">
           <p-accordion-header>Главы</p-accordion-header>
           <p-accordion-content>
-          <div class="ml-4">
-            @for (chapter of chapters; track chapter.id){
+          <div>
+            @for (chapter of chapters.value(); track chapter.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === chapter.id"
-                   (click)="selectItem('chapters', chapter.id)">
+                   [class.bg-blue-900]="activeItem === chapter.id.id"
+                   (click)="selectItem('chapters', chapter.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-book text-gray-400 mr-2"></i>
                   <span class="text-gray-300">{{chapter.title}}</span>
                 </div>
-                <button pButton icon="pi pi-ellipsis-v"
+                <button pButtons
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, chapter)"></button>
+                        (click)="openContextMenu($event, chapter)">
+                  <i class="pi pi-ellipsis-v" pButtonIcon></i>
+                </button>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить главу"
+            <button pButton
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('chapters')"></button>
+                    (click)="addItem('chapters')">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить главу</span>
+            </button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -94,50 +104,28 @@
         <p-accordion-panel value="3">
           <p-accordion-header>NPC</p-accordion-header>
           <p-accordion-content>
-          <div class="ml-4">
-            @for (npc of npcs; track npc.id){
+          <div>
+            @for (npc of npcs.value(); track npc.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === npc.id"
-                   (click)="selectItem('npcs', npc.id)">
+                   [class.bg-blue-900]="activeItem === npc.id.id"
+                   (click)="selectItem('npcs', npc.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-user text-gray-400 mr-2"></i>
-                  <span class="text-gray-300">{{npc.title}}</span>
+                  <span class="text-gray-300">{{npc.name}}</span>
                 </div>
-                <button pButton icon="pi pi-ellipsis-v"
+                <button pButton
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, npc)"></button>
+                        (click)="openContextMenu($event, npc)">
+                  <i class="pi pi-ellipsis-v" pButtonIcon></i>
+                </button>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить NPC"
+            <button pButton
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('npcs')"></button>
-          </div>
-          </p-accordion-content>
-        </p-accordion-panel>
-
-        <!-- Timeline -->
-        <p-accordion-panel value="4">
-          <p-accordion-header>Timeline</p-accordion-header>
-          <p-accordion-content>
-          <div class="ml-4">
-            @for (event of timelineEvents; track event.id){
-              <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === event.id"
-                   (click)="selectItem('events', event.id)">
-                <div class="flex items-center">
-                  <i class="pi pi-history text-gray-400 mr-2"></i>
-                  <span class="text-gray-300">{{event.title}}</span>
-                </div>
-                <button pButton icon="pi pi-ellipsis-v"
-                        class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, event)"></button>
-              </div>
-            }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить событие"
-                    class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('events')"></button>
+                    (click)="addItem('npcs')">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить NPC</span>
+            </button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -146,7 +134,7 @@
         <p-accordion-panel value="5">
           <p-accordion-header>Артефакты</p-accordion-header>
           <p-accordion-content>
-          <div class="ml-4">
+          <div>
             @for (artifact of artifacts; track artifact.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
                    [class.bg-blue-900]="activeItem === artifact.id"
@@ -172,6 +160,11 @@
 
     <!-- Кнопки действий -->
     <div class="p-4 border-t border-gray-700">
+      <button pButton class="p-button-secondary w-full mb-2"
+              (click)="selectItem('events', '')">
+        <i class="pi pi-history" pButtonIcon></i>
+        <span pButtonLabel>Timeline</span>
+      </button>
       <button pButton class="p-button-success w-full mb-2">
         <i class="pi pi-save" pButtonIcon></i>
         <span pButtonLabel>Сохранить</span>
@@ -203,6 +196,12 @@
           <i class="pi pi-times" pButtonIcon></i>
           <span pButtonLabel>Отменить</span>
         </button>
+        <button pButton class="p-button-info"
+                [disabled]="activeContentPatch()"
+                (click)="exportItem()">
+          <i class="pi pi-download" pButtonIcon></i>
+          <span pButtonLabel>Экспорт</span>
+        </button>
         <p-divider layout="vertical" />
         <button pButton class="p-button-danger mr-2">
           <i class="pi pi-trash" pButtonIcon></i>
@@ -216,27 +215,27 @@
       @switch (activeType()){
         @case ('notes') {
           <!-- Заметки -->
-          <app-note-editor [note]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          <app-note-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
         @case ('maps') {
           <!-- Карты -->
-          <app-map-editor [map]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          <app-map-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
         @case ('chapters') {
           <!-- Главы -->
-          <app-chapter-editor [chapter]="activeContent()"/>
+          <app-chapter-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
         @case ('npcs'){
           <!-- NPC -->
-          <app-npc-editor [npc]="activeContent"/>
+          <app-npc-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
         @case ('events'){
           <!-- Timeline -->
-          <app-timeline-editor />
+<!--          <app-timeline-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>-->
         }
         @case ('artifacts'){
           <!-- Артефакты -->
-          <app-artifact-editor [artifact]="activeContent()"/>
+<!--          <app-artifact-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>-->
         }
         @default {
           <!-- Заглушка по умолчанию -->
@@ -247,7 +246,7 @@
               <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
             </div>
           </div>-->
-          <app-adventure-editor [adventure]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          <app-adventure-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
       }
     </div>

@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, computed, effect, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {SelectButtonModule} from 'primeng/selectbutton';
@@ -12,20 +12,10 @@ import {TextareaModule} from 'primeng/textarea';
 import {AutoCompleteModule} from 'primeng/autocomplete';
 import {TagModule} from 'primeng/tag';
 import {SelectModule} from 'primeng/select';
-
-export interface IChapter {
-  id: string;
-  title: string;
-  avatar: string | undefined;
-  status: 'draft' | 'in-progress' | 'testing' | 'completed' | 'archived';
-  difficulty: number;
-  recommendedLevel: number;
-  isPublic: boolean;
-  tags: string[];
-  description: string;
-  previousChapter: any | null;
-  nextChapter: any | null;
-}
+import {TChapter} from '../../../models/chapter.model';
+import {deepClone} from '../../../helpers/clone-helper';
+import {deepCompare} from '../../../helpers/obj-diff-helper';
+import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-chapter-editor',
@@ -47,12 +37,13 @@ export interface IChapter {
   templateUrl: './chapter-editor.html',
   styleUrl: './chapter-editor.css'
 })
-export class ChapterEditor {
-  chapter = input.required<IChapter>();
-  saveSettings = output<IChapter>();
-  cancelSettings = output<void>();
+export class ChapterEditor extends EntityEditorBase<TChapter>{
+  item = input.required<TChapter>();
+  readonly patch = output<Partial<TChapter|null>>();
 
-  uploading = false;
+  uploading = signal<boolean>(false);
+
+  constructor() {super()}
 
   statusOptions = [
     { label: 'Черновик', value: 'draft', icon: 'pi pi-file' },
@@ -67,12 +58,16 @@ export class ChapterEditor {
     'квест', 'босс', 'подземелье', 'город', 'путешествие'
   ];
 
-  chapters = [
-    { id: 'ch1', title: 'Введение в джунгли' },
-    { id: 'ch2', title: 'Храм обезьяньего бога' },
-    { id: 'ch3', title: 'Река забвения' },
-    { id: 'ch4', title: 'Город золота' }
-  ];
+  getDifficultyText = computed(() => {
+    switch(this.sig['difficulty']()) {
+      case 1: return 'Очень легко';
+      case 2: return 'Легко';
+      case 3: return 'Средне';
+      case 4: return 'Сложно';
+      case 5: return 'Очень сложно';
+      default: return 'Не указано';
+    }
+  })
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -86,14 +81,14 @@ export class ChapterEditor {
         return;
       }
 
-      this.uploading = true;
+      this.uploading.set(true);
 
       // Имитация загрузки на сервер
       setTimeout(() => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          this.chapter().avatar = e.target.result;
-          this.uploading = false;
+          this.sig['avatar'].set(e.target.result);
+          this.uploading.set(false);
           /*this.messageService.add({
             severity: 'success',
             summary: 'Успешно',
@@ -106,7 +101,7 @@ export class ChapterEditor {
   }
 
   removeImage() {
-    this.chapter().avatar = undefined;
+    this.sig['avatar'].set('');
   }
 
   openImageLibrary() {
@@ -118,33 +113,9 @@ export class ChapterEditor {
   }
 
   addTag(tag: string) {
-    if (!this.chapter().tags.includes(tag)) {
-      this.chapter().tags = [...this.chapter().tags, tag];
+    if (!this.sig['tags']().includes(tag)) {
+      this.sig['tags'].update(x => [...x, tag]);
     }
-  }
-
-  getDifficultyText(): string {
-    switch(this.chapter().difficulty) {
-      case 1: return 'Очень легко';
-      case 2: return 'Легко';
-      case 3: return 'Средне';
-      case 4: return 'Сложно';
-      case 5: return 'Очень сложно';
-      default: return 'Не указано';
-    }
-  }
-
-  save() {
-    /*this.messageService.add({
-      severity: 'success',
-      summary: 'Сохранено',
-      detail: 'Настройки главы сохранены'
-    });*/
-    this.saveSettings.emit(this.chapter());
-  }
-
-  cancel() {
-    this.cancelSettings.emit();
   }
 
 }
