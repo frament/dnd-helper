@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -12,6 +12,8 @@ import {TooltipModule} from 'primeng/tooltip';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {EditorModule} from 'primeng/editor';
 import {SelectModule} from 'primeng/select';
+import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
+import {TArtifact} from '../../../models/artifact.model';
 
 @Component({
   selector: 'app-artifact-editor',
@@ -33,42 +35,14 @@ import {SelectModule} from 'primeng/select';
     SelectModule
   ],
 })
-export class ArtifactEditorComponent {
-  artifact = input<any>({
-    id: '',
-    name: 'Новый артефакт',
-    type: 'weapon',
-    rarity: 'uncommon',
-    attunement: 'no',
-    weight: 1,
-    value: 100,
-    description: '',
-    properties: '',
-    charges: {
-      current: 3,
-      max: 3,
-      recharge: 'dawn'
-    },
-    curse: '',
-    specialAbilities: [
-      { name: 'Невидимость', description: 'Позволяет владельцу становиться невидимым на 1 минуту' }
-    ],
-    history: {
-      creation: '',
-      owners: [],
-      significantEvents: '',
-      currentLocation: '',
-      legend: ''
-    },
-    goals: [],
-    imageUrl: null
-  });
+export class ArtifactEditorComponent extends EntityEditorBase<TArtifact>{
+  item = input.required<TArtifact>()
+  patch = output<Partial<TArtifact|null>>()
+  constructor() {
+    super();
+  }
 
-  save = output<any>();
-  delete = output<void>();
-  export = output<void>();
-
-  uploading = false;
+  uploading = signal<boolean>(false);
 
   artifactTypes = [
     { label: 'Оружие', value: 'weapon' },
@@ -121,14 +95,14 @@ export class ArtifactEditorComponent {
         return;
       }
 
-      this.uploading = true;
+      this.uploading.set(true);
 
       // Имитация загрузки на сервер
       setTimeout(() => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          this.artifact().imageUrl = e.target.result;
-          this.uploading = false;
+          this.sig['imageUrl'].set(e.target.result);
+          this.uploading.set(false);
           /*this.messageService.add({
             severity: 'success',
             summary: 'Успешно',
@@ -141,7 +115,7 @@ export class ArtifactEditorComponent {
   }
 
   removeImage() {
-    this.artifact().imageUrl = null;
+    this.sig['imageUrl'].set('');
     /*this.messageService.add({
       severity: 'info',
       summary: 'Изображение удалено',
@@ -158,58 +132,13 @@ export class ArtifactEditorComponent {
   }
 
   addAbility() {
-    this.artifact().specialAbilities.push({
+    /*this.artifact().specialAbilities.push({
       name: '',
       description: ''
-    });
-  }
-
-  removeAbility(index: number) {
-    this.artifact().specialAbilities.splice(index, 1);
-  }
-
-  saveArtifact() {
-    if (!this.artifact().name) {
-      /*this.messageService.add({
-        severity: 'error',
-        summary: 'Ошибка',
-        detail: 'Введите название артефакта'
-      });*/
-      return;
-    }
-
-    /*this.messageService.add({
-      severity: 'success',
-      summary: 'Сохранено',
-      detail: 'Артефакт успешно сохранен'
-    });*/
-
-    this.save.emit(this.artifact);
-  }
-
-  deleteArtifact() {
-    /*this.messageService.add({
-      severity: 'warn',
-      summary: 'Удаление',
-      detail: 'Артефакт будет удален. Вы уверены?',
-      life: 5000,
-      sticky: true,
-      data: {
-        confirm: () => {
-          this.delete.emit();
-          this.messageService.clear();
-        },
-        cancel: () => this.messageService.clear()
-      }
     });*/
   }
 
-  exportArtifact() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Экспорт артефакта',
-      detail: 'Функция экспорта в разработке'
-    });*/
-    this.export.emit();
+  removeAbility(_index: number) {
+    // this.artifact().specialAbilities.splice(index, 1);
   }
 }

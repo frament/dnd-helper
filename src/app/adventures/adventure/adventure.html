@@ -135,23 +135,27 @@
           <p-accordion-header>Артефакты</p-accordion-header>
           <p-accordion-content>
           <div>
-            @for (artifact of artifacts; track artifact.id){
+            @for (artifact of artifacts.value(); track artifact.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === artifact.id"
-                   (click)="selectItem('artifacts', artifact.id)">
+                   [class.bg-blue-900]="activeItem === artifact.id.id"
+                   (click)="selectItem('artifacts', artifact.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-star text-gray-400 mr-2"></i>
-                  <span class="text-gray-300">{{artifact.title}}</span>
+                  <span class="text-gray-300">{{artifact.name}}</span>
                 </div>
-                <button pButton icon="pi pi-ellipsis-v"
+                <button pButton
                         class="p-button-text p-button-sm p-button-plain"
-                        (click)="openContextMenu($event, artifact)"></button>
+                        (click)="openContextMenu($event, artifact)">
+                  <i class="pi pi-ellipsis-v" pButtonIcon></i>
+                </button>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить артефакт"
+            <button pButton
                     class="p-button-text p-button-sm w-full mt-2"
-                    (click)="addItem('artifacts')"></button>
+                    (click)="addItem('artifacts')">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить артефакт</span>
+            </button>
           </div>
           </p-accordion-content>
         </p-accordion-panel>
@@ -165,14 +169,14 @@
         <i class="pi pi-history" pButtonIcon></i>
         <span pButtonLabel>Timeline</span>
       </button>
-      <button pButton class="p-button-success w-full mb-2">
+      <!--<button pButton class="p-button-success w-full mb-2">
         <i class="pi pi-save" pButtonIcon></i>
         <span pButtonLabel>Сохранить</span>
       </button>
       <button pButton class="p-button-secondary w-full">
         <i class="pi pi-eye" pButtonIcon></i>
         <span pButtonLabel>Предпросмотр</span>
-      </button>
+      </button>-->
     </div>
   </div>
 
@@ -235,7 +239,7 @@
         }
         @case ('artifacts'){
           <!-- Артефакты -->
-<!--          <app-artifact-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>-->
+          <app-artifact-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
         }
         @default {
           <!-- Заглушка по умолчанию -->

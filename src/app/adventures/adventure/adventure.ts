@@ -7,7 +7,7 @@ import {NoteEditor} from '../../uni-components/note-editor/note-editor';
 import {ChapterEditor} from './chapter-editor/chapter-editor';
 import {MapEditorComponent} from './map-editor/map-editor';
 import {NpcEditor} from './npc-editor/npc-editor';
-//import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
+import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
 //import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
 import {Database} from '../../database';
 import {TAdventure} from '../../models/adventure.model';
@@ -19,6 +19,7 @@ import {TNote, TNoteCreate} from '../../uni-components/note-editor/TNote';
 import {TMap, TMapCreate} from '../../models/map.model';
 import {TChapter, TChapterCreate} from '../../models/chapter.model';
 import {TNPC, TNPCreate} from '../../models/npc.model';
+import {TArtifact, TArtifactCreate} from '../../models/artifact.model';
 
 type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
 
@@ -32,7 +33,7 @@ type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
     NoteEditor,
     MapEditorComponent,
     NpcEditor,
-    // ArtifactEditorComponent,
+    ArtifactEditorComponent,
     // TimelineEditorComponent,
     ChapterEditor,
     AdventureEditor,
@@ -69,9 +70,15 @@ export class Adventure {
     defaultValue: []
   })
 
+  readonly artifacts = resource<TArtifact[], string>({
+    params: () => this.id(),
+    loader: async ({params}) => this.db.linked<TArtifact>('adventures',['adventure_artifact','artifacts'], [params]),
+    defaultValue: []
+  })
+
   constructor() {
     effect(() => {
-      console.log(this.npcs.value());
+      console.log(this.artifacts.value());
     });
   }
 
@@ -90,7 +97,7 @@ export class Adventure {
       case 'events':
         return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
       case 'artifacts':
-        return this.artifacts.find(a => a.id === this.activeItem)?.title || 'Артефакт';
+        return this.artifacts.value().find(a => a.id.id === this.activeItem)?.name || 'Артефакт';
       default:
         return 'Редактор приключения';
     }
@@ -102,11 +109,6 @@ export class Adventure {
   timelineEvents = [
     { id: 'event1', title: 'Начало экспедиции', content: "" },
     { id: 'event2', title: 'Открытие храма', content: "" }
-  ];
-
-  artifacts = [
-    { id: 'artifact1', title: 'Золотой идол', content: "" },
-    { id: 'artifact2', title: 'Карта сокровищ', content: "" }
   ];
 
   contextMenuItems: MenuItem[] = [];
@@ -134,7 +136,7 @@ export class Adventure {
         this.activeContent.set(this.timelineEvents.find(e => e.id === id));
         break;
       case 'artifacts':
-        this.activeContent.set(this.artifacts.find(a => a.id === id));
+        this.activeContent.set(this.artifacts.value().find(a => a.id.id === id));
         break;
     }
   }
@@ -206,14 +208,17 @@ export class Adventure {
           'adventure_npc'
         );
         break;
+      case 'artifacts':
+        await this.defCreate<TArtifactCreate>(
+          type,
+          {name:'Новый артефакт'},
+          'adventure_artifact'
+        );
+        break;
      /*
       case 'event':
         this.timelineEvents.push(newItem);
         this.selectItem('event', newItem.id);
-        break;
-      case 'artifact':
-        this.artifacts.push(newItem);
-        this.selectItem('artifact', newItem.id);
         break;*/
     }
   }
@@ -267,6 +272,7 @@ export class Adventure {
       case 'maps': this.maps.reload(); break;
       case 'chapters': this.chapters.reload(); break;
       case 'npcs': this.npcs.reload(); break;
+      case 'artifacts': this.artifacts.reload(); break;
       case 'adventures': this.adventure.reload(); break;
     }
   }
