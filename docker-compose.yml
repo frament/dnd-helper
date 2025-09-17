@@ -16,3 +16,16 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/data
+  dnd-minio:
+    image: minio/minio:latest
+    restart: always
+    user: root
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ROOTNAME
+      MINIO_ROOT_PASSWORD: CHANGEME123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./files:/data
