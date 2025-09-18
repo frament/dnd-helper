@@ -6,6 +6,7 @@ import {Adventures} from './adventures/adventures';
 import {Adventure} from './adventures/adventure/adventure';
 import {Heroes} from './heroes/heroes';
 import {Hero} from './heroes/hero/hero';
+import {Wiki} from './wiki/wiki';
 
 export const routes: Routes = [
   {path:'auth', component: Auth},
@@ -14,4 +15,5 @@ export const routes: Routes = [
   {path:'adventures/:id', component: Adventure, canActivate: [authGuard]},
   {path:'heroes', component: Heroes, canActivate: [authGuard]},
   {path:'heroes/:id', component: Hero, canActivate: [authGuard]},
+  {path:'wiki', component: Wiki, canActivate: [authGuard]},
 ];
