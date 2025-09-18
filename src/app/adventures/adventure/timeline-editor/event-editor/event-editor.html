@@ -1,0 +1,60 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Левая колонка: Основные данные -->
+  <div>
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Название события</label>
+      <input pInputText [(ngModel)]="sig['title']"
+             class="w-full"
+             placeholder="Введите название события">
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Дата события</label>
+      <p-datePicker [(ngModel)]="sig['date']"
+                    dateFormat="dd.mm.yy"
+                    [showIcon]="true"
+                    class="w-full"></p-datePicker>
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Теги события</label>
+      <p-autoComplete multiple [(ngModel)]="sig['tags']"
+                      placeholder="Добавьте теги..."
+                      class="w-full"></p-autoComplete>
+      <div class="mt-2">
+        @for (tag of popularTags; track tag){
+          <p-tag [value]="tag"
+                 class="mr-2 mb-2 cursor-pointer"
+                 (click)="addTag(tag)"
+                 [rounded]="true"></p-tag>
+        }
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Важность</label>
+      <p-rating [(ngModel)]="sig['importance']"
+                [stars]="5"></p-rating>
+    </div>
+  </div>
+
+  <!-- Правая колонка: Описание -->
+  <div>
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Описание события</label>
+      <textarea pInputTextarea [(ngModel)]="sig['description']"
+                [rows]="8"
+                class="w-full"
+                placeholder="Добавьте подробное описание события..."></textarea>
+    </div>
+
+    <div class="mb-5">
+      <label class="block text-gray-400 mb-2">Связанные элементы</label>
+      <p-multiSelect [options]="relatedItems"
+                     [(ngModel)]="sig['relatedItems']"
+                     optionLabel="name"
+                     placeholder="Выберите элементы"
+                     class="w-full"></p-multiSelect>
+    </div>
+  </div>
+</div>

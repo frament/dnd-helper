@@ -8,7 +8,7 @@ import {ChapterEditor} from './chapter-editor/chapter-editor';
 import {MapEditorComponent} from './map-editor/map-editor';
 import {NpcEditor} from './npc-editor/npc-editor';
 import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
-//import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
+import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
 import {Database} from '../../database';
 import {TAdventure} from '../../models/adventure.model';
 import {AdventureEditor} from './adventure-editor/adventure-editor';
@@ -34,7 +34,7 @@ type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
     MapEditorComponent,
     NpcEditor,
     ArtifactEditorComponent,
-    // TimelineEditorComponent,
+    TimelineEditorComponent,
     ChapterEditor,
     AdventureEditor,
     DividerModule
@@ -94,8 +94,6 @@ export class Adventure {
         return this.chapters.value().find(c => c.id.id === this.activeItem)?.title || 'Глава';
       case 'npcs':
         return this.npcs.value().find(n => n.id.id === this.activeItem)?.name || 'Персонаж';
-      case 'events':
-        return this.timelineEvents.find(e => e.id === this.activeItem)?.title || 'Событие';
       case 'artifacts':
         return this.artifacts.value().find(a => a.id.id === this.activeItem)?.name || 'Артефакт';
       default:
@@ -105,11 +103,6 @@ export class Adventure {
   activeItem: string | null = null;
   readonly activeContent = linkedSignal<any>(() => this.adventure.value());
   readonly activeContentPatch = signal<any>(null);
-
-  timelineEvents = [
-    { id: 'event1', title: 'Начало экспедиции', content: "" },
-    { id: 'event2', title: 'Открытие храма', content: "" }
-  ];
 
   contextMenuItems: MenuItem[] = [];
 
@@ -131,9 +124,6 @@ export class Adventure {
         break;
       case 'npcs':
         this.activeContent.set(this.npcs.value().find(n => n.id.id === id));
-        break;
-      case 'events':
-        this.activeContent.set(this.timelineEvents.find(e => e.id === id));
         break;
       case 'artifacts':
         this.activeContent.set(this.artifacts.value().find(a => a.id.id === id));
@@ -215,11 +205,6 @@ export class Adventure {
           'adventure_artifact'
         );
         break;
-     /*
-      case 'event':
-        this.timelineEvents.push(newItem);
-        this.selectItem('event', newItem.id);
-        break;*/
     }
   }
 
@@ -246,16 +231,16 @@ export class Adventure {
     this.refreshByTb(item.id.tb);
   }
 
+  exportItem(){
+    const ent: TBaseEntity = deepClone(this.activeContent());
+    console.log('export', ent);
+  }
+
   cancelPatch(){
     const ent: TBaseEntity = deepClone(this.activeContent());
     this.activeContentPatch.set(null);
     this.activeContent.set(undefined);
     this.activeContent.set(ent);
-  }
-
-  exportItem(){
-    const ent: TBaseEntity = deepClone(this.activeContent());
-    console.log('export', ent);
   }
 
   async applyPatch() {
@@ -264,8 +249,8 @@ export class Adventure {
     this.activeContentPatch.set(null);
     const ent: TBaseEntity = this.activeContent();
     this.refreshByTb(ent.id.tb);
-
   }
+
   refreshByTb(tb:string){
     switch (tb) {
       case 'notes': this.notes.reload(); break;

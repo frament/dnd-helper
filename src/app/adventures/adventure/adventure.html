@@ -182,36 +182,38 @@
 
   <!-- Основная рабочая область -->
   <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Заголовок рабочей области -->
-    <div class="px-6 py-4 flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-white">
-        {{activeItemTitle()}}
-      </h2>
-      <div class="flex space-x-2">
-        <button pButton class="p-button-success"
-                [disabled]="!activeContentPatch()"
-                (click)="applyPatch()">
-          <i class="pi pi-save" pButtonIcon></i>
-          <span pButtonLabel>Сохранить</span>
-        </button>
-        <button pButton class="p-button-secondary"
-                [disabled]="!activeContentPatch()"
-                (click)="cancelPatch()">
-          <i class="pi pi-times" pButtonIcon></i>
-          <span pButtonLabel>Отменить</span>
-        </button>
-        <button pButton class="p-button-info"
-                [disabled]="activeContentPatch()"
-                (click)="exportItem()">
-          <i class="pi pi-download" pButtonIcon></i>
-          <span pButtonLabel>Экспорт</span>
-        </button>
-        <p-divider layout="vertical" />
-        <button pButton class="p-button-danger mr-2">
-          <i class="pi pi-trash" pButtonIcon></i>
-        </button>
+    @if (activeType() !== 'events'){
+      <!-- Заголовок рабочей области -->
+      <div class="px-6 py-4 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-white">
+          {{activeItemTitle()}}
+        </h2>
+        <div class="flex space-x-2">
+          <button pButton class="p-button-success"
+                  [disabled]="!activeContentPatch()"
+                  (click)="applyPatch()">
+            <i class="pi pi-save" pButtonIcon></i>
+            <span pButtonLabel>Сохранить</span>
+          </button>
+          <button pButton class="p-button-secondary"
+                  [disabled]="!activeContentPatch()"
+                  (click)="cancelPatch()">
+            <i class="pi pi-times" pButtonIcon></i>
+            <span pButtonLabel>Отменить</span>
+          </button>
+          <button pButton class="p-button-info"
+                  [disabled]="activeContentPatch()"
+                  (click)="exportItem()">
+            <i class="pi pi-download" pButtonIcon></i>
+            <span pButtonLabel>Экспорт</span>
+          </button>
+          <p-divider layout="vertical" />
+          <button pButton class="p-button-danger mr-2">
+            <i class="pi pi-trash" pButtonIcon></i>
+          </button>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Контентная область -->
     <div class="flex-1 overflow-auto px-6 pb-6 bg-gray-900">
@@ -235,7 +237,7 @@
         }
         @case ('events'){
           <!-- Timeline -->
-<!--          <app-timeline-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>-->
+          <app-timeline-editor [adventureId]="id()"/>
         }
         @case ('artifacts'){
           <!-- Артефакты -->
