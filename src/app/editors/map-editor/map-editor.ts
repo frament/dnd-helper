@@ -10,8 +10,8 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {TooltipModule} from 'primeng/tooltip';
 import {SelectModule} from 'primeng/select';
-import {TMap} from '../../../models/map.model';
-import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
+import {TMap} from '../../models/map.model';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-map-editor',

@@ -1,5 +1,5 @@
 import {Component, input, output} from '@angular/core';
-import {TAdventure} from '../../../models/adventure.model';
+import {TAdventure} from '../../models/adventure.model';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
@@ -9,7 +9,7 @@ import {TagModule} from 'primeng/tag';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {SelectModule} from 'primeng/select';
-import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-adventure-editor',

@@ -12,8 +12,8 @@ import {TooltipModule} from 'primeng/tooltip';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {EditorModule} from 'primeng/editor';
 import {SelectModule} from 'primeng/select';
-import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
-import {TArtifact} from '../../../models/artifact.model';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {TArtifact} from '../../models/artifact.model';
 
 @Component({
   selector: 'app-artifact-editor',

@@ -13,8 +13,8 @@ import {AvatarModule} from 'primeng/avatar';
 import {CheckboxModule} from 'primeng/checkbox';
 import {EditorModule} from 'primeng/editor';
 import {SelectModule} from 'primeng/select';
-import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
-import {TNPC} from '../../../models/npc.model';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {TNPC} from '../../models/npc.model';
 
 @Component({
   selector: 'app-npc-editor',

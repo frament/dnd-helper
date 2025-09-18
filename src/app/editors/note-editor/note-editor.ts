@@ -11,7 +11,7 @@ import {RippleModule} from 'primeng/ripple';
 import {DatePickerModule} from 'primeng/datepicker';
 import {SelectModule} from 'primeng/select';
 import {AutoCompleteModule} from 'primeng/autocomplete';
-import {EntityEditorBase} from '../entity-editor-base';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-note-editor',

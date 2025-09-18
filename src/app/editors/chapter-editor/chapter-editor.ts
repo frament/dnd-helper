@@ -12,8 +12,8 @@ import {TextareaModule} from 'primeng/textarea';
 import {AutoCompleteModule} from 'primeng/autocomplete';
 import {TagModule} from 'primeng/tag';
 import {SelectModule} from 'primeng/select';
-import {TChapter} from '../../../models/chapter.model';
-import {EntityEditorBase} from '../../../uni-components/entity-editor-base';
+import {TChapter} from '../../models/chapter.model';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 
 @Component({
   selector: 'app-chapter-editor',

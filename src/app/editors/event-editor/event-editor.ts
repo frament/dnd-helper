@@ -1,6 +1,6 @@
 import {Component, input, output} from '@angular/core';
-import {EntityEditorBase} from '../../../../uni-components/entity-editor-base';
-import {TEvent} from '../../../../models/event.model';
+import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {TEvent} from '../../models/event.model';
 import {AutoComplete} from 'primeng/autocomplete';
 import {DatePicker} from 'primeng/datepicker';
 import {FormsModule} from '@angular/forms';

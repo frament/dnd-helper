@@ -9,10 +9,10 @@ import {AutoCompleteModule} from 'primeng/autocomplete';
 import {RatingModule} from 'primeng/rating';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {MenuModule} from 'primeng/menu';
-import {Database} from '../../../database';
-import {TEvent} from '../../../models/event.model';
-import {EventEditor} from './event-editor/event-editor';
-import {deepClone} from '../../../helpers/clone-helper';
+import {Database} from '../../database';
+import {TEvent} from '../../models/event.model';
+import {EventEditor} from '../event-editor/event-editor';
+import {deepClone} from '../../helpers/clone-helper';
 import {Divider} from 'primeng/divider';
 
 @Component({

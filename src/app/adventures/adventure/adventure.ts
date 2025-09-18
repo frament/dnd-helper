@@ -3,19 +3,19 @@ import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
 import {ButtonModule} from 'primeng/button';
-import {NoteEditor} from '../../uni-components/note-editor/note-editor';
-import {ChapterEditor} from './chapter-editor/chapter-editor';
-import {MapEditorComponent} from './map-editor/map-editor';
-import {NpcEditor} from './npc-editor/npc-editor';
-import {ArtifactEditorComponent} from './artifact-editor/artifact-editor';
-import {TimelineEditorComponent} from './timeline-editor/timeline-editor';
+import {NoteEditor} from '../../editors/note-editor/note-editor';
+import {ChapterEditor} from '../../editors/chapter-editor/chapter-editor';
+import {MapEditorComponent} from '../../editors/map-editor/map-editor';
+import {NpcEditor} from '../../editors/npc-editor/npc-editor';
+import {ArtifactEditorComponent} from '../../editors/artifact-editor/artifact-editor';
+import {TimelineEditorComponent} from '../../editors/timeline-editor/timeline-editor';
 import {Database} from '../../database';
 import {TAdventure} from '../../models/adventure.model';
-import {AdventureEditor} from './adventure-editor/adventure-editor';
+import {AdventureEditor} from '../../editors/adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../../models/base-entity.model';
 import {deepClone} from '../../helpers/clone-helper';
-import {TNote, TNoteCreate} from '../../uni-components/note-editor/TNote';
+import {TNote, TNoteCreate} from '../../editors/note-editor/TNote';
 import {TMap, TMapCreate} from '../../models/map.model';
 import {TChapter, TChapterCreate} from '../../models/chapter.model';
 import {TNPC, TNPCreate} from '../../models/npc.model';
@@ -75,12 +75,6 @@ export class Adventure {
     loader: async ({params}) => this.db.linked<TArtifact>('adventures',['adventure_artifact','artifacts'], [params]),
     defaultValue: []
   })
-
-  constructor() {
-    effect(() => {
-      console.log(this.artifacts.value());
-    });
-  }
 
   readonly activeType = signal<TActiveType>(null);
   readonly activeItemTitle = computed<string>(() => {
