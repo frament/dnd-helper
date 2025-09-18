@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
+import {Component, computed, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
