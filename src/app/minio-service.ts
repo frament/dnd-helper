@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as Minio from 'minio';
+import * as AWS from 'aws-sdk';
 
 export interface FileObject {
   name: string;
@@ -12,7 +12,7 @@ export interface FileObject {
 
 export interface BucketItem {
   name: string;
-  creationDate: Date;
+  creationDate: Date | undefined;
 }
 
 export interface UploadOptions {
@@ -24,211 +24,201 @@ export interface UploadOptions {
   providedIn: 'root'
 })
 export class MinioService {
-  private minioClient: Minio.Client;
+  private s3: AWS.S3;
 
   constructor() {
-    this.minioClient = new Minio.Client({
-      endPoint: window.location.origin,
-      port: 9000,
-      useSSL: false,
-      accessKey: 'ROOTNAME',
-      secretKey: 'CHANGEME123',
+    AWS.config.update({
+      accessKeyId: 'ROOTNAME',
+      secretAccessKey: 'CHANGEME123'
+    });
+    this.s3 = new AWS.S3({
+      endpoint: `${window.location.protocol}//${window.location.hostname}:9000`,
+      s3ForcePathStyle: true, // Необходимо для MinIO
+      signatureVersion: 'v4',
       region: 'us-east-1'
+    });
+  }
+  static fileAsString(file: Blob): Promise<string> {
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        resolve(e.target.result);
+      };
+      reader.readAsDataURL(file);
     });
   }
 
   /**
    * Проверка существования бакета
    */
-  bucketExists(bucketName: string): Promise<boolean> {
-    return this.minioClient.bucketExists(bucketName);
+  async bucketExists(bucketName: string): Promise<boolean> {
+    try {
+      await this.s3.headBucket({ Bucket: bucketName }).promise();
+      return true;
+    } catch (error: any) {
+      if (error.statusCode === 404) {
+        return false;
+      }
+      throw error;
+    }
   }
 
   /**
    * Создание бакета
    */
   async createBucket(bucketName: string): Promise<void> {
-    await this.minioClient.makeBucket(bucketName);
+    await this.s3.createBucket({ Bucket: bucketName }).promise();
   }
 
   /**
    * Удаление бакета
    */
   async deleteBucket(bucketName: string): Promise<void> {
-    await this.minioClient.removeBucket(bucketName)
+    await this.s3.deleteBucket({ Bucket: bucketName }).promise();
+  }
+
+  async ensureBucket(bucketName: string): Promise<void> {
+    if (await this.bucketExists(bucketName)) return;
+    await this.createBucket(bucketName);
   }
 
   /**
    * Получение списка бакетов
    */
   async listBuckets(): Promise<BucketItem[]> {
-    return (await this.minioClient.listBuckets()).map(bucket => ({
-      name: bucket.name,
-      creationDate: bucket.creationDate
-    }));
+    const response = await this.s3.listBuckets().promise();
+    return response.Buckets?.map(bucket => ({
+      name: bucket.Name || '',
+      creationDate: bucket.CreationDate
+    }) as BucketItem) || [];
   }
 
   /**
    * Загрузка файла в MinIO
    */
-  uploadFile(
+  async uploadFile(
     bucketName: string,
     file: File,
     objectName?: string,
     options?: UploadOptions
   ): Promise<string> {
+    await this.ensureBucket(bucketName);
     const fileName = objectName || file.name;
-    const contentType = options?.contentType || file.type || 'application/octet-stream';
+    const contentType = options?.contentType
+      || file.type
+      || 'application/octet-stream';
 
-    return new Promise<string>(async (resolve, reject) => {
-      const fileReader = new FileReader();
+    const params: AWS.S3.PutObjectRequest = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: file,
+      ContentType: contentType,
+      Metadata: options?.metadata
+    };
 
-      fileReader.onload = async () => {
-        const buffer = fileReader.result as ArrayBuffer;
-
-        const {etag} = await this.minioClient.putObject(
-          bucketName,
-          fileName,
-          Buffer.from(buffer),
-          buffer.byteLength,
-          {
-            'Content-Type': contentType,
-            ...options?.metadata
-          }
-        )
-        resolve(etag);
-      };
-
-      fileReader.onerror = error => reject(error);
-      fileReader.readAsArrayBuffer(file);
-    });
-  }
-
-  /**
-   * Потоковая загрузка файла
-   */
-  uploadFileStream(
-    bucketName: string,
-    file: File,
-    objectName?: string,
-    options?: UploadOptions
-  ): Promise<string> {
-    const fileName = objectName || file.name;
-    const contentType = options?.contentType || file.type || 'application/octet-stream';
-
-    return new Promise<string>(async (resolve, reject) => {
-      const stream = file.stream();
-      const reader = stream.getReader();
-      let buffer = new Uint8Array();
-
-      const readChunk = async () => {
-        const {value, done} = await reader.read();
-        if (done) {
-          // Завершение чтения, отправляем данные в MinIO
-          const {etag} = await this.minioClient.putObject(
-            bucketName,
-            fileName,
-            Buffer.from(buffer),
-            buffer.length,
-            {'Content-Type': contentType, ...options?.metadata}
-          );
-          resolve(etag);
-        }
-        if (!value) { await readChunk(); return }
-        // Добавляем данные в буфер
-        const newBuffer = new Uint8Array(buffer.length + value!.length);
-        newBuffer.set(buffer);
-        newBuffer.set(value!, buffer.length);
-        buffer = newBuffer;
-        await readChunk();
-      }
-      await readChunk();
-    });
+    const response = await this.s3.upload(params).promise();
+    return response.ETag || '';
   }
 
   /**
    * Получение списка файлов в бакете
    */
   async listFiles(bucketName: string, prefix?: string, recursive: boolean = true): Promise<FileObject[]> {
-    return new Promise<FileObject[]>((resolve, reject) => {
-      const objects: FileObject[] = [];
-      const stream = this.minioClient.listObjects(bucketName, prefix, recursive);
+    const params: AWS.S3.ListObjectsV2Request = {
+      Bucket: bucketName,
+      Prefix: prefix || ''
+    };
 
-      stream.on('data', async (obj) => {
-        if (obj.name && obj.size !== undefined) {
-          objects.push({
-            name: obj.name,
-            size: obj.size,
-            lastModified: obj.lastModified!,
-            etag: obj.etag!,
-            url: await this.getPresignedUrl(bucketName, obj.name)
-          });
-        }
-      });
+    const response = await this.s3.listObjectsV2(params).promise();
 
-      stream.on('error', (error) => reject(error));
-      stream.on('end', () => resolve(objects));
-    });
+    if (!response.Contents) {
+      return [];
+    }
+
+    return response.Contents.map(item => ({
+      name: item.Key || '',
+      size: item.Size || 0,
+      lastModified: item.LastModified || new Date(),
+      etag: item.ETag || '',
+      url: this.getPresignedUrl(bucketName, item.Key || '')
+    }) as FileObject);
   }
 
   /**
    * Получение presigned URL для доступа к файлу
    */
-  getPresignedUrl(bucketName: string, objectName: string, expires: number = 86400): Promise<string> {
-    return this.minioClient.presignedGetObject(bucketName, objectName, expires);
+  getPresignedUrl(bucketName: string, objectName: string, expires: number = 86400): string {
+    return this.s3.getSignedUrl('getObject', {
+      Bucket: bucketName,
+      Key: objectName,
+      Expires: expires
+    });
   }
 
   /**
    * Получение presigned URL для загрузки файла
    */
   getPresignedPutUrl(bucketName: string, objectName: string, expires: number = 3600): Promise<string> {
-    return this.minioClient.presignedPutObject(bucketName, objectName, expires);
+    return this.s3.getSignedUrlPromise('putObject', {
+      Bucket: bucketName,
+      Key: objectName,
+      Expires: expires
+    });
   }
 
   /**
    * Скачивание файла как Blob
    */
-  async downloadFile(bucketName: string, objectName: string): Promise<Blob> {
-    const stream = await this.minioClient.getObject(bucketName, objectName);
+  async downloadFile(bucketName: string, objectName: string): Promise<Blob|undefined> {
+    if (!await this.bucketExists(bucketName)) return undefined;
+    try {
+      const response = await this.s3.getObject({
+        Bucket: bucketName,
+        Key: objectName
+      }).promise();
 
-    return new Promise<Blob>(async (resolve, reject) => {
-      const dataStream = await this.minioClient.getObject(bucketName, objectName);
-      const chunks: Buffer[] = [];
-      dataStream.on('data', (chunk:any) => chunks.push(chunk));
-      dataStream.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        const blob = new Blob([buffer]);
-        resolve(blob);
+      if (!response?.Body) {
+        return undefined;
+      }
+
+      // Преобразование Buffer в Blob
+      return new Blob([response.Body as any], {
+        type: response.ContentType || 'application/octet-stream'
       });
-      dataStream.on('error', (err:any) => reject(err));
-    });
+    } catch (e) {
+      return undefined;
+    }
   }
 
   /**
    * Скачивание файла как ArrayBuffer
    */
-  async downloadFileAsBuffer(bucketName: string, objectName: string): Promise<ArrayBuffer> {
+  async downloadFileAsBuffer(bucketName: string, objectName: string): Promise<ArrayBuffer|undefined> {
     const blob = await this.downloadFile(bucketName, objectName);
-    return new Promise<ArrayBuffer>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as ArrayBuffer);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(blob);
-    });
+    if (!blob) return undefined;
+    return await blob.arrayBuffer();
   }
 
   /**
    * Удаление файла
    */
   async deleteFile(bucketName: string, objectName: string): Promise<void> {
-    await this.minioClient.removeObject(bucketName, objectName);
+    await this.s3.deleteObject({
+      Bucket: bucketName,
+      Key: objectName
+    }).promise();
   }
 
   /**
    * Удаление нескольких файлов
    */
   async deleteFiles(bucketName: string, objectNames: string[]): Promise<void> {
-    await this.minioClient.removeObjects(bucketName, objectNames)
+    await this.s3.deleteObjects({
+      Bucket: bucketName,
+      Delete: {
+        Objects: objectNames.map(name => ({ Key: name }))
+      }
+    }).promise();
   }
 
   /**
@@ -240,41 +230,49 @@ export class MinioService {
     targetBucket: string,
     targetObject: string
   ): Promise<void> {
-    const sourcePath = `${sourceBucket}/${sourceObject}`;
-    const conditions = new Minio.CopyConditions();
-    await this.minioClient.copyObject(targetBucket, targetObject, sourcePath, conditions)
+    await this.s3.copyObject({
+      Bucket: targetBucket,
+      Key: targetObject,
+      CopySource: `/${sourceBucket}/${sourceObject}`
+    }).promise();
   }
 
   /**
    * Получение метаданных файла
    */
-  getFileMetadata(bucketName: string, objectName: string): Promise<Minio.BucketItemStat> {
-    return this.minioClient.statObject(bucketName, objectName);
+  getFileMetadata(bucketName: string, objectName: string): Promise<AWS.S3.HeadObjectOutput> {
+    return this.s3.headObject({
+      Bucket: bucketName,
+      Key: objectName
+    }).promise();
   }
 
   /**
    * Получение политики бакета
    */
-  getBucketPolicy(bucketName: string): Promise<string> {
-    return this.minioClient.getBucketPolicy(bucketName);
+  async getBucketPolicy(bucketName: string): Promise<string> {
+    const response = await this.s3.getBucketPolicy({
+      Bucket: bucketName
+    }).promise();
+
+    return response.Policy || '';
   }
 
   /**
    * Установка политики бакета
    */
-  setBucketPolicy(bucketName: string, policy: string): Promise<void> {
-    return this.minioClient.setBucketPolicy(bucketName, policy);
+  async setBucketPolicy(bucketName: string, policy: string): Promise<void> {
+    await this.s3.putBucketPolicy({
+      Bucket: bucketName,
+      Policy: policy
+    }).promise();
   }
 
   /**
    * Получение URL для доступа к файлу (публичный доступ)
    */
   getObjectUrl(bucketName: string, objectName: string): string {
-    return window.location.protocol + '//' +
-      window.location.host + ':' +
-      9000 + '/' +
-      bucketName + '/' +
-      encodeURIComponent(objectName);
+    return `${this.s3.endpoint.protocol}//${this.s3.endpoint.hostname}:${this.s3.endpoint.port}/${bucketName}/${encodeURIComponent(objectName)}`;
   }
 
   /**
@@ -282,9 +280,10 @@ export class MinioService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      await this.minioClient.listBuckets();
+      await this.listBuckets();
       return true;
-    } catch (e) {
+    } catch (error) {
+      console.error('Ошибка подключения к MinIO:', error);
       return false;
     }
   }
@@ -292,8 +291,18 @@ export class MinioService {
   /**
    * Получение информации об использовании хранилища
    */
-  getStorageInfo(): Promise<Minio.BucketItemFromList[]> {
-    return this.minioClient.listBuckets();
+  async getStorageInfo(): Promise<{ totalSize: number; objectCount: number }> {
+    const buckets = await this.listBuckets();
+    let totalSize = 0;
+    let objectCount = 0;
+
+    for (const bucket of buckets) {
+      const files = await this.listFiles(bucket.name);
+      objectCount += files.length;
+      totalSize += files.reduce((sum, file) => sum + file.size, 0);
+    }
+
+    return { totalSize, objectCount };
   }
 
   /**
@@ -302,17 +311,26 @@ export class MinioService {
   async createFolder(bucketName: string, folderPath: string): Promise<string> {
     // В MinIO папки создаются путем загрузки пустого объекта с "/" в конце
     const folderName = folderPath.endsWith('/') ? folderPath : folderPath + '/';
-    const {etag} = await this.minioClient.putObject(bucketName, folderName, Buffer.from(''), 0);
-    return etag;
+
+    const response = await this.s3.putObject({
+      Bucket: bucketName,
+      Key: folderName,
+      Body: '',
+      ContentLength: 0
+    }).promise();
+
+    return response.ETag || '';
   }
 
   /**
    * Рекурсивное удаление папки
    */
   async deleteFolder(bucketName: string, folderPath: string): Promise<void> {
-    const files = await this.listFiles(bucketName, folderPath, true);
+    const files = await this.listFiles(bucketName, folderPath);
     const fileNames = files.map(file => file.name);
-    if (fileNames.length === 0) { return; }
-    await this.deleteFiles(bucketName, fileNames);
+
+    if (fileNames.length > 0) {
+      await this.deleteFiles(bucketName, fileNames);
+    }
   }
 }

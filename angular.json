@@ -21,6 +21,9 @@
                 "input": "public"
               }
             ],
+            "polyfills": [
+              "src/window-global-fix.ts"
+            ],
             "styles": [
               "src/styles.css"
             ]
