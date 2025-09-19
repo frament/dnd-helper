@@ -115,7 +115,6 @@ export class MinioService {
       ContentType: contentType,
       Metadata: options?.metadata
     };
-
     const response = await this.s3.upload(params).promise();
     return response.ETag || '';
   }
@@ -123,7 +122,7 @@ export class MinioService {
   /**
    * Получение списка файлов в бакете
    */
-  async listFiles(bucketName: string, prefix?: string, recursive: boolean = true): Promise<FileObject[]> {
+  async listFiles(bucketName: string, prefix?: string): Promise<FileObject[]> {
     const params: AWS.S3.ListObjectsV2Request = {
       Bucket: bucketName,
       Prefix: prefix || ''

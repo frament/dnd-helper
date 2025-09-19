@@ -110,8 +110,8 @@
              (click)="fileInput.click()">
 
           <!-- Предпросмотр карты -->
-          @if (sig['file']()) {
-            <img [src]="sig['file']()"
+          @if (image.value()) {
+            <img [src]="image.value()"
                  alt="Карта"
                  class="max-h-[500px] max-w-full object-contain">
           } @else {
@@ -128,7 +128,6 @@
             <div class="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
               <p-progressSpinner strokeWidth="4"
                                  animationDuration=".5s"></p-progressSpinner>
-              <span class="ml-4 text-gray-300">Загрузка... {{uploadProgress()}}%</span>
             </div>
           }
 
@@ -148,16 +147,8 @@
             <span pButtonLabel>Загрузить</span>
           </button>
 
-          <!-- Выбрать из библиотеки -->
-          <button pButton
-                  class="p-button-secondary"
-                  (click)="openImageLibrary()">
-            <i class="pi pi-images" pButtonIcon></i>
-            <span pButtonLabel>Библиотека</span>
-          </button>
-
           <!-- Удалить изображение -->
-          @if (sig['file']()) {
+          @if (image.value()) {
             <button pButton
                     class="p-button-danger"
                     (click)="removeImage()">

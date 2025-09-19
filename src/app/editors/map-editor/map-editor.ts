@@ -1,4 +1,4 @@
-import {Component, input, output, signal} from '@angular/core';
+import {Component, computed, inject, input, output, resource, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -12,6 +12,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {SelectModule} from 'primeng/select';
 import {TMap} from '../../models/map.model';
 import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {MinioService} from '../../minio-service';
 
 @Component({
   selector: 'app-map-editor',
@@ -41,9 +42,20 @@ export class MapEditorComponent extends EntityEditorBase<TMap>{
   save = output<any>();
   delete = output<void>();
   export = output<void>();
-
+  filesService = inject(MinioService);
   uploading = signal<boolean>(false);
-  uploadProgress = signal<number>(0);
+  imageObjectName = computed(() => this.item().id.id+'_image');
+  image = resource<string|undefined, string>({
+    params: () => this.item().id.id+'',
+    loader: async ({params}) => {
+      if (!params) return undefined;
+      const file = await this.filesService.downloadFile('map', this.imageObjectName());
+      if (!file) return undefined;
+      const result = await MinioService.fileAsString(file);
+      this.uploading.set(false);
+      return result;
+    }
+  });
   selectedLayer = signal<any>(undefined);
 
   mapTypes = [
@@ -64,53 +76,20 @@ export class MapEditorComponent extends EntityEditorBase<TMap>{
     { id: 6, name: 'NPC', icon: 'pi pi-user', visible: true }
   ];
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        // this.messageService.add({
-        //   severity: 'error',
-        //   summary: 'Ошибка',
-        //   detail: 'Файл слишком большой. Максимальный размер: 10MB'
-        // });
         return;
       }
 
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        /*this.messageService.add({
-          severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Неподдерживаемый формат изображения'
-        });*/
         return;
       }
-
       this.uploading.set(true);
-      this.uploadProgress.set(0);
-
-      // Имитация загрузки с прогрессом
-      const interval = setInterval(() => {
-        this.uploadProgress.update(x => x + 10);
-        if (this.uploadProgress() >= 100) {
-          clearInterval(interval);
-          this.processImage(file);
-        }
-      }, 200);
+      await this.filesService.uploadFile('map', file, this.imageObjectName());
+      this.image.reload();
     }
-  }
-
-  processImage(file: File) {
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.sig['file'].set(e.target.result);
-      this.uploading.set(false);
-      /*this.messageService.add({
-        severity: 'success',
-        summary: 'Успешно',
-        detail: 'Изображение загружено'
-      });*/
-    };
-    reader.readAsDataURL(file);
   }
 
   onDragOver(event: DragEvent) {
@@ -121,40 +100,19 @@ export class MapEditorComponent extends EntityEditorBase<TMap>{
     }
   }
 
-  onDrop(event: DragEvent) {
+  async onDrop(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
 
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0];
       const fakeEvent = { target: { files: [file] } };
-      this.onFileSelected(fakeEvent as any);
+      await this.onFileSelected(fakeEvent as any);
     }
   }
 
-  removeImage() {
-    this.sig['file'].set('');
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Изображение удалено',
-      detail: 'Карта больше не содержит изображения'
-    });*/
-  }
-
-  openImageLibrary() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Библиотека изображений',
-      detail: 'Функция будет реализована в следующем обновлении'
-    });*/
-  }
-
-  exportMap() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Экспорт карты',
-      detail: 'Функция экспорта в разработке'
-    });*/
-    this.export.emit();
+  async removeImage() {
+    await this.filesService.deleteFile('map',this.imageObjectName());
+    this.image.reload();
   }
 }

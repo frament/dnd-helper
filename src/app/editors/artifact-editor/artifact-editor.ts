@@ -1,4 +1,4 @@
-import {Component, input, output, signal} from '@angular/core';
+import {Component, computed, inject, input, output, resource, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -14,6 +14,7 @@ import {EditorModule} from 'primeng/editor';
 import {SelectModule} from 'primeng/select';
 import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 import {TArtifact} from '../../models/artifact.model';
+import {MinioService} from '../../minio-service';
 
 @Component({
   selector: 'app-artifact-editor',
@@ -41,8 +42,20 @@ export class ArtifactEditorComponent extends EntityEditorBase<TArtifact>{
   constructor() {
     super();
   }
-
+  filesService = inject(MinioService);
   uploading = signal<boolean>(false);
+  imageObjectName = computed(() => this.item().id.id+'_image');
+  image = resource<string|undefined, string>({
+    params: () => this.item().id.id+'',
+    loader: async ({params}) => {
+      if (!params) return undefined;
+      const file = await this.filesService.downloadFile('artifact', this.imageObjectName());
+      if (!file) return undefined;
+      const result = await MinioService.fileAsString(file);
+      this.uploading.set(false);
+      return result;
+    }
+  });
 
   artifactTypes = [
     { label: 'Оружие', value: 'weapon' },
@@ -83,52 +96,21 @@ export class ArtifactEditorComponent extends EntityEditorBase<TArtifact>{
     { label: 'По желанию владельца', value: 'owner-will' }
   ];
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        /*this.messageService.add({
-          severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Файл слишком большой. Максимальный размер: 5MB'
-        });*/
         return;
       }
-
       this.uploading.set(true);
-
-      // Имитация загрузки на сервер
-      setTimeout(() => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.sig['imageUrl'].set(e.target.result);
-          this.uploading.set(false);
-          /*this.messageService.add({
-            severity: 'success',
-            summary: 'Успешно',
-            detail: 'Изображение загружено'
-          });*/
-        };
-        reader.readAsDataURL(file);
-      }, 1000);
+      await this.filesService.uploadFile('artifact', file, this.imageObjectName());
+      this.image.reload();
     }
   }
 
-  removeImage() {
-    this.sig['imageUrl'].set('');
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Изображение удалено',
-      detail: 'Артефакт больше не имеет изображения'
-    });*/
-  }
-
-  openImageLibrary() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Библиотека изображений',
-      detail: 'Функция будет реализована в будущем'
-    });*/
+  async removeImage() {
+    await this.filesService.deleteFile('artifact',this.imageObjectName());
+    this.image.reload();
   }
 
   addAbility() {
