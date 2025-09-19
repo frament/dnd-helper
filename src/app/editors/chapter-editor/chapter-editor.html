@@ -66,8 +66,8 @@
         <div class="flex-1 flex flex-col items-center justify-center">
           <!-- Предпросмотр аватара -->
           <div class="relative mb-6">
-            @if (sig['avatar']()) {
-              <p-avatar [image]="sig['avatar']()"
+            @if (avatar.value()) {
+              <p-avatar [image]="avatar.value()"
                         size="xlarge"
                         shape="circle"
                         class="w-48 h-48 border-4 border-blue-500"></p-avatar>
@@ -82,7 +82,7 @@
             @if (uploading()) {
               <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                  strokeWidth="4"
-                                 animationDuration=".5s"></p-progressSpinner>
+                                 animationDuration=".5s"/>
             }
           </div>
 
@@ -99,16 +99,8 @@
                    class="hidden"
                    (change)="onFileSelected($event)">
 
-            <!-- Выбрать из библиотеки -->
-            <button pButton
-                    class="p-button-secondary"
-                    (click)="openImageLibrary()">
-              <i class="pi pi-images" pButtonIcon></i>
-              <span pButtonLabel>Библиотека</span>
-            </button>
-
             <!-- Удалить изображение -->
-            @if (sig['avatar']()) {
+            @if (avatar.value()) {
               <button pButton
                       class="p-button-danger"
                       (click)="removeImage()">

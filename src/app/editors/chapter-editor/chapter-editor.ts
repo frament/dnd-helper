@@ -1,4 +1,4 @@
-import {Component, computed, input, output, signal} from '@angular/core';
+import {Component, computed, inject, input, output, resource, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {SelectButtonModule} from 'primeng/selectbutton';
@@ -14,6 +14,7 @@ import {TagModule} from 'primeng/tag';
 import {SelectModule} from 'primeng/select';
 import {TChapter} from '../../models/chapter.model';
 import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {MinioService} from '../../minio-service';
 
 @Component({
   selector: 'app-chapter-editor',
@@ -38,11 +39,21 @@ import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 export class ChapterEditor extends EntityEditorBase<TChapter>{
   item = input.required<TChapter>();
   readonly patch = output<Partial<TChapter|null>>();
-
-  uploading = signal<boolean>(false);
-
   constructor() {super()}
-
+  filesService = inject(MinioService);
+  uploading = signal<boolean>(false);
+  avatarObjectName = computed(() => this.item().id.id+'_avatar');
+  avatar = resource<string|undefined, string>({
+    params: () => this.item().id.id+'',
+    loader: async ({params}) => {
+      if (!params) return undefined;
+      const file = await this.filesService.downloadFile('chapter', this.avatarObjectName());
+      if (!file) return undefined;
+      const result = await MinioService.fileAsString(file);
+      this.uploading.set(false);
+      return result;
+    }
+  });
   statusOptions = [
     { label: 'Черновик', value: 'draft', icon: 'pi pi-file' },
     { label: 'В разработке', value: 'in-progress', icon: 'pi pi-cog' },
@@ -67,47 +78,21 @@ export class ChapterEditor extends EntityEditorBase<TChapter>{
     }
   })
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        /*this.messageService.add({
-          severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Файл слишком большой. Максимальный размер: 5MB'
-        });*/
         return;
       }
-
       this.uploading.set(true);
-
-      // Имитация загрузки на сервер
-      setTimeout(() => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.sig['avatar'].set(e.target.result);
-          this.uploading.set(false);
-          /*this.messageService.add({
-            severity: 'success',
-            summary: 'Успешно',
-            detail: 'Изображение загружено'
-          });*/
-        };
-        reader.readAsDataURL(file);
-      }, 1500);
+      await this.filesService.uploadFile('chapter', file, this.avatarObjectName());
+      this.avatar.reload();
     }
   }
 
-  removeImage() {
-    this.sig['avatar'].set('');
-  }
-
-  openImageLibrary() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Библиотека изображений',
-      detail: 'Функция будет реализована в будущем'
-    });*/
+  async removeImage() {
+    await this.filesService.deleteFile('chapter',this.avatarObjectName());
+    this.avatar.reload();
   }
 
   addTag(tag: string) {
