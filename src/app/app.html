@@ -12,21 +12,25 @@
 
         <!-- Навигационные кнопки -->
         <div class="flex space-x-4">
-          <button pButton
-                  pRipple
-                  label="Приключения"
-                  icon="pi pi-book"
-                  class="p-button-text"
+          <button pButton pRipple class="p-button-text"
                   [class.text-blue-400!]="activeTab() === 'adventures'"
-                  (click)="setActiveTab('adventures')"></button>
+                  (click)="setActiveTab('adventures')">
+            <i class="pi pi-crown" pButtonIcon></i>
+            <span pButtonLabel>Приключения</span>
+          </button>
 
-          <button pButton
-                  pRipple
-                  label="Герои"
-                  icon="pi pi-users"
-                  class="p-button-text"
+          <button pButton pRipple class="p-button-text"
                   [class.text-blue-400!]="activeTab() === 'heroes'"
-                  (click)="setActiveTab('heroes')"></button>
+                  (click)="setActiveTab('heroes')">
+            <i class="pi pi-users" pButtonIcon></i>
+            <span pButtonLabel>Герои</span>
+          </button>
+          <button pButton pRipple class="p-button-text"
+                  [class.text-blue-400!]="activeTab() === 'wiki'"
+                  (click)="setActiveTab('wiki')">
+            <i class="pi pi-book" pButtonIcon></i>
+            <span pButtonLabel>Wiki</span>
+          </button>
         </div>
       </div>
 
@@ -34,8 +38,9 @@
       <div class="flex items-center space-x-4">
         <!-- Уведомления и другие иконки -->
         <button pButton
-                icon="pi pi-bell"
-                class="p-button-rounded p-button-text text-gray-300 hover:text-white"></button>
+                class="p-button-rounded p-button-text text-gray-300 hover:text-white">
+          <i class="pi pi-bell" pButtonIcon></i>
+        </button>
 
         <!-- Аватар с меню -->
         <div class="relative">

@@ -94,23 +94,26 @@
           <!-- Кнопки управления изображением -->
           <div class="flex flex-wrap justify-center gap-2">
             <button pButton
-                    icon="pi pi-upload"
                     class="p-button-success p-button-sm"
-                    (click)="fileInput.click()"></button>
+                    (click)="fileInput.click()">
+              <i class="pi pi-upload" pButtonIcon></i>
+            </button>
             <input #fileInput type="file" accept="image/*"
                    class="hidden"
                    (change)="onFileSelected($event)">
 
             <button pButton
-                    icon="pi pi-images"
                     class="p-button-secondary p-button-sm"
-                    (click)="openImageLibrary()"></button>
+                    (click)="openImageLibrary()">
+              <i class="pi pi-images" pButtonIcon></i>
+            </button>
 
             @if (sig['imageUrl']()) {
               <button pButton
-                      icon="pi pi-trash"
                       class="p-button-danger p-button-sm"
-                      (click)="removeImage()"></button>
+                      (click)="removeImage()">
+                <i class="pi pi-trash" pButtonIcon></i>
+              </button>
             }
           </div>
         </div>
@@ -198,9 +201,11 @@
                   <input pInputText [(ngModel)]="ability.name"
                          placeholder="Название способности"
                          class="flex-1 mr-2">
-                  <button pButton icon="pi pi-trash"
+                  <button pButton
                           class="p-button-danger p-button-text"
-                          (click)="removeAbility(i)"></button>
+                          (click)="removeAbility(i)">
+                    <i class="pi pi-trash" pButtonIcon></i>
+                  </button>
                 </div>
                 <textarea pInputTextarea [(ngModel)]="ability.description"
                           [rows]="2"
@@ -208,10 +213,12 @@
                           placeholder="Описание способности..."></textarea>
               </div>
             }
-            <button pButton icon="pi pi-plus"
-                    label="Добавить способность"
+            <button pButton
                     class="p-button-text p-button-sm w-full"
-                    (click)="addAbility()"></button>
+                    (click)="addAbility()">
+              <i class="pi pi-plus" pButtonIcon></i>
+              <span pButtonLabel>Добавить способность</span>
+            </button>
           </div>
         </div>
       </div>

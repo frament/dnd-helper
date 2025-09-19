@@ -9,9 +9,11 @@
       <p-select [options]="categories"
                 [(ngModel)]="sig['category']"
                 placeholder="Выберите категорию"/>
-      <button pButton icon="pi pi-ellipsis-v"
+      <button pButton
               class="p-button-text p-button-plain"
-              (click)="moreMenu.toggle($event)"></button>
+              (click)="moreMenu.toggle($event)">
+        <i class="pi pi-ellipsis-v" pButtonIcon></i>
+      </button>
       <p-menu #moreMenu [popup]="true">
         <ng-template pTemplate="content">
           <li>
