@@ -39,61 +39,6 @@ import {TUser} from '../user/user';
   styleUrl: './adventures.css'
 })
 export class Adventures {
-  _adventures = [
-    {
-      id: 1,
-      title: 'Потерянные земли Амазонии',
-      avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png',
-      author: 'Мастер Иван',
-      status: 'Активно',
-      description: 'Исследуйте древние джунгли в поисках потерянного города золота.',
-      chapters: [
-        { id: 1, title: 'Введение в джунгли', available: true, progress: 75 },
-        { id: 2, title: 'Храм обезьяньего бога', available: true, progress: 40 },
-        { id: 3, title: 'Река забвения', available: false, progress: 0 },
-        { id: 4, title: 'Город золота', available: false, progress: 0 }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Проклятие фараона',
-      avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png',
-      author: 'Мастер Елена',
-      status: 'Завершено',
-      description: 'Раскройте тайны древней пирамиды и снимите тысячелетнее проклятие.',
-      chapters: [
-        { id: 1, title: 'Вход в пирамиду', available: true, progress: 100 },
-        { id: 2, title: 'Лабиринт смерти', available: true, progress: 100 },
-        { id: 3, title: 'Гробница фараона', available: true, progress: 100 }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Логово дракона',
-      avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/onyamalimba.png',
-      author: 'Мастер Алексей',
-      status: 'В разработке',
-      description: 'Спасите королевство от древнего дракона, пробудившегося ото сна.',
-      chapters: [
-        { id: 1, title: 'Сборы в поход', available: true, progress: 25 },
-        { id: 2, title: 'Перевал дракона', available: false, progress: 0 },
-        { id: 3, title: 'Логово', available: false, progress: 0 }
-      ]
-    },
-    {
-      id: 4,
-      title: 'Тайна ледяного замка',
-      avatar: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
-      author: 'Мастер Ольга',
-      status: 'Активно',
-      description: 'Раскройте тайну вечной зимы, сковавшей северное королевство.',
-      chapters: [
-        { id: 1, title: 'Путь на север', available: true, progress: 100 },
-        { id: 2, title: 'Ледяные пещеры', available: true, progress: 60 },
-        { id: 3, title: 'Замок Ледяной королевы', available: false, progress: 0 }
-      ]
-    }
-  ];
 
   statusOptions = [
     { name: 'Все', value: 'all' },
