@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, linkedSignal, resource, signal, viewChild} from '@angular/core';
+import {Component, computed, inject, input, resource, signal, viewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {AccordionModule} from 'primeng/accordion';
 import {Menu, MenuModule} from 'primeng/menu';
@@ -83,24 +83,38 @@ export class Adventure {
 
   readonly activeType = signal<TActiveType>(null);
   readonly activeItemTitle = computed<string>(() => {
-    if (!this.activeType() || !this.activeItem) return 'Редактор приключения';
+    if (!this.activeType() || !this.activeItemId) return 'Редактор приключения';
     switch(this.activeType()) {
       case 'notes':
-        return this.notes.value().find(n => n.id.id === this.activeItem)?.title || 'Заметка';
+        return this.activeContent()?.title || 'Заметка';
       case 'maps':
-        return this.maps.value().find(m => m.id.id === this.activeItem)?.title || 'Карта';
+        return this.activeContent()?.title || 'Карта';
       case 'chapters':
-        return this.chapters.value().find(c => c.id.id === this.activeItem)?.title || 'Глава';
+        return this.activeContent()?.title || 'Глава';
       case 'npcs':
-        return this.npcs.value().find(n => n.id.id === this.activeItem)?.name || 'Персонаж';
+        return this.activeContent()?.name || 'Персонаж';
       case 'artifacts':
-        return this.artifacts.value().find(a => a.id.id === this.activeItem)?.name || 'Артефакт';
+        return this.activeContent()?.name || 'Артефакт';
       default:
         return 'Редактор приключения';
     }
   });
-  activeItem: string | null = null;
-  readonly activeContent = linkedSignal<any>(() => this.adventure.value());
+  activeItemId = signal<string | null>(null);
+  readonly activeContent = computed<any>(() => {
+    const id = this.activeItemId();
+    const type = this.activeType();
+    if (type && !id) return undefined;
+    let resource: any[] = [];
+    switch(type) {
+      case 'notes': resource = this.notes.value(); break;
+      case 'maps': resource = this.maps.value(); break;
+      case 'chapters': resource = this.chapters.value(); break;
+      case 'npcs': resource = this.npcs.value(); break;
+      case 'artifacts': resource =  this.artifacts.value(); break;
+      default: return this.adventure.value();
+    }
+    return resource.find(n => n.id.id === id);
+  });
   readonly activeContentPatch = signal<any>(null);
 
   contextMenuItems: MenuItem[] = [];
@@ -109,25 +123,7 @@ export class Adventure {
 
   selectItem(type: TActiveType, id: string) {
     this.activeType.set(type);
-    this.activeItem = id;
-    // Находим выбранный элемент
-    switch(type) {
-      case 'notes':
-        this.activeContent.set(this.notes.value().find(n => n.id.id === id));
-        break;
-      case 'maps':
-        this.activeContent.set(this.maps.value().find(m => m.id.id === id));
-        break;
-      case 'chapters':
-        this.activeContent.set(this.chapters.value().find(c => c.id.id === id));
-        break;
-      case 'npcs':
-        this.activeContent.set(this.npcs.value().find(n => n.id.id === id));
-        break;
-      case 'artifacts':
-        this.activeContent.set(this.artifacts.value().find(a => a.id.id === id));
-        break;
-    }
+    this.activeItemId.set(id);
   }
 
   openContextMenu(event: Event, item: TBaseEntity & any) {
@@ -155,9 +151,9 @@ export class Adventure {
         type+'', newItem["id"].id+''
       )
     }
-
+    this.activeItemId.set(null);
     this.refreshByTb(type+'');
-    this.selectItem(type, newItem["id"].toString());
+    this.selectItem(type, newItem["id"].id);
   }
 
   async addItem(type: TActiveType, item?:any) {
@@ -232,10 +228,7 @@ export class Adventure {
   }
 
   cancelPatch(){
-    const ent: TBaseEntity = deepClone(this.activeContent());
-    this.activeContentPatch.set(null);
-    this.activeContent.set(undefined);
-    this.activeContent.set(ent);
+    this.refreshByTb(this.activeType());
   }
 
   async applyPatch() {
@@ -246,7 +239,7 @@ export class Adventure {
     this.refreshByTb(ent.id.tb);
   }
 
-  refreshByTb(tb:string){
+  refreshByTb(tb:string|null){
     switch (tb) {
       case 'notes': this.notes.reload(); break;
       case 'maps': this.maps.reload(); break;
@@ -254,6 +247,7 @@ export class Adventure {
       case 'npcs': this.npcs.reload(); break;
       case 'artifacts': this.artifacts.reload(); break;
       case 'adventures': this.adventure.reload(); break;
+      default: this.adventure.reload();
     }
   }
 
