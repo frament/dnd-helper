@@ -134,18 +134,11 @@ export class Adventure {
     event.stopPropagation();
 
     this.contextMenuItems = [
-      {
-        label: 'Дублировать',
-        icon: 'pi pi-copy',
+      { label: 'Дублировать', icon: 'pi pi-copy',
         command: () => this.duplicateItem(item)
       },
-      {
-        separator: true
-      },
-      {
-        label: 'Удалить',
-        icon: 'pi pi-trash',
-        styleClass: 'text-red-500',
+      { separator: true },
+      { label: 'Удалить', icon: 'pi pi-trash', styleClass: 'text-red-500',
         command: () => this.deleteItem(item)
       }
     ];
