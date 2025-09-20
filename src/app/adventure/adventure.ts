@@ -167,40 +167,40 @@ export class Adventure {
     this.selectItem(type, newItem["id"].toString());
   }
 
-  async addItem(type: TActiveType) {
+  async addItem(type: TActiveType, item?:any) {
     switch(type) {
       case 'notes':
         await this.defCreate<TNoteCreate>(
           type,
-          {status: 'draft', title:'Новая заметка',content: '', tags:[], category:''},
+          item ?? {status: 'draft', title:'Новая заметка',content: '', tags:[], category:''},
           'adventure_note'
         );
         break;
       case 'maps':
         await this.defCreate<TMapCreate>(
           type,
-          {title:'Новая карта', type:'world'},
+          item ?? {title:'Новая карта', type:'world'},
           'adventure_map'
         );
         break;
       case 'chapters':
         await this.defCreate<TChapterCreate>(
           type,
-          {title:'Новая глава', status:'draft'},
+          item ?? {title:'Новая глава', status:'draft'},
           'adventure_chapter'
         );
         break;
       case 'npcs':
         await this.defCreate<TNPCreate>(
           type,
-          {name:'Новый NPC', race:'human'},
+          item ?? {name:'Новый NPC', race:'human'},
           'adventure_npc'
         );
         break;
       case 'artifacts':
         await this.defCreate<TArtifactCreate>(
           type,
-          {name:'Новый артефакт'},
+          item ?? {name:'Новый артефакт'},
           'adventure_artifact'
         );
         break;
@@ -220,9 +220,12 @@ export class Adventure {
     }
   }
 
-  duplicateItem(item: TBaseEntity & any) {
-    // Реализация дублирования
-    console.log(`Дублировать ${item.id.tb}:`, item);
+  async duplicateItem(item: TBaseEntity & any) {
+    const ent: TBaseEntity & any = deepClone(item);
+    delete ent.id;
+    delete ent.createdAt;
+    delete ent.updatedAt;
+    await this.addItem(item.id.tb, ent)
   }
 
   async deleteItem(item: TBaseEntity & any) {
