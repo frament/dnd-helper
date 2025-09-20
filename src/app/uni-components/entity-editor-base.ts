@@ -9,9 +9,11 @@ export abstract class EntityEditorBase<T extends TBaseEntity>{
   _initial: T|undefined;
   _inited = signal<boolean>(false);
   sig: {[key: string]: WritableSignal<any>} = {};
-  _item = computed<Partial<T>>(() => Object.fromEntries(
-    Object.entries(this.sig).map(([key,sig]) => [key, sig()])
-  ) as Partial<T>);
+  _item = computed<Partial<T>>(() => this._inited()
+    ? Object.fromEntries(
+      Object.entries(this.sig).map(([key,sig]) => [key, sig()])
+    ) as Partial<T>
+    : {});
   private excludeKeys = new Set(['id','createdAt','updatedAt']);
   protected constructor() {
     effect(() => {
