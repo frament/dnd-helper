@@ -33,7 +33,7 @@
                 <p-tag [value]="adventure.status"
                        [severity]="getStatusSeverity(adventure.status)"></p-tag>
                 <span class="text-gray-400 ml-2">
-                <i class="pi pi-user mr-1"></i>{{ owners[adventure.owner.toString()].name }}
+                <i class="pi pi-user mr-1"></i>{{ owners[adventure.owner.toString()]?.name }}
               </span>
               </div>
               <p class="text-gray-400 mt-2">{{ adventure.description }}</p>
