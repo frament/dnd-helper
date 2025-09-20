@@ -42,17 +42,13 @@ export class AdventureEditor extends EntityEditorBase<TAdventure>{
     { label: 'Сценарий', value: 'scenario' },
     { label: 'Квест', value: 'quest' }
   ];
+
   constructor() {super()}
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        /*this.messageService.add({
-          severity: 'error',
-          summary: 'Ошибка',
-          detail: 'Файл слишком большой. Максимальный размер: 10MB'
-        });*/
         return;
       }
 

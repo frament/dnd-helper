@@ -19,7 +19,7 @@ import {Router} from '@angular/router';
 import {TUser} from '../user/user';
 
 @Component({
-  selector: 'app-adventures',
+  selector: 'app-adventure-list',
   imports: [
     CommonModule,
     FormsModule,
@@ -35,10 +35,10 @@ import {TUser} from '../user/user';
     InputGroupAddonModule,
     PopoverModule
   ],
-  templateUrl: './adventures.html',
-  styleUrl: './adventures.css'
+  templateUrl: './adventure-list.html',
+  styleUrl: './adventure-list.css'
 })
-export class Adventures {
+export class AdventureList {
 
   statusOptions = [
     { name: 'Все', value: 'all' },

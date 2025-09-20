@@ -2,9 +2,16 @@
   <!-- Левая панель навигации -->
   <div class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col">
     <!-- Заголовок редактора -->
-    <div class="p-4 border-b border-gray-700">
-      <h2 class="text-xl font-bold text-white">Редактор приключения</h2>
-      <p class="text-gray-400 text-sm">"{{ adventure.value()?.name }}"</p>
+    <div class="p-2 border-b border-gray-700">
+      <!--<h2 class="text-xl font-bold text-white">Редактор приключения</h2>
+      <p class="text-gray-400 text-sm">"{{ adventure.value()?.name }}"</p>-->
+<!--      <button pButton class="p-button-secondary w-full mb-2 flex flex-col items-start"-->
+      <button pButton class="p-button-secondary w-full mb-2 flex flex-col items-start"
+              size="large"
+              (click)="selectItem(null, '')">
+        <span pButtonLabel class="text-xl font-bold text-white">Редактор приключения</span>
+        <span pButtonLabel class="text-gray-400 text-sm">{{adventure.value()?.name}}</span>
+      </button>
     </div>
 
     <!-- Навигационное меню -->
@@ -17,7 +24,7 @@
           <div>
             @for (note of notes.value(); track note.id) {
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === note.id.id"
+                   [class.bg-blue-900]="activeItemId() === note.id.id"
                    (click)="selectItem('notes', note.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-file text-gray-400 mr-2"></i>
@@ -47,7 +54,7 @@
           <div>
             @for (map of maps.value(); track map.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === map.id.id"
+                   [class.bg-blue-900]="activeItemId() === map.id.id"
                    (click)="selectItem('maps', map.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-map text-gray-400 mr-2"></i>
@@ -77,7 +84,7 @@
           <div>
             @for (chapter of chapters.value(); track chapter.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === chapter.id.id"
+                   [class.bg-blue-900]="activeItemId() === chapter.id.id"
                    (click)="selectItem('chapters', chapter.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-book text-gray-400 mr-2"></i>
@@ -107,7 +114,7 @@
           <div>
             @for (npc of npcs.value(); track npc.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === npc.id.id"
+                   [class.bg-blue-900]="activeItemId() === npc.id.id"
                    (click)="selectItem('npcs', npc.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-user text-gray-400 mr-2"></i>
@@ -137,7 +144,7 @@
           <div>
             @for (artifact of artifacts.value(); track artifact.id){
               <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
-                   [class.bg-blue-900]="activeItem === artifact.id.id"
+                   [class.bg-blue-900]="activeItemId() === artifact.id.id"
                    (click)="selectItem('artifacts', artifact.id.id+'')">
                 <div class="flex items-center">
                   <i class="pi pi-star text-gray-400 mr-2"></i>
@@ -163,20 +170,12 @@
     </div>
 
     <!-- Кнопки действий -->
-    <div class="p-4 border-t border-gray-700">
+    <div class="p-2 border-t border-gray-700">
       <button pButton class="p-button-secondary w-full mb-2"
               (click)="selectItem('events', '')">
         <i class="pi pi-history" pButtonIcon></i>
         <span pButtonLabel>Timeline</span>
       </button>
-      <!--<button pButton class="p-button-success w-full mb-2">
-        <i class="pi pi-save" pButtonIcon></i>
-        <span pButtonLabel>Сохранить</span>
-      </button>
-      <button pButton class="p-button-secondary w-full">
-        <i class="pi pi-eye" pButtonIcon></i>
-        <span pButtonLabel>Предпросмотр</span>
-      </button>-->
     </div>
   </div>
 
@@ -201,12 +200,12 @@
             <i class="pi pi-times" pButtonIcon></i>
             <span pButtonLabel>Отменить</span>
           </button>
-          <button pButton class="p-button-info"
+          <!--<button pButton class="p-button-info"
                   [disabled]="activeContentPatch()"
                   (click)="exportItem()">
             <i class="pi pi-download" pButtonIcon></i>
             <span pButtonLabel>Экспорт</span>
-          </button>
+          </button>-->
           <p-divider layout="vertical" />
           <button pButton class="p-button-danger mr-2">
             <i class="pi pi-trash" pButtonIcon></i>
@@ -217,42 +216,44 @@
 
     <!-- Контентная область -->
     <div class="flex-1 overflow-auto px-6 pb-6 bg-gray-900">
-      <!-- Динамический контент -->
-      @switch (activeType()){
-        @case ('notes') {
-          <!-- Заметки -->
-          <app-note-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
-        }
-        @case ('maps') {
-          <!-- Карты -->
-          <app-map-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
-        }
-        @case ('chapters') {
-          <!-- Главы -->
-          <app-chapter-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
-        }
-        @case ('npcs'){
-          <!-- NPC -->
-          <app-npc-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
-        }
-        @case ('events'){
-          <!-- Timeline -->
-          <app-timeline-editor [adventureId]="id()"/>
-        }
-        @case ('artifacts'){
-          <!-- Артефакты -->
-          <app-artifact-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
-        }
-        @default {
-          <!-- Заглушка по умолчанию -->
-          <!--<div class="h-full flex items-center justify-center">
-            <div class="text-center text-gray-500">
-              <i class="pi pi-inbox text-6xl mb-4"></i>
-              <h3 class="text-xl font-semibold">Выберите элемент для редактирования</h3>
-              <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
-            </div>
-          </div>-->
-          <app-adventure-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+      @if (activeContent()){
+        <!-- Динамический контент -->
+        @switch (activeType()){
+          @case ('notes') {
+            <!-- Заметки -->
+            <app-note-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
+          @case ('maps') {
+            <!-- Карты -->
+            <app-map-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
+          @case ('chapters') {
+            <!-- Главы -->
+            <app-chapter-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
+          @case ('npcs'){
+            <!-- NPC -->
+            <app-npc-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
+          @case ('events'){
+            <!-- Timeline -->
+            <app-timeline-editor [adventureId]="id()"/>
+          }
+          @case ('artifacts'){
+            <!-- Артефакты -->
+            <app-artifact-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
+          @default {
+            <!-- Заглушка по умолчанию -->
+              <!--<div class="h-full flex items-center justify-center">
+                <div class="text-center text-gray-500">
+                  <i class="pi pi-inbox text-6xl mb-4"></i>
+                  <h3 class="text-xl font-semibold">Выберите элемент для редактирования</h3>
+                  <p class="mt-2">Используйте левую панель для навигации по элементам приключения</p>
+                </div>
+              </div>-->
+            <app-adventure-editor [item]="activeContent()" (patch)="activeContentPatch.set($event)"/>
+          }
         }
       }
     </div>
