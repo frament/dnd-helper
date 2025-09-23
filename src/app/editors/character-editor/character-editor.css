@@ -1,0 +1,108 @@
+.character-editor {
+  padding: 1rem;
+
+  .editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
+      flex-grow: 1;
+    }
+  }
+
+  .abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+
+    .ability-card {
+      text-align: center;
+      padding: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+
+      h4 {
+        margin: 0 0 0.5rem 0;
+        text-transform: capitalize;
+      }
+
+      .modifier {
+        margin-top: 0.5rem;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+
+    .skill-item {
+      padding: 0.5rem;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+
+      .skill-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .ability {
+          font-size: 0.8rem;
+          color: #6c757d;
+          text-transform: capitalize;
+        }
+      }
+
+      .skill-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+
+        .bonus {
+          font-weight: bold;
+          min-width: 3rem;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .feature-item, .equipment-item {
+    margin-bottom: 1rem;
+
+    .feature-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+
+      input {
+        flex-grow: 1;
+      }
+    }
+  }
+
+  .equipment-header, .features-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .abilities-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

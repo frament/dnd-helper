@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Wiki } from './wiki';
+import { KnowledgeBase } from './knowledge-base';
 
-describe('Wiki', () => {
-  let component: Wiki;
-  let fixture: ComponentFixture<Wiki>;
+describe('KnowledgeBase', () => {
+  let component: KnowledgeBase;
+  let fixture: ComponentFixture<KnowledgeBase>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Wiki]
+      imports: [KnowledgeBase]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Wiki);
+    fixture = TestBed.createComponent(KnowledgeBase);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

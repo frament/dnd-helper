@@ -9,7 +9,6 @@
         <div class="p-2 bg-blue-900 rounded-lg" (click)="setActiveTab('')">
           <i class="pi pi-compass text-blue-400 text-xl"></i>
         </div>
-
         <!-- Навигационные кнопки -->
         <div class="flex space-x-4">
           <button pButton pRipple class="p-button-text"
@@ -18,18 +17,17 @@
             <i class="pi pi-crown" pButtonIcon></i>
             <span pButtonLabel>Приключения</span>
           </button>
-
+          <button pButton pRipple class="p-button-text"
+                  [class.text-blue-400!]="activeTab() === 'wiki'"
+                  (click)="setActiveTab('wiki')">
+            <i class="pi pi-book" pButtonIcon></i>
+            <span pButtonLabel>База знаний</span>
+          </button>
           <button pButton pRipple class="p-button-text"
                   [class.text-blue-400!]="activeTab() === 'heroes'"
                   (click)="setActiveTab('heroes')">
             <i class="pi pi-users" pButtonIcon></i>
             <span pButtonLabel>Герои</span>
-          </button>
-          <button pButton pRipple class="p-button-text"
-                  [class.text-blue-400!]="activeTab() === 'wiki'"
-                  (click)="setActiveTab('wiki')">
-            <i class="pi pi-book" pButtonIcon></i>
-            <span pButtonLabel>Wiki</span>
           </button>
         </div>
       </div>

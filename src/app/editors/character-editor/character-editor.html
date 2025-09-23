@@ -1,0 +1,276 @@
+<!-- character-editor.component.html -->
+<div class="character-editor">
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">Основное</p-tab>
+      <p-tab value="1">Боевка</p-tab>
+      <p-tab value="2">Навыки</p-tab>
+      <p-tab value="3">Умения</p-tab>
+      <p-tab value="4">Снаряжение</p-tab>
+      <p-tab value="5">Описание</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <!-- Вкладка: Основная информация -->
+      <p-tabpanel value="0">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <p-card header="Основная информация">
+              <div class="field">
+                <label for="name">Имя персонажа</label>
+                <input id="name" type="text" pInputText [(ngModel)]="character.name">
+              </div>
+
+              <div class="grid">
+                <div class="col-6">
+                  <div class="field">
+                    <label for="level">Уровень</label>
+                    <p-inputNumber id="level" [(ngModel)]="character.level" [min]="1" [max]="20"></p-inputNumber>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="field">
+                    <label for="exp">Опыт</label>
+                    <p-inputNumber id="exp" [(ngModel)]="character.experiencePoints"></p-inputNumber>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="class">Класс</label>
+                <p-auto-complete [suggestions]="classes" [dropdown]="true" [(ngModel)]="character.class" placeholder="Выберите класс"/>
+              </div>
+
+              <div class="field">
+                <label for="race">Раса</label>
+                <p-auto-complete [suggestions]="races" [dropdown]="true" [(ngModel)]="character.race" placeholder="Выберите расу"/>
+              </div>
+
+              <div class="field">
+                <label for="background">Предыстория</label>
+                <p-auto-complete [suggestions]="backgrounds" [dropdown]="true" [(ngModel)]="character.background" placeholder="Выберите предысторию"/>
+              </div>
+
+              <div class="field">
+                <label for="alignment">Мировоззрение</label>
+                <p-auto-complete [suggestions]="alignments" [dropdown]="true" [(ngModel)]="character.alignment" placeholder="Выберите мировоззрение"/>
+              </div>
+            </p-card>
+          </div>
+
+          <div class="col-12 md:col-6">
+            <p-card header="Характеристики">
+              <div class="abilities-grid">
+                @for (ability of abilities; track ability){
+                  <div class="ability-card">
+                    <h4>{{getAbilityName(ability)}}</h4>
+                    <!--<p-inputNumber [(ngModel)]="character['abilities_'+ability]" [min]="1" [max]="30"></p-inputNumber>
+                    <div class="modifier">
+                      Модификатор: {{getAbilityModifier(character['abilities_'+ability])}}
+                    </div>-->
+                    <p-inputNumber [min]="1" [max]="30"></p-inputNumber>
+                    <div class="modifier">
+                      Модификатор: {{getAbilityModifier(10)}}
+                    </div>
+                  </div>
+                }
+              </div>
+            </p-card>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- Вкладка: Боевые параметры -->
+      <p-tabpanel value="1">
+        <div class="grid">
+        <div class="col-12 md:col-4">
+          <p-card header="Защита">
+            <div class="field">
+              <label>Класс брони (AC)</label>
+              <p-inputNumber [(ngModel)]="character.combat.armorClass"></p-inputNumber>
+            </div>
+            <div class="field">
+              <label>Инициатива</label>
+              <p-inputNumber [(ngModel)]="character.combat.initiative"></p-inputNumber>
+            </div>
+            <div class="field">
+              <label>Скорость</label>
+              <p-inputNumber [(ngModel)]="character.combat.speed"></p-inputNumber>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-4">
+          <p-card header="Здоровье">
+            <div class="field">
+              <label>Текущие HP</label>
+              <p-inputNumber [(ngModel)]="character.combat.hitPoints.current"></p-inputNumber>
+            </div>
+            <div class="field">
+              <label>Максимальные HP</label>
+              <p-inputNumber [(ngModel)]="character.combat.hitPoints.maximum"></p-inputNumber>
+            </div>
+            <div class="field">
+              <label>Временные HP</label>
+              <p-inputNumber [(ngModel)]="character.combat.hitPoints.temporary"></p-inputNumber>
+            </div>
+            <div class="field">
+              <label>Кость хитов</label>
+              <input type="text" pInputText [(ngModel)]="character.combat.hitDice">
+            </div>
+          </p-card>
+        </div>
+      </div>
+      </p-tabpanel>
+
+      <!-- Вкладка: Навыки -->
+      <p-tabpanel value="2">
+        <p-card>
+          <div class="skills-grid">
+          @for (skill of character.skills; track skill) {
+            <div class="skill-item">
+              <div class="skill-header">
+                <h4>{{skill.name}}</h4>
+                <span class="ability">({{skill.ability}})</span>
+              </div>
+              <div class="skill-controls">
+                <div class="flex items-center gap-2">
+                  <p-checkbox [inputId]="skill+'Владение'" [(ngModel)]="skill.proficient"></p-checkbox>
+                  <label [for]="skill+'Владение'">Владение</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-checkbox [inputId]="skill+'Экспертиза'" [(ngModel)]="skill.expertise"></p-checkbox>
+                  <label [for]="skill+'Экспертиза'">Экспертиза</label>
+                </div>
+                <span class="bonus">+{{calculateSkillBonus(skill)}}</span>
+              </div>
+            </div>
+          }
+        </div>
+        </p-card>
+      </p-tabpanel>
+
+      <!-- Вкладка: Умения -->
+      <p-tabpanel value="3">
+        <p-card>
+        <div class="features-header">
+          <h3>Особенности и умения</h3>
+          <button pButton (click)="addFeature()">
+            <i class="pi pi-plus" pButtonIcon></i>
+            <span pButtonLabel>Добавить умение</span>
+          </button>
+        </div>
+        @for (feature of character.features; track feature.name){
+          <div class="feature-item">
+            <p-divider></p-divider>
+            <div class="feature-header">
+              <input type="text" pInputText [(ngModel)]="feature.name" placeholder="Название умения">
+              <button pButton severity="danger" (click)="removeFeature($index)">
+                <i class="pi pi-trash" pButtonIcon></i>
+              </button>
+            </div>
+            <textarea [rows]="3" pInputTextarea [(ngModel)]="feature.description" placeholder="Описание умения"></textarea>
+            <input type="text" pInputText [(ngModel)]="feature.source" placeholder="Источник (класс, раса, и т.д.)">
+          </div>
+        }
+      </p-card>
+      </p-tabpanel>
+
+      <!-- Вкладка: Снаряжение -->
+      <p-tabpanel value="4">
+        <p-card>
+        <div class="equipment-header">
+          <h3>Снаряжение</h3>
+          <button pButton (click)="addEquipment()">
+            <i class="pi pi-plus" pButtonIcon></i>
+            <span pButtonLabel>Добавить предмет</span>
+          </button>
+        </div>
+
+        @for (item of character.equipment; track item.name){
+          <div class="equipment-item">
+            <p-divider></p-divider>
+            <div class="grid">
+              <div class="col-12 md:col-4">
+                <input type="text" pInputText [(ngModel)]="item.name" placeholder="Название предмета">
+              </div>
+              <div class="col-12 md:col-2">
+                <p-inputNumber [(ngModel)]="item.quantity" placeholder="Количество"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-2">
+                <p-inputNumber [(ngModel)]="item.weight" placeholder="Вес"></p-inputNumber>
+              </div>
+              <div class="col-12 md:col-3">
+                <div class="flex items-center gap-2">
+                  <p-checkbox [inputId]="item.name+'Надето'" [(ngModel)]="item.equipped" ></p-checkbox>
+                  <label [for]="item.name+'Надето'">Надето</label>
+                </div>
+              </div>
+              <div class="col-12 md:col-1">
+                <button pButton severity="danger" (click)="removeEquipment($index)">
+                  <i class="pi pi-trash" pButtonIcon></i>
+                </button>
+              </div>
+              <div class="col-12">
+                <textarea [rows]="2" pInputTextarea [(ngModel)]="item.description" placeholder="Описание предмета"></textarea>
+              </div>
+            </div>
+          </div>
+        }
+      </p-card>
+      </p-tabpanel>
+
+      <!-- Вкладка: Описание -->
+      <p-tabpanel value="5">
+        <div class="grid">
+        <div class="col-12 md:col-6">
+          <p-card header="Внешность">
+            <div class="grid">
+              <div class="col-6">
+                <div class="field">
+                  <label>Возраст</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.age">
+                </div>
+                <div class="field">
+                  <label>Рост</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.height">
+                </div>
+                <div class="field">
+                  <label>Вес</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.weight">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="field">
+                  <label>Глаза</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.eyes">
+                </div>
+                <div class="field">
+                  <label>Кожа</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.skin">
+                </div>
+                <div class="field">
+                  <label>Волосы</label>
+                  <input type="text" pInputText [(ngModel)]="character.description.hair">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Внешность</label>
+              <textarea [rows]="4" pInputTextarea [(ngModel)]="character.description.appearance"></textarea>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <p-card header="История">
+            <textarea [rows]="10" pInputTextarea [(ngModel)]="character.description.backstory"
+                      placeholder="Опишите историю вашего персонажа..."></textarea>
+          </p-card>
+        </div>
+      </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

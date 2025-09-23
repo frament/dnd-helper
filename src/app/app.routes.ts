@@ -5,8 +5,8 @@ import {authGuard} from './auth/auth-guard';
 import {AdventureList} from './adventure-list/adventure-list';
 import {Adventure} from './adventure/adventure';
 import {Heroes} from './heroes/heroes';
-import {Hero} from './heroes/hero/hero';
-import {Wiki} from './wiki/wiki';
+import {KnowledgeBase} from './knowledge-base/knowledge-base';
+import {CharacterEditor} from './editors/character-editor/character-editor';
 
 export const routes: Routes = [
   {path:'auth', component: Auth},
@@ -14,6 +14,6 @@ export const routes: Routes = [
   {path:'adventures', component: AdventureList, canActivate: [authGuard]},
   {path:'adventures/:id', component: Adventure, canActivate: [authGuard]},
   {path:'heroes', component: Heroes, canActivate: [authGuard]},
-  {path:'heroes/:id', component: Hero, canActivate: [authGuard]},
-  {path:'wiki', component: Wiki, canActivate: [authGuard]},
+  {path:'heroes/:id', component: CharacterEditor, canActivate: [authGuard]},
+  {path:'wiki', component: KnowledgeBase, canActivate: [authGuard]},
 ];
