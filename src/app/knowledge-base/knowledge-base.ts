@@ -8,6 +8,7 @@ import {AutoCompleteModule} from 'primeng/autocomplete';
 import { PaginatorModule} from 'primeng/paginator';
 import {DialogModule} from 'primeng/dialog';
 import {wikiCategories} from './category';
+import {AccordionModule} from 'primeng/accordion';
 
 interface KnowledgeItem {
   id: string;
@@ -21,8 +22,8 @@ interface KnowledgeItem {
 
 @Component({
   selector: 'app-knowledge-base',
-  templateUrl: './knowledge-base.html',
   imports: [
+    AccordionModule,
     InputGroupModule,
     InputGroupAddonModule,
     FormsModule,
@@ -30,9 +31,10 @@ interface KnowledgeItem {
     ButtonModule,
     AutoCompleteModule,
     PaginatorModule,
-    DialogModule
+    DialogModule,
   ],
-  styleUrls: ['./knowledge-base.css']
+  templateUrl: './knowledge-base.html',
+  styleUrl: './knowledge-base.css'
 })
 export class KnowledgeBase {
 
@@ -113,22 +115,15 @@ export class KnowledgeBase {
     { label: 'По источнику', value: 'source' }
   ];
 
-  selectCategory(categoryId: string): void {
-    if (this.activeCategoryId() === categoryId) {
+  selectCategory(categoryId: string, subcategoryId:string): void {
+    if (this.activeCategoryId() === categoryId
+      && this.activeSubcategoryId() === subcategoryId) {
       this.activeCategoryId.set('');
       this.activeSubcategoryId.set('');
     } else {
       this.activeCategoryId.set(categoryId);
-      this.activeSubcategoryId.set(
-        this.categories.find(c => c.id === categoryId)?.subcategories[0]?.id
-        || ''
-      );
+      this.activeSubcategoryId.set(subcategoryId);
     }
-    this.currentPage.set(0);
-  }
-
-  selectSubcategory(subcategoryId: string): void {
-    this.activeSubcategoryId.set(subcategoryId);
     this.currentPage.set(0);
   }
 
@@ -181,12 +176,6 @@ export class KnowledgeBase {
     const startIndex = this.currentPage() * this.itemsPerPage();
     return items.slice(startIndex, startIndex + this.itemsPerPage());
   });
-
-  getItemCount(): number {
-    return this.knowledgeItems.filter(item =>
-      item.type === this.activeCategoryId()
-    ).length;
-  }
 
   getCategoryIcon(type: string): string {
     const category = this.categories.find(c => c.id === type);

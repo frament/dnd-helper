@@ -1,127 +1,113 @@
-<div class="min-h-screen bg-gray-900 text-white">
-
-  <div class="flex h-[calc(100vh-80px)]">
-    <!-- Боковая панель с категориями -->
-    <div class="w-64 bg-gray-800 border-r border-gray-700 overflow-y-auto">
-      <div class="p-4">
-        <!-- Поиск -->
-        <div class="mb-6">
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="pi pi-search"></i>
-            </p-inputgroup-addon>
-            <input pInputText placeholder="Поиск..."
-                   [(ngModel)]="searchQuery"
-                   class="w-full">
-          </p-inputgroup>
-        </div>
-
-        <!-- Категории -->
-        <nav class="space-y-2">
-          @for (category of categories; track category.id){
-            @let isActive = activeCategoryId() === category.id;
-            <div class="category-group">
-              <button class="category-header"
-                      [class.active]="isActive"
-                      (click)="selectCategory(category.id)">
-                <i [class]="category.icon"></i>
-                <span>{{category.name}}</span>
-                <i class="pi pi-chevron-right ml-auto transition-transform"
-                   [class.rotate-90]="isActive"></i>
-              </button>
-
-              @if (isActive){
-                <!-- Подкатегории -->
-                <div class="subcategories ml-6 mt-2 space-y-1">
-                  @for (subcategory of category.subcategories; track subcategory.id){
-                    <button class="subcategory-item"
-                            [class.active]="activeSubcategoryId() === subcategory.id"
-                            (click)="selectSubcategory(subcategory.id)">
-                      {{subcategory.name}}
-                      <span class="count-badge">{{getItemCount(subcategory.id)}}</span>
-                    </button>
-                  }
+<div class="flex h-full bg-gray-900">
+  <!-- Боковая панель с категориями -->
+  <div class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col">
+    <!-- Поиск -->
+    <div class="p-2 border-b border-gray-700">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-search"></i>
+        </p-inputgroup-addon>
+        <input pInputText placeholder="Поиск..."
+               [(ngModel)]="searchQuery"
+               class="w-full">
+      </p-inputgroup>
+    </div>
+    <!-- Категории -->
+    <div class="flex-1 overflow-y-auto p-2">
+      <p-accordion [value]="['0']" [multiple]="true">
+        @for (category of categories; track category.id){
+          <p-accordion-panel [value]="$index+''">
+            <p-accordion-header>{{category.name}}</p-accordion-header>
+            <p-accordion-content>
+              <div>
+                <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
+                     [class.bg-blue-900]="activeCategoryId() === category.id && !activeSubcategoryId()"
+                     (click)="selectCategory(category.id, '')">
+                  <div class="flex items-center">
+                    <span class="text-gray-300">Все</span>
+                  </div>
                 </div>
-              }
-            </div>
-          }
-        </nav>
+                @for (subcategory of category.subcategories; track subcategory.id) {
+                  <div class="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-700 cursor-pointer"
+                       [class.bg-blue-900]="activeSubcategoryId() === subcategory.id"
+                       (click)="selectCategory(category.id, subcategory.id)">
+                    <div class="flex items-center">
+                      <span class="text-gray-300">{{subcategory.name}}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        }
+      </p-accordion>
+    </div>
+    <!-- Кнопки действий -->
+    <div class="p-2 border-t border-gray-700">
+      <button pButton class="p-button-secondary w-full mb-2">
+        <i class="pi pi-upload" pButtonIcon></i>
+        <span pButtonLabel>Импорт</span>
+      </button>
+    </div>
 
-        <!-- Быстрые действия -->
-        <div class="mt-8 pt-6 border-t border-gray-700">
-          <h3 class="text-sm font-semibold text-gray-400 mb-3">Быстрые действия</h3>
-          <div class="space-y-2">
-            <button pButton
-                    class="p-button-sm w-full p-button-outlined">
-              <i class="pi pi-plus" pButtonIcon></i>
-              <span pButtonLabel>Добавить элемент</span>
-            </button>
-            <button pButton
-                    class="p-button-sm w-full p-button-outlined">
-              <i class="pi pi-download" pButtonIcon></i>
-              <span pButtonLabel>Экспорт базы</span>
-            </button>
-          </div>
+  </div>
+
+  <!-- Основная область контента -->
+  <div class="flex-1 overflow-hidden flex flex-col">
+    <!-- Заголовок контента -->
+    <div class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-semibold">{{getActiveCategoryName()}}</h2>
+        <p class="text-gray-400 text-sm">{{getActiveSubcategoryName()}}</p>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Фильтры -->
+        <p-auto-complete [suggestions]="filterOptions"
+                         [(ngModel)]="selectedFilter"
+                         placeholder="Фильтр"
+                         [dropdown]="true"
+                         class="w-40"></p-auto-complete>
+
+        <!-- Сортировка -->
+        <p-auto-complete [suggestions]="sortOptions"
+                         [(ngModel)]="selectedSort"
+                         placeholder="Сортировка"
+                         [dropdown]="true"
+                         class="w-40"></p-auto-complete>
+
+        <!-- Вид отображения -->
+        <div class="flex border border-gray-600 rounded">
+          <button class="p-2 border-r border-gray-600 hover:bg-gray-700"
+                  [class.bg-gray-700]="viewMode === 'grid'"
+                  (click)="viewMode = 'grid'">
+            <i class="pi pi-th-large"></i>
+          </button>
+          <button class="p-2 hover:bg-gray-700"
+                  [class.bg-gray-700]="viewMode === 'list'"
+                  (click)="viewMode = 'list'">
+            <i class="pi pi-bars"></i>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Основная область контента -->
-    <div class="flex-1 overflow-hidden flex flex-col">
-      <!-- Заголовок контента -->
-      <div class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-semibold">{{getActiveCategoryName()}}</h2>
-          <p class="text-gray-400 text-sm">{{getActiveSubcategoryName()}}</p>
-        </div>
+    <!-- Область контента -->
+    <div class="flex-1 overflow-auto p-6">
 
-        <div class="flex items-center space-x-3">
-          <!-- Фильтры -->
-          <p-auto-complete [suggestions]="filterOptions"
-                           [(ngModel)]="selectedFilter"
-                           placeholder="Фильтр"
-                           [dropdown]="true"
-                           class="w-40"></p-auto-complete>
-
-          <!-- Сортировка -->
-          <p-auto-complete [suggestions]="sortOptions"
-                           [(ngModel)]="selectedSort"
-                           placeholder="Сортировка"
-                           [dropdown]="true"
-                           class="w-40"></p-auto-complete>
-
-          <!-- Вид отображения -->
-          <div class="flex border border-gray-600 rounded">
-            <button class="p-2 border-r border-gray-600 hover:bg-gray-700"
-                    [class.bg-gray-700]="viewMode === 'grid'"
-                    (click)="viewMode = 'grid'">
-              <i class="pi pi-th-large"></i>
-            </button>
-            <button class="p-2 hover:bg-gray-700"
-                    [class.bg-gray-700]="viewMode === 'list'"
-                    (click)="viewMode = 'list'">
-              <i class="pi pi-bars"></i>
-            </button>
+      @if (!activeCategoryId()){
+        <!-- Сообщение о выборе категории -->
+        <div class="h-full flex items-center justify-center">
+          <div class="text-center text-gray-500">
+            <i class="pi pi-book text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold mb-2">Выберите категорию</h3>
+            <p>Выберите категорию из списка слева для просмотра содержимого</p>
           </div>
         </div>
-      </div>
-
-      <!-- Область контента -->
-      <div class="flex-1 overflow-auto p-6">
-
-        @if (!activeCategoryId()){
-          <!-- Сообщение о выборе категории -->
-          <div class="h-full flex items-center justify-center">
-            <div class="text-center text-gray-500">
-              <i class="pi pi-book text-6xl mb-4"></i>
-              <h3 class="text-xl font-semibold mb-2">Выберите категорию</h3>
-              <p>Выберите категорию из списка слева для просмотра содержимого</p>
-            </div>
-          </div>
-        } @else {
-          <!-- Динамический контент -->
-          <ng-container>
-            <!-- Сетка элементов -->
+      } @else {
+        <!-- Динамический контент -->
+        <ng-container>
+          <!-- Сетка элементов -->
           @if (viewMode === 'grid'){
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               @for (item of filteredItems(); track item.id){
@@ -175,21 +161,21 @@
               </div>
             </div>
           }
-          </ng-container>
-        }
-      </div>
-      @if (activeCategoryId() && filteredItems().length > 0){
-        <!-- Пагинация -->
-        <div class="px-6 py-4 border-t border-gray-700">
-          <p-paginator [style.--p-paginator-background]="'transparent'"
-                       [rows]="itemsPerPage()"
-                       [totalRecords]="filteredItems.length"
-                       [rowsPerPageOptions]="[12, 24, 48]"
-                       (onPageChange)="onPageChange($event)"></p-paginator>
-        </div>
+        </ng-container>
       }
     </div>
+    @if (activeCategoryId() && filteredItems().length > 0){
+      <!-- Пагинация -->
+      <div class="px-6 py-4 border-t border-gray-700">
+        <p-paginator [style.--p-paginator-background]="'transparent'"
+                     [rows]="itemsPerPage()"
+                     [totalRecords]="filteredItems.length"
+                     [rowsPerPageOptions]="[12, 24, 48]"
+                     (onPageChange)="onPageChange($event)"></p-paginator>
+      </div>
+    }
   </div>
+
 </div>
 
 <!-- Диалог просмотра элемента -->

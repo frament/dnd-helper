@@ -16,7 +16,6 @@ export const wikiCategories: Category[] = [
     name: 'Классы',
     icon: 'pi pi-user',
     subcategories: [
-      { id: 'all-classes', name: 'Все классы' },
       { id: 'warrior', name: 'Воинские' },
       { id: 'magic', name: 'Магические' },
       { id: 'hybrid', name: 'Гибридные' },
@@ -28,7 +27,6 @@ export const wikiCategories: Category[] = [
     name: 'Расы',
     icon: 'pi pi-users',
     subcategories: [
-      { id: 'all-races', name: 'Все расы' },
       { id: 'humanoid', name: 'Гуманоиды' },
       { id: 'elf', name: 'Эльфы' },
       { id: 'dwarf', name: 'Дварфы' },
@@ -41,7 +39,6 @@ export const wikiCategories: Category[] = [
     name: 'Предыстории',
     icon: 'pi pi-history',
     subcategories: [
-      { id: 'all-backgrounds', name: 'Все предыстории' },
       { id: 'noble', name: 'Благородные' },
       { id: 'common', name: 'Простонародные' },
       { id: 'criminal', name: 'Криминальные' },
@@ -53,7 +50,6 @@ export const wikiCategories: Category[] = [
     name: 'Черты',
     icon: 'pi pi-star',
     subcategories: [
-      { id: 'all-traits', name: 'Все черты' },
       { id: 'racial', name: 'Расые' },
       { id: 'class', name: 'Классовые' },
       { id: 'feats', name: 'Умения' }
@@ -64,7 +60,6 @@ export const wikiCategories: Category[] = [
     name: 'Заклинания',
     icon: 'pi pi-bolt',
     subcategories: [
-      { id: 'all-spells', name: 'Все заклинания' },
       { id: 'evocation', name: 'Воплощение' },
       { id: 'abjuration', name: 'Ограждение' },
       { id: 'illusion', name: 'Иллюзия' },
@@ -76,7 +71,6 @@ export const wikiCategories: Category[] = [
     name: 'Бестиарий',
     icon: 'pi pi-paw',
     subcategories: [
-      { id: 'all-monsters', name: 'Все существа' },
       { id: 'beasts', name: 'Звери' },
       { id: 'humanoids', name: 'Гуманоиды' },
       { id: 'dragons', name: 'Драконы' },
@@ -88,7 +82,6 @@ export const wikiCategories: Category[] = [
     name: 'Магические предметы',
     icon: 'pi pi-gem',
     subcategories: [
-      { id: 'all-items', name: 'Все предметы' },
       { id: 'weapons', name: 'Оружие' },
       { id: 'armor', name: 'Броня' },
       { id: 'potions', name: 'Зелья' },
@@ -100,7 +93,6 @@ export const wikiCategories: Category[] = [
     name: 'Снаряжение',
     icon: 'pi pi-shopping-bag',
     subcategories: [
-      { id: 'all-equipment', name: 'Все снаряжение' },
       { id: 'weapons', name: 'Оружие' },
       { id: 'armor', name: 'Броня' },
       { id: 'tools', name: 'Инструменты' },
