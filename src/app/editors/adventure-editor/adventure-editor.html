@@ -13,6 +13,14 @@
                    [(ngModel)]="sig['name']"
                    placeholder="Введите название приключения">
           </div>
+          <!-- Тип приключения -->
+          <div class="mb-4">
+            <label class="block text-gray-400 mb-2">Тип приключения</label>
+            <p-select [options]="adventureTypeOptions"
+                      [(ngModel)]="sig['adventureType']"
+                      placeholder="Выберите тип"
+                      class="w-full"/>
+          </div>
 
           <!-- Описание приключения -->
           <div class="mb-4">
@@ -48,28 +56,21 @@
             {{sig['isPublic']() ? 'Публичное' : 'Приватное'}}
           </span>
           </div>
-          <!-- Тип приключения -->
-          <!--<div class="mb-4">
-            <label class="block text-gray-400 mb-2">Тип приключения</label>
-            <p-select [options]="adventureTypeOptions"
-                        [(ngModel)]="sig['adventureType"
-                        placeholder="Выберите тип"
-                        class="w-full"/>
-          </div>-->
+
         </div>
       </div>
 
       <!-- Правая колонка: Дополнительные настройки -->
       <div>
         <!-- Обложка приключения -->
-        <!--<div class="bg-gray-900 p-5 rounded-xl mb-6">
+        <div class="bg-gray-900 p-5 rounded-xl mb-6">
           <h3 class="text-lg font-semibold text-white mb-4">Обложка приключения</h3>
 
           <div class="flex flex-col items-center">
-            &lt;!&ndash; Предпросмотр обложки &ndash;&gt;
+            <!-- Предпросмотр обложки -->
             <div class="relative mb-4">
-              @if (_coverImage) {
-                <img [src]="_coverImage"
+              @if (image.value()) {
+                <img [src]="image.value()"
                      alt="Обложка приключения"
                      class="w-64 h-96 object-cover rounded-lg border-2 border-amber-500">
               } @else {
@@ -79,47 +80,43 @@
                 </div>
               }
 
-              &lt;!&ndash; Индикатор загрузки &ndash;&gt;
-              @if (uploading) {
+              <!-- Индикатор загрузки -->
+              @if (uploading()) {
                 <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                    strokeWidth="4"
                                    animationDuration=".5s"/>
               }
             </div>
 
-            &lt;!&ndash; Кнопки управления изображением &ndash;&gt;
+            <!-- Кнопки управления изображением -->
             <div class="flex flex-wrap justify-center gap-2">
               <button pButton
-                      icon="pi pi-upload"
-                      label="Загрузить обложку"
                       class="p-button-success"
-                      (click)="fileInput.click()"></button>
+                      (click)="fileInput.click()">
+                <i class="pi pi-upload" pButtonIcon></i>
+                <span pButtonLabel>Загрузить обложку</span>
+              </button>
               <input #fileInput type="file" accept="image/*"
                      class="hidden"
                      (change)="onFileSelected($event)">
 
-              <button pButton
-                      icon="pi pi-images"
-                      label="Библиотека"
-                      class="p-button-secondary"
-                      (click)="openImageLibrary()"></button>
-
-              @if (_coverImage) {
+              @if (image.value()) {
                 <button pButton
-                        icon="pi pi-trash"
-                        label="Удалить"
                         class="p-button-danger"
-                        (click)="removeImage()"></button>
+                        (click)="removeImage()">
+                  <i class="pi pi-trash" pButtonIcon></i>
+                  <span pButtonLabel>Удалить</span>
+                </button>
               }
             </div>
 
-            &lt;!&ndash; Информация об изображении &ndash;&gt;
+            <!-- Информация об изображении -->
             <div class="mt-4 text-center text-sm text-gray-400">
               <p>Рекомендуемый размер: 800×1200 пикселей</p>
               <p>Форматы: JPG, PNG, WebP</p>
             </div>
           </div>
-        </div>-->
+        </div>
       </div>
     </div>
   }

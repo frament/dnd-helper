@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, computed, inject, input, output, resource, signal} from '@angular/core';
 import {TAdventure} from '../../models/adventure.model';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -10,6 +10,7 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {SelectModule} from 'primeng/select';
 import {EntityEditorBase} from '../../uni-components/entity-editor-base';
+import {MinioService} from '../../minio-service';
 
 @Component({
   selector: 'app-adventure-editor',
@@ -30,7 +31,20 @@ import {EntityEditorBase} from '../../uni-components/entity-editor-base';
 export class AdventureEditor extends EntityEditorBase<TAdventure>{
   readonly item = input.required<TAdventure>();
   readonly patch = output<Partial<TAdventure|null>>();
-  uploading = false;
+  filesService = inject(MinioService);
+  uploading = signal<boolean>(false);
+  imageObjectName = computed(() => this.item().id.id+'_image');
+  image = resource<string|undefined, string>({
+    params: () => this.item().id.id+'',
+    loader: async ({params}) => {
+      if (!params) return undefined;
+      const file = await this.filesService.downloadFile('adventure', this.imageObjectName());
+      if (!file) return undefined;
+      const result = await MinioService.fileAsString(file);
+      this.uploading.set(false);
+      return result;
+    }
+  });
   popularTags = [
     'подземелье', 'исследование', 'битва', 'тайна', 'политика',
     'выживание', 'квест', 'город', 'путешествие', 'магия'
@@ -45,47 +59,21 @@ export class AdventureEditor extends EntityEditorBase<TAdventure>{
 
   constructor() {super()}
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         return;
       }
-
-      this.uploading = true;
-
-      // Имитация загрузки на сервер
-      setTimeout(() => {
-        const reader = new FileReader();
-        reader.onload = (_e: any) => {
-          // this._adventure.coverImage = e.target.result;
-          this.uploading = false;
-          /*this.messageService.add({
-            severity: 'success',
-            summary: 'Успешно',
-            detail: 'Обложка загружена'
-          });*/
-        };
-        reader.readAsDataURL(file);
-      }, 1500);
+      this.uploading.set(true);
+      await this.filesService.uploadFile('adventure', file, this.imageObjectName());
+      this.image.reload();
     }
   }
 
-  removeImage() {
-    // this.adventure.coverImage = null;
-   /* this.messageService.add({
-      severity: 'info',
-      summary: 'Обложка удалена',
-      detail: 'Приключение больше не имеет обложки'
-    });*/
-  }
-
-  openImageLibrary() {
-    /*this.messageService.add({
-      severity: 'info',
-      summary: 'Библиотека изображений',
-      detail: 'Функция будет реализована в будущем'
-    });*/
+  async removeImage() {
+    await this.filesService.deleteFile('adventure',this.imageObjectName());
+    this.image.reload();
   }
 
   addTag(tag: string) {
