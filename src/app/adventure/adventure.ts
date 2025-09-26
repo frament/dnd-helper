@@ -14,7 +14,7 @@ import {TAdventure} from '../models/adventure.model';
 import {AdventureEditor} from '../editors/adventure-editor/adventure-editor';
 import {DividerModule} from 'primeng/divider';
 import {TBaseEntity} from '../models/base-entity.model';
-import {deepClone} from '../helpers/clone-helper';
+import {deepClone} from '../helpers/clone.helper';
 import {TNote, TNoteCreate} from '../editors/note-editor/TNote';
 import {TMap, TMapCreate} from '../models/map.model';
 import {TChapter, TChapterCreate} from '../models/chapter.model';

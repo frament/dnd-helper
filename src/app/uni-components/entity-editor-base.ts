@@ -1,7 +1,7 @@
 import {TBaseEntity} from '../models/base-entity.model';
 import {computed, effect, InputSignal, OutputEmitterRef, signal, WritableSignal} from '@angular/core';
-import {deepClone} from '../helpers/clone-helper';
-import {deepCompare} from '../helpers/obj-diff-helper';
+import {deepClone} from '../helpers/clone.helper';
+import {deepCompare} from '../helpers/obj-diff.helper';
 
 export abstract class EntityEditorBase<T extends TBaseEntity>{
   abstract item: InputSignal<T>;
