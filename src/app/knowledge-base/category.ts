@@ -50,9 +50,10 @@ export const wikiCategories: Category[] = [
     name: 'Черты',
     icon: 'pi pi-star',
     subcategories: [
-      { id: 'racial', name: 'Расые' },
-      { id: 'class', name: 'Классовые' },
-      { id: 'feats', name: 'Умения' }
+      { id: 'origin', name: 'Происхождения' },
+      { id: 'universal', name: 'Универсальные' },
+      { id: 'battle_styles', name: 'Боевые стили' },
+      { id: 'epic_gifts', name: 'Эпические дары' }
     ]
   },
   {
