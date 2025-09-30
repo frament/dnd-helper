@@ -69,8 +69,8 @@
           <div class="flex flex-col items-center">
             <!-- Предпросмотр обложки -->
             <div class="relative mb-4">
-              @if (image.value()) {
-                <img [src]="image.value()"
+              @if (image.asString.value()) {
+                <img [src]="image.asString.value()"
                      alt="Обложка приключения"
                      class="w-64 h-96 object-cover rounded-lg border-2 border-amber-500">
               } @else {
@@ -81,7 +81,7 @@
               }
 
               <!-- Индикатор загрузки -->
-              @if (uploading()) {
+              @if (image.uploading()) {
                 <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                    strokeWidth="4"
                                    animationDuration=".5s"/>
@@ -98,12 +98,12 @@
               </button>
               <input #fileInput type="file" accept="image/*"
                      class="hidden"
-                     (change)="onFileSelected($event)">
+                     (change)="image.onFileSelected($event)">
 
-              @if (image.value()) {
+              @if (image.asString.value()) {
                 <button pButton
                         class="p-button-danger"
-                        (click)="removeImage()">
+                        (click)="image.remove()">
                   <i class="pi pi-trash" pButtonIcon></i>
                   <span pButtonLabel>Удалить</span>
                 </button>

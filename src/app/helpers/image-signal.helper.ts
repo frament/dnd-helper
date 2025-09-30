@@ -1,12 +1,13 @@
-import {resource, WritableSignal} from '@angular/core';
+import {resource, Signal} from '@angular/core';
 import {MinioService} from '../minio-service';
-import {FileSignalHelper} from './file-signal.helper';
+import {FileSignalHelper, FileSignalOptions} from './file-signal.helper';
 
 export class ImageSignalHelper extends FileSignalHelper{
-  constructor(bucketName: string, name: string|WritableSignal<string>, fileService: MinioService) {
-    super(bucketName, name, fileService);
+  constructor(bucketName: string, name: string|Signal<string>,
+              fileService: MinioService, options?:FileSignalOptions) {
+    super(bucketName, name, fileService, options);
   }
-  readonly image = resource<string|undefined, Blob|undefined>({
+  readonly asString = resource<string|undefined, Blob|undefined>({
     params: () => this.file.value(),
     loader: async ({params}) => {
       if (!params) return undefined;

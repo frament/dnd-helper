@@ -66,8 +66,8 @@
         <div class="flex-1 flex flex-col items-center justify-center">
           <!-- Предпросмотр аватара -->
           <div class="relative mb-6">
-            @if (avatar.value()) {
-              <p-avatar [image]="avatar.value()"
+            @if (avatar.asString.value()) {
+              <p-avatar [image]="avatar.asString.value()"
                         size="xlarge"
                         shape="circle"
                         class="w-48 h-48 border-4 border-blue-500"></p-avatar>
@@ -79,7 +79,7 @@
             }
 
             <!-- Индикатор загрузки -->
-            @if (uploading()) {
+            @if (avatar.uploading()) {
               <p-progressSpinner class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                  strokeWidth="4"
                                  animationDuration=".5s"/>
@@ -97,13 +97,13 @@
             </button>
             <input #fileInput type="file" accept="image/*"
                    class="hidden"
-                   (change)="onFileSelected($event)">
+                   (change)="avatar.onFileSelected($event)">
 
             <!-- Удалить изображение -->
-            @if (avatar.value()) {
+            @if (avatar.asString.value()) {
               <button pButton
                       class="p-button-danger"
-                      (click)="removeImage()">
+                      (click)="avatar.remove()">
                 <i class="pi pi-trash" pButtonIcon></i>
                 <span pButtonLabel>Удалить</span>
               </button>

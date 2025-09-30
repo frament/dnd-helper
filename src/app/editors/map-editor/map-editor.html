@@ -110,8 +110,8 @@
              (click)="fileInput.click()">
 
           <!-- Предпросмотр карты -->
-          @if (image.value()) {
-            <img [src]="image.value()"
+          @if (image.asString.value()) {
+            <img [src]="image.asString.value()"
                  alt="Карта"
                  class="max-h-[500px] max-w-full object-contain">
           } @else {
@@ -124,7 +124,7 @@
           }
 
           <!-- Индикатор загрузки -->
-          @if (uploading()) {
+          @if (image.uploading()) {
             <div class="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
               <p-progressSpinner strokeWidth="4"
                                  animationDuration=".5s"></p-progressSpinner>
@@ -134,7 +134,7 @@
           <!-- Скрытый input для загрузки файлов -->
           <input #fileInput type="file" accept="image/*"
                  class="hidden"
-                 (change)="onFileSelected($event)">
+                 (change)="image.onFileSelected($event)">
         </div>
 
         <!-- Кнопки управления изображением -->
@@ -148,10 +148,10 @@
           </button>
 
           <!-- Удалить изображение -->
-          @if (image.value()) {
+          @if (image.asString.value()) {
             <button pButton
                     class="p-button-danger"
-                    (click)="removeImage()">
+                    (click)="image.remove()">
               <i class="pi pi-trash" pButtonIcon></i>
               <span pButtonLabel>Удалить</span>
             </button>
