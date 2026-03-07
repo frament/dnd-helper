@@ -1,7 +1,7 @@
 import {Component, inject, resource} from '@angular/core';
 import {AvatarModule} from 'primeng/avatar';
 import {MenuItem} from 'primeng/api';
-import {CommonModule} from '@angular/common';
+
 import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
 import {TagModule} from 'primeng/tag';
@@ -21,7 +21,6 @@ import {TUser} from '../user/user';
 @Component({
   selector: 'app-adventure-list',
   imports: [
-    CommonModule,
     FormsModule,
     CardModule,
     AvatarModule,
@@ -34,7 +33,7 @@ import {TUser} from '../user/user';
     InputGroupModule,
     InputGroupAddonModule,
     PopoverModule
-  ],
+],
   templateUrl: './adventure-list.html',
   styleUrl: './adventure-list.css'
 })

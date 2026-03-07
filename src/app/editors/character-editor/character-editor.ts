@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Character, Skill} from '../../models/character.model';
-import {CommonModule} from '@angular/common';
+
 import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
 import {InputTextModule} from 'primeng/inputtext';
@@ -15,7 +15,6 @@ import {TabsModule} from 'primeng/tabs';
 @Component({
   selector: 'app-character-editor',
   imports: [
-    CommonModule,
     FormsModule,
     CardModule,
     TabsModule,
@@ -26,7 +25,7 @@ import {TabsModule} from 'primeng/tabs';
     CheckboxModule,
     TextareaModule,
     DividerModule
-  ],
+],
   templateUrl: './character-editor.html',
   styleUrl: './character-editor.css'
 })
