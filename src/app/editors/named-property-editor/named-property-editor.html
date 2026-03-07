@@ -1,0 +1,151 @@
+<!--<div class="bg-gray-800 rounded-lg p-6">-->
+<!--  <h3 class="text-xl font-bold text-white mb-6">Редактор именуемого свойства</h3>-->
+
+<!--  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">-->
+<!--    &lt;!&ndash; Левая колонка: Основные свойства &ndash;&gt;-->
+<!--    <div class="space-y-6">-->
+<!--      &lt;!&ndash; Название &ndash;&gt;-->
+<!--      <div>-->
+<!--        <label class="block text-gray-400 mb-2">Название</label>-->
+<!--        <input pInputText [(ngModel)]="property.name"-->
+<!--               class="w-full"-->
+<!--               placeholder="Введите название свойства">-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Тэги &ndash;&gt;-->
+<!--      <div>-->
+<!--        <label class="block text-gray-400 mb-2">Тэги</label>-->
+<!--        <p-chips [(ngModel)]="property.tags"-->
+<!--                 placeholder="Добавьте тэги..."-->
+<!--                 class="w-full"></p-chips>-->
+<!--        <div class="mt-2">-->
+<!--          <p-tag *ngFor="let tag of popularTags"-->
+<!--                 [value]="tag"-->
+<!--                 styleClass="mr-2 mb-2 cursor-pointer"-->
+<!--                 (click)="addTag(tag)"-->
+<!--                 [rounded]="true"></p-tag>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Восстановление &ndash;&gt;-->
+<!--      <div>-->
+<!--        <label class="block text-gray-400 mb-2">Восстановление</label>-->
+<!--        <p-selectButton [options]="rechargeTypes"-->
+<!--                        [(ngModel)]="property.recharge"-->
+<!--                        optionLabel="label"-->
+<!--                        class="w-full"></p-selectButton>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Количество зарядов &ndash;&gt;-->
+<!--      <app-charge-dice-editor-->
+<!--        label="Количество зарядов"-->
+<!--        mode="charge"-->
+<!--        [minValue]="0"-->
+<!--        [maxValue]="20"-->
+<!--        [(ngModel)]="property.charges">-->
+<!--      </app-charge-dice-editor>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Правая колонка: Описание и кости &ndash;&gt;-->
+<!--    <div class="space-y-6">-->
+<!--      &lt;!&ndash; Описание &ndash;&gt;-->
+<!--      <div>-->
+<!--        <label class="block text-gray-400 mb-2">Описание</label>-->
+<!--        <p-editor [(ngModel)]="property.description"-->
+<!--                  [style]="{'height': '200px'}"-->
+<!--                  class="dark-editor">-->
+<!--          <p-header>-->
+<!--            <span class="ql-formats">-->
+<!--              <button class="ql-bold"></button>-->
+<!--              <button class="ql-italic"></button>-->
+<!--              <button class="ql-underline"></button>-->
+<!--              <button class="ql-link"></button>-->
+<!--            </span>-->
+<!--            <span class="ql-formats">-->
+<!--              <button class="ql-list" value="ordered"></button>-->
+<!--              <button class="ql-list" value="bullet"></button>-->
+<!--            </span>-->
+<!--            <span class="ql-formats">-->
+<!--              <button (click)="insertDiceReference()" type="button" class="ql-insert-dice">-->
+<!--                <i class="pi pi-dice"></i>-->
+<!--              </button>-->
+<!--              <button (click)="insertTooltip()" type="button" class="ql-tooltip">-->
+<!--                <i class="pi pi-info-circle"></i>-->
+<!--              </button>-->
+<!--            </span>-->
+<!--          </p-header>-->
+<!--        </p-editor>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Кость кубов &ndash;&gt;-->
+<!--      <app-charge-dice-editor-->
+<!--        *ngIf="showDiceEditor"-->
+<!--        label="Кость кубов"-->
+<!--        mode="dice"-->
+<!--        [(ngModel)]="property.dice">-->
+<!--      </app-charge-dice-editor>-->
+
+<!--      &lt;!&ndash; Кнопка добавления кости &ndash;&gt;-->
+<!--      <div *ngIf="!showDiceEditor" class="text-center">-->
+<!--        <button pButton icon="pi pi-plus"-->
+<!--                label="Добавить кость кубов"-->
+<!--                class="p-button-outlined"-->
+<!--                (click)="addDice()"></button>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; Удаление кости &ndash;&gt;-->
+<!--      <div *ngIf="showDiceEditor" class="text-center">-->
+<!--        <button pButton icon="pi pi-trash"-->
+<!--                label="Удалить кость кубов"-->
+<!--                class="p-button-danger p-button-outlined"-->
+<!--                (click)="removeDice()"></button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Предпросмотр &ndash;&gt;-->
+<!--  <div class="mt-8 p-4 bg-gray-900 rounded-lg border border-gray-700">-->
+<!--    <h4 class="text-lg font-semibold text-white mb-3">Предпросмотр</h4>-->
+<!--    <div class="space-y-2 text-gray-300">-->
+<!--      <div><strong>Название:</strong> {{property.name || 'Не задано'}}</div>-->
+<!--      <div><strong>Тэги:</strong> {{property.tags.join(', ') || 'Нет'}}</div>-->
+<!--      <div><strong>Восстановление:</strong> {{getRechargeLabel()}}</div>-->
+<!--      <div><strong>Заряды:</strong> {{getChargesPreview()}}</div>-->
+<!--      <div *ngIf="property.dice"><strong>Кость кубов:</strong> {{getDicePreview()}}</div>-->
+<!--      <div class="mt-3">-->
+<!--        <strong>Описание:</strong>-->
+<!--        <div class="mt-1" [innerHTML]="property.description || 'Нет описания'"></div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Кнопки действий &ndash;&gt;-->
+<!--  <div class="mt-6 flex justify-end space-x-3">-->
+<!--    <button pButton icon="pi pi-times"-->
+<!--            label="Отменить"-->
+<!--            class="p-button-secondary"-->
+<!--            (click)="cancel()"></button>-->
+<!--    <button pButton icon="pi pi-save"-->
+<!--            label="Сохранить"-->
+<!--            class="p-button-success"-->
+<!--            (click)="saveMe()"></button>-->
+<!--  </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Диалог вставки кости &ndash;&gt;-->
+<!--<p-dialog header="Вставка ссылки на кость"-->
+<!--          [(visible)]="showDiceDialog"-->
+<!--          [style]="{width: '400px'}"-->
+<!--          [modal]="true">-->
+<!--  <div class="p-4">-->
+<!--    <p>Вставить ссылку на кость кубов в описание?</p>-->
+<!--    <div class="mt-4 flex justify-end space-x-2">-->
+<!--      <button pButton label="Отмена"-->
+<!--              class="p-button-secondary"-->
+<!--              (click)="showDiceDialog = false"></button>-->
+<!--      <button pButton label="Вставить"-->
+<!--              class="p-button-primary"-->
+<!--              (click)="insertDice()"></button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</p-dialog>-->

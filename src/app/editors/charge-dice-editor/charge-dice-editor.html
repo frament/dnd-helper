@@ -1,0 +1,93 @@
+<div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+  <h4 class="text-lg font-semibold text-white mb-4">{{label()}}</h4>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Тип значения -->
+    <div>
+      <label class="block text-gray-400 mb-2">Тип значения</label>
+      <p-selectbutton [options]="valueTypes"
+                      [ngModel]="value().type"
+                      (ngModelChange)="onTypeChange($event.value)"
+                      optionLabel="label"
+                      class="w-full"></p-selectbutton>
+    </div>
+
+    @switch (value().type){
+      <!-- Фиксированное значение -->
+      @case ('fixed'){
+        <div>
+          <label class="block text-gray-400 mb-2">Значение</label>
+          <p-inputNumber [ngModel]="value().value"
+                         (ngModelChange)="patchValue({value:$event})"
+                         [showButtons]="true"
+                         [min]="minValue()"
+                         [max]="maxValue()"
+                         class="w-full"></p-inputNumber>
+        </div>
+      }
+      <!-- Бонус владения -->
+      @case ('proficiency') {
+        <div class="flex items-center">
+          <p-checkbox [ngModel]="value().addProficiency"
+                      (ngModelChange)="patchValue({addProficiency:$event})"
+                      [binary]="true"
+                      inputId="proficiency"></p-checkbox>
+          <label for="proficiency" class="ml-2 text-gray-300">Бонус владения</label>
+        </div>
+      }
+      <!-- Модификатор характеристики -->
+      @case ('ability'){
+        <div>
+          <label class="block text-gray-400 mb-2">Характеристика</label>
+          <p-autocomplete [suggestions]="abilityTypes"
+                          [ngModel]="value().ability"
+                          (ngModelChange)="patchValue({ability:$event})"
+                          placeholder="Выберите характеристику"
+                          class="w-full"></p-autocomplete>
+        </div>
+      }
+      <!-- Дополнительный бонус -->
+      @case ('fixed'){
+      <div>
+        <label class="block text-gray-400 mb-2">Дополнительный бонус</label>
+        <p-inputNumber [ngModel]="value().bonus"
+                       (ngModelChange)="patchValue({bonus:$event})"
+                       [showButtons]="true"
+                       [min]="0"
+                       [max]="10"
+                       class="w-full"></p-inputNumber>
+      </div>
+      }
+    }
+  </div>
+
+  <!-- Для костей кубов -->
+  @if (mode() === 'dice'){
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <!-- Тип кости -->
+      <div>
+        <label class="block text-gray-400 mb-2">Тип кости</label>
+        <p-autocomplete [suggestions]="diceTypes"
+                        [(ngModel)]="diceValue.diceType"
+                        placeholder="Выберите кость"
+                        class="w-full"></p-autocomplete>
+      </div>
+
+      <!-- Количество костей -->
+      <div>
+        <label class="block text-gray-400 mb-2">Количество</label>
+        <p-inputNumber [(ngModel)]="diceValue.count"
+                       [showButtons]="true"
+                       [min]="1"
+                       [max]="10"
+                       class="w-full"></p-inputNumber>
+      </div>
+    </div>
+  }
+
+  <!-- Предпросмотр значения -->
+  <div class="mt-4 p-3 bg-gray-900 rounded border border-gray-700">
+    <label class="block text-gray-400 mb-1">Предпросмотр:</label>
+    <div class="text-white font-mono text-lg">{{getPreview()}}</div>
+  </div>
+</div>
