@@ -14,6 +14,7 @@ import {TEvent} from '../../models/event.model';
 import {EventEditor} from '../event-editor/event-editor';
 import {deepClone} from '../../helpers/clone.helper';
 import {Divider} from 'primeng/divider';
+import {StringRecordId, Table} from 'surrealdb';
 
 @Component({
   selector: 'app-timeline-editor',
@@ -57,8 +58,8 @@ export class TimelineEditorComponent {
   }
 
   async addEvent() {
-    const [newItem] = await this.db.db.create<any, any>(
-      'events',
+    const [newItem] = await this.db.db.insert<any>(
+      new Table('events'),
       {title: 'Новое событие'}
     );
     await this.db.createLink(
@@ -79,13 +80,13 @@ export class TimelineEditorComponent {
 
   async applyPatch() {
     if (!this.activeEventPatch() || !this.activeEvent()?.id) return;
-    await this.db.db.merge(this.activeEvent()!.id, this.activeEventPatch()!);
+    await this.db.db.update(this.activeEvent()!.id).merge(this.activeEventPatch()!);
     this.activeEventPatch.set(null);
     this.events.reload();
   }
 
   async deleteEvent(eventId:string) {
-    await this.db.db.delete('events:'+eventId);
+    await this.db.db.delete(new StringRecordId('events:'+eventId));
     this.events.reload();
   }
 

@@ -17,6 +17,7 @@ import {PopoverModule} from 'primeng/popover';
 import {TAdventure} from '../models/adventure.model';
 import {Router} from '@angular/router';
 import {TUser} from '../user/user';
+import {Table} from 'surrealdb';
 
 @Component({
   selector: 'app-adventure-list',
@@ -77,14 +78,14 @@ export class AdventureList {
     }
   ];
 
-  getStatusSeverity(status: string) {
+  getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined | null {
     switch (status) {
       case 'Активно':
         return 'success';
       case 'Завершено':
         return 'info';
       case 'В разработке':
-        return 'warning';
+        return 'warn';
       default:
         return null;
     }
@@ -94,18 +95,19 @@ export class AdventureList {
   owners:{[id:string]:TUser} = {}
   adventures = resource<TAdventure[], undefined>({
     loader: async () => {
-      const result = await this.db.select<TAdventure>('adventures');
+      const result = await this.db.select<TAdventure>(new  Table('adventures'));
+      if(!result) return [];
       for (const adventure of result) {
         const uid = adventure.owner.toString();
         if (this.owners[uid]) continue;
-        this.owners[uid] = await this.db.select<TUser>(adventure.owner);
+        this.owners[uid] = (await this.db.select<TUser>(adventure.owner))!;
       }
       return result;
     },
   })
   async createAdventure(input:HTMLInputElement){
     const name = input.value;
-    await this.db.insert('adventures', {name});
+    await this.db.insert(new Table('adventures'), {name});
     this.adventures.reload();
     input.value = '';
   }

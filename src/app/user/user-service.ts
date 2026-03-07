@@ -16,8 +16,11 @@ export class UserService {
 
   async signup(name:string, password:string, email:string): Promise<void> {
     try {
-      const token = await this.surreal.db.signup({namespace:'dnd', database:'dnd', access:'user', variables: {name, password, email}});
-      localStorage.setItem('user_jwt_token', token);
+      const {access, refresh} = await this.surreal.db.signup({namespace:'dnd', database:'dnd', access:'user', variables: {name, password, email}});
+      localStorage.setItem('user_jwt_token_access', access);
+      if (refresh){
+        localStorage.setItem('user_jwt_token_refresh', refresh);
+      }
       await this.loadUser();
     } catch (e) {
       console.error(e);
@@ -26,8 +29,11 @@ export class UserService {
 
   async signin(email:string, password:string): Promise<void> {
     try{
-      const token = await this.surreal.db.signin({namespace:'dnd', database:'dnd', access:'user', variables: {password, email}});
-      if (token) localStorage.setItem('user_jwt_token', token);
+      const {access, refresh} = await this.surreal.db.signin({namespace:'dnd', database:'dnd', access:'user', variables: {password, email}});
+      localStorage.setItem('user_jwt_token_access', access);
+      if (refresh){
+        localStorage.setItem('user_jwt_token_refresh', refresh);
+      }
       await this.loadUser();
     } catch (e) {
       console.error(e);

@@ -20,6 +20,7 @@ import {TMap, TMapCreate} from '../models/map.model';
 import {TChapter, TChapterCreate} from '../models/chapter.model';
 import {TNPC, TNPCreate} from '../models/npc.model';
 import {TArtifact, TArtifactCreate} from '../models/artifact.model';
+import {Table} from 'surrealdb';
 
 type TActiveType = null|'notes'|'maps'|'chapters'|'npcs'|'events'|'artifacts';
 
@@ -143,7 +144,7 @@ export class Adventure {
   }
 
   async defCreate<T = any>(type: TActiveType, item: T, linksTable?:string){
-    const [newItem] = await this.db.db.create<any, any>(type+'', item);
+    const [newItem] = await this.db.db.insert<T>(new Table(type+''), item as any);
     if (linksTable) {
       await this.db.createLink(
         'adventures', this.adventure.value()?.id.id+'',
@@ -153,7 +154,7 @@ export class Adventure {
     }
     this.activeItemId.set(null);
     this.refreshByTb(type+'');
-    this.selectItem(type, newItem["id"].id);
+    this.selectItem(type, newItem.id.id.toString());
   }
 
   async addItem(type: TActiveType, item?:any) {
@@ -233,10 +234,10 @@ export class Adventure {
 
   async applyPatch() {
     if (!this.activeContentPatch() || !this.activeContent()?.id) return;
-    await this.db.db.merge(this.activeContent().id, this.activeContentPatch());
+    await this.db.db.update(this.activeContent().id).merge(this.activeContentPatch());
     this.activeContentPatch.set(null);
     const ent: TBaseEntity = this.activeContent();
-    this.refreshByTb(ent.id.tb);
+    this.refreshByTb(ent.id.table.toString());
   }
 
   refreshByTb(tb:string|null){
