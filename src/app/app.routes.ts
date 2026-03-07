@@ -7,6 +7,7 @@ import {Adventure} from './adventure/adventure';
 import {Heroes} from './heroes/heroes';
 import {KnowledgeBase} from './knowledge-base/knowledge-base';
 import {CharacterEditor} from './editors/character-editor/character-editor';
+import {BaattleTestComponent} from './battle-map/baattle-test.component';
 
 export const routes: Routes = [
   {path:'auth', component: Auth},
@@ -16,4 +17,5 @@ export const routes: Routes = [
   {path:'heroes', component: Heroes, canActivate: [authGuard]},
   {path:'heroes/:id', component: CharacterEditor, canActivate: [authGuard]},
   {path:'wiki', component: KnowledgeBase, canActivate: [authGuard]},
+  {path:'test', component: BaattleTestComponent, canActivate: [authGuard]},
 ];
