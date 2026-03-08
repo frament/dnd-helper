@@ -41,21 +41,24 @@ export class UserService {
   }
 
   async logout(): Promise<void>{
-    localStorage.removeItem('user_jwt_token');
+    localStorage.removeItem('user_jwt_token_access');
+    localStorage.removeItem('user_jwt_token_refresh');
     this.user.set(undefined);
     await this.surreal.db.authenticate('null');
   }
 
   async auth() {
-    const token = localStorage.getItem('user_jwt_token');
-    if (!token) return false;
+    const access = localStorage.getItem('user_jwt_token_access') ?? '';
+    const refresh = localStorage.getItem('user_jwt_token_refresh') ?? undefined;
+    if (!access && !refresh) return false;
     try {
-      const result = await this.surreal.db.authenticate(token);
+      const result = await this.surreal.db.authenticate({access, refresh});
       if (result && !this.user()) await this.loadUser();
       if (!result) await this.logout();
       return result;
     } catch (e) {
-      localStorage.removeItem('user_jwt_token');
+      localStorage.removeItem('user_jwt_token_access');
+      localStorage.removeItem('user_jwt_token_refresh');
       console.error(e);
       return false;
     }

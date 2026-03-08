@@ -11,7 +11,9 @@ services:
     image: surrealdb/surrealdb:latest
     restart: always
     user: root
-    command: start --user admin --pass admin rocksdb:/data/database.db
+    command: start --allow-experimental files --user admin --pass admin rocksdb:/data/database.db
+    environment:
+      SURREAL_BUCKET_FOLDER_ALLOWLIST: "/data/"
     ports:
       - "8000:8000"
     volumes:

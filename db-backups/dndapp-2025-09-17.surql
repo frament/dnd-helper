@@ -25,7 +25,7 @@ DEFINE FIELD out ON adventure_artifact TYPE record<artifacts> PERMISSIONS FULL;
 -- TABLE DATA: adventure_artifact
 -- ------------------------------
 
-INSERT RELATION [ { __: true, id: adventure_artifact:469zy4y41yvt7h1v08pd, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:6lug1iuf2sc0u8jmnt0e }, { __: true, id: adventure_artifact:hozkk4goz4768la5t0xm, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:5131elrotwj4035nu3j5 }, { __: true, id: adventure_artifact:t5n5lqg3hrdxya6qchft, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:cwrrqscrofqctmm8d2aw } ];
+INSERT RELATION [ { id: adventure_artifact:469zy4y41yvt7h1v08pd, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:6lug1iuf2sc0u8jmnt0e }, { id: adventure_artifact:hozkk4goz4768la5t0xm, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:5131elrotwj4035nu3j5 }, { id: adventure_artifact:t5n5lqg3hrdxya6qchft, in: adventures:8hp10q7fhs8wy7avqqp7, out: artifacts:cwrrqscrofqctmm8d2aw } ];
 
 -- ------------------------------
 -- TABLE: adventure_chapter
@@ -42,7 +42,7 @@ DEFINE FIELD out ON adventure_chapter TYPE record<chapters> PERMISSIONS FULL;
 -- TABLE DATA: adventure_chapter
 -- ------------------------------
 
-INSERT RELATION [ { __: true, id: adventure_chapter:9w6k7i4688kb94avkg3e, in: adventures:8hp10q7fhs8wy7avqqp7, out: chapters:12g4iyisrreqihuspdcz } ];
+INSERT RELATION [ { id: adventure_chapter:9w6k7i4688kb94avkg3e, in: adventures:8hp10q7fhs8wy7avqqp7, out: chapters:12g4iyisrreqihuspdcz } ];
 
 -- ------------------------------
 -- TABLE: adventure_map
@@ -59,7 +59,7 @@ DEFINE FIELD out ON adventure_map TYPE record<maps> PERMISSIONS FULL;
 -- TABLE DATA: adventure_map
 -- ------------------------------
 
-INSERT RELATION [ { __: true, id: adventure_map:2t3rbugw20hwthjlsejr, in: adventures:8hp10q7fhs8wy7avqqp7, out: maps:fv5kmziflbkyxxztzmwa } ];
+INSERT RELATION [ { id: adventure_map:2t3rbugw20hwthjlsejr, in: adventures:8hp10q7fhs8wy7avqqp7, out: maps:fv5kmziflbkyxxztzmwa } ];
 
 -- ------------------------------
 -- TABLE: adventure_note
@@ -76,7 +76,7 @@ DEFINE FIELD out ON adventure_note TYPE record<notes> PERMISSIONS FULL;
 -- TABLE DATA: adventure_note
 -- ------------------------------
 
-INSERT RELATION [ { __: true, id: adventure_note:5ubhwfzwabj8s32hytj5, in: adventures:8hp10q7fhs8wy7avqqp7, out: notes:029g49v5mt15fosur58t }, { __: true, id: adventure_note:vjb8u7dwhpsrbbiuk3jc, in: adventures:8hp10q7fhs8wy7avqqp7, out: notes:o0pjez5ziaja8zkr6fa0 } ];
+INSERT RELATION [ { id: adventure_note:5ubhwfzwabj8s32hytj5, in: adventures:8hp10q7fhs8wy7avqqp7, out: notes:029g49v5mt15fosur58t }, { id: adventure_note:vjb8u7dwhpsrbbiuk3jc, in: adventures:8hp10q7fhs8wy7avqqp7, out: notes:o0pjez5ziaja8zkr6fa0 } ];
 
 -- ------------------------------
 -- TABLE: adventure_npc
@@ -93,7 +93,7 @@ DEFINE FIELD out ON adventure_npc TYPE record<npcs> PERMISSIONS FULL;
 -- TABLE DATA: adventure_npc
 -- ------------------------------
 
-INSERT RELATION [ { __: true, id: adventure_npc:4g8c33ron80gagoxd5bh, in: adventures:8hp10q7fhs8wy7avqqp7, out: npcs:etc38p9rvbivsu4cw8pq } ];
+INSERT RELATION [ { id: adventure_npc:4g8c33ron80gagoxd5bh, in: adventures:8hp10q7fhs8wy7avqqp7, out: npcs:etc38p9rvbivsu4cw8pq } ];
 
 -- ------------------------------
 -- TABLE: adventures
@@ -281,7 +281,7 @@ INSERT [ { alignment: '', appearance: '', class: '', combat_armorClass: 12, comb
 
 DEFINE TABLE user TYPE NORMAL SCHEMAFULL PERMISSIONS FOR select, update, delete WHERE id = $auth.id, FOR create NONE;
 
-DEFINE FIELD email ON user TYPE string ASSERT string::is::email($value) PERMISSIONS FULL;
+DEFINE FIELD email ON user TYPE string ASSERT string::is_email($value) PERMISSIONS FULL;
 DEFINE FIELD name ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD password ON user TYPE string PERMISSIONS FULL;
 

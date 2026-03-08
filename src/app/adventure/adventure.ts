@@ -52,33 +52,33 @@ export class Adventure {
   });
   readonly notes = resource<TNote[], string>({
     params: () => this.id(),
-    loader: async ({params}) => (await this.db.linked<TNote>('adventures',['adventure_note','notes'], [params]))
-      .sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
+    loader: async ({params}) => (await this.db.linked<TNote>('adventures',['adventure_note','notes'], [params])),
+      //.sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
     defaultValue: []
   })
   readonly maps = resource<TMap[], string>({
     params: () => this.id(),
-    loader: async ({params}) => (await this.db.linked<TMap>('adventures',['adventure_map','maps'], [params]))
-      .sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
+    loader: async ({params}) => (await this.db.linked<TMap>('adventures',['adventure_map','maps'], [params])),
+      //.sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
     defaultValue: []
   })
   readonly chapters = resource<TChapter[], string>({
     params: () => this.id(),
-    loader: async ({params}) => (await this.db.linked<TChapter>('adventures',['adventure_chapter','chapters'], [params]))
-      .sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
+    loader: async ({params}) => (await this.db.linked<TChapter>('adventures',['adventure_chapter','chapters'], [params])),
+      //.sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
     defaultValue: []
   })
   readonly npcs = resource<TNPC[], string>({
     params: () => this.id(),
-    loader: async ({params}) => (await this.db.linked<TNPC>('adventures',['adventure_npc','npcs'], [params]))
-      .sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
+    loader: async ({params}) => (await this.db.linked<TNPC>('adventures',['adventure_npc','npcs'], [params])),
+      //.sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
     defaultValue: []
   })
 
   readonly artifacts = resource<TArtifact[], string>({
     params: () => this.id(),
-    loader: async ({params}) => (await this.db.linked<TArtifact>('adventures',['adventure_artifact','artifacts'], [params]))
-      .sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
+    loader: async ({params}) => (await this.db.linked<TArtifact>('adventures',['adventure_artifact','artifacts'], [params])),
+      //.sort((a,b) => a.createdAt?.getTime() - b.createdAt?.getTime()),
     defaultValue: []
   })
 
